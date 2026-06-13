@@ -1,0 +1,62 @@
+# A pragmatic 50-ticker US universe. S&P 100 large caps spread across sectors.
+# Used for MVP / V1 backtests; resize as needed.
+name: us_top50
+description: 50 large-cap US equities spanning major sectors
+symbols:
+  # Mega-cap tech
+  - AAPL
+  - MSFT
+  - GOOGL
+  - AMZN
+  - META
+  - NVDA
+  - TSLA
+  - AVGO
+  - ORCL
+  - ADBE
+  # Other tech / comms
+  - CRM
+  - CSCO
+  - INTC
+  - QCOM
+  - TXN
+  - IBM
+  - NFLX
+  - DIS
+  - CMCSA
+  - VZ
+  # Financials
+  - JPM
+  - BAC
+  - WFC
+  - GS
+  - MS
+  - BLK
+  - V
+  - MA
+  - AXP
+  - SCHW
+  # Healthcare
+  - UNH
+  - JNJ
+  - PFE
+  - ABBV
+  - MRK
+  - TMO
+  - LLY
+  - ABT
+  # Consumer / retail
+  - WMT
+  - HD
+  - MCD
+  - KO
+  - PEP
+  - COST
+  - NKE
+  - SBUX
+  # Energy / industrials
+  - XOM
+  - CVX
+  - CAT
+  - BA
+  - GE

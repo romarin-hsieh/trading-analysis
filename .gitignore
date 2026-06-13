@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.python-version
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Tooling
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.hypothesis/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Project data — never commit market data or models. Anchored to repo root
+# so that the package's src/trading_analysis/data/ module is NOT excluded.
+/data/
+/mlruns/
+/hf_cache/
+*.duckdb
+*.parquet
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Notebooks checkpoints
+.ipynb_checkpoints/

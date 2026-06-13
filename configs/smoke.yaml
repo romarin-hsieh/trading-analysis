@@ -1,0 +1,49 @@
+# Tiny smoke-test config — 5 tickers, 1-year window. Used for end-to-end verification.
+
+universe:
+  name: smoke
+  description: 5-ticker smoke test
+  symbols: [AAPL, MSFT, GOOGL, NVDA, JPM]
+
+data:
+  source: yahoo
+  start: "2023-01-01"
+  end: "2024-06-30"
+  bar: "1d"
+  cache_dir: ./data
+
+model:
+  use_kronos: false       # smoke test uses naive forecaster only
+  kronos_size: mini
+  lookback: 60
+  horizon: 5
+  device: cpu
+
+strategy:
+  rule: sma_crossover
+  params:
+    fast: 10
+    slow: 30
+  fallback_rule: sma_crossover
+  fallback_params:
+    fast: 20
+    slow: 50
+
+sizing:
+  method: fixed_fraction
+  fraction: 0.10
+  max_positions: 5
+
+risk:
+  max_drawdown_pct: 0.30
+  max_position_pct: 0.20
+  max_sector_pct: 0.50
+  initial_cash: 100000
+
+backtest:
+  fees_bps: 5
+  slippage_bps: 5
+  cash: 100000
+  freq: "1d"
+  benchmark: null
+  output_dir: ./data/backtest_reports
