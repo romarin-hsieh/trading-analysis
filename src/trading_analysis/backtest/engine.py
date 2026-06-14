@@ -1,7 +1,7 @@
 """vectorbt-based backtest engine.
 
 Inputs:
-    - close: wide DataFrame [ts × symbol] of close prices
+    - close: wide DataFrame [ts x symbol] of close prices
     - direction_pivot: same shape, values in {-1, 0, +1}
     - config: BacktestConfig (fees, slippage, cash, freq)
 
@@ -69,7 +69,7 @@ def run_backtest(
     if direction.empty:
         raise ValueError("direction pivot is empty")
 
-    # Align frames on common ts × symbol grid.
+    # Align frames on common ts x symbol grid.
     common_ts = close.index.intersection(direction.index)
     common_syms = close.columns.intersection(direction.columns)
     if len(common_ts) == 0 or len(common_syms) == 0:
@@ -82,7 +82,7 @@ def run_backtest(
     slippage = cfg.slippage_bps / 10_000.0
 
     log.info(
-        f"backtest: {close_.shape[0]} bars × {close_.shape[1]} symbols, "
+        f"backtest: {close_.shape[0]} bars x {close_.shape[1]} symbols, "
         f"{int(entries.sum().sum())} entries, freq={cfg.freq}"
     )
 
