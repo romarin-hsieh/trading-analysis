@@ -27,6 +27,7 @@ dependencies = [
     "tenacity>=8.4",
     "scikit-learn>=1.4",
     "statsmodels>=0.14",
+    "lightgbm>=4.3",
 ]
 
 [project.optional-dependencies]
