@@ -28,6 +28,7 @@ META_DEFAULT_PARAMS = {
     "learning_rate": 0.05,
     "min_child_samples": 10,
     "subsample": 0.8,
+    "subsample_freq": 1,  # without this LightGBM ignores subsample (no row bagging)
     "colsample_bytree": 0.8,
     "random_state": 0,
     "n_jobs": 1,
@@ -47,6 +48,8 @@ def build_meta_dataset(
     """Pool per-symbol meta-labeled events into one dataset sorted by event time.
 
     direction_pivot: [ts x symbol], 1 where the primary rule is long (the side).
+    If `feature_panel` is supplied it MUST come from the causal `build_features`
+    (no look-ahead); only its rows on each symbol's close grid are used (inner join).
     Returns long-form [symbol, t_event, t1, y, ret, *FEATURE_COLUMNS], sorted by t_event.
     """
     if feature_panel is None:
@@ -100,7 +103,13 @@ def walk_forward_meta_prob(
     if feature_cols is None:
         feature_cols = FEATURE_COLUMNS
     params = {**META_DEFAULT_PARAMS, **(params or {})}
-    ds = dataset.sort_values("t_event").reset_index(drop=True)
+    # Sort by event time for the purged CV, but keep the inverse permutation so the
+    # returned probs realign to the CALLER's row order. (C1: never re-key on the sorted
+    # index — evaluate_meta pairs prob with y positionally and would otherwise mismatch.)
+    order = np.argsort(dataset["t_event"].to_numpy(), kind="stable")
+    inv = np.empty_like(order)
+    inv[order] = np.arange(len(order))
+    ds = dataset.iloc[order]
     idx = pd.DatetimeIndex(ds["t_event"].to_numpy())
     X = ds[feature_cols].set_axis(idx)
     y = ds["y"].to_numpy()
@@ -113,13 +122,17 @@ def walk_forward_meta_prob(
         model = LGBMClassifier(**params)
         model.fit(X.iloc[train_idx], y[train_idx])
         oos[test_idx] = model.predict_proba(X.iloc[test_idx])[:, 1]
-    return pd.Series(oos, index=ds.index, name="meta_prob")
+    return pd.Series(oos[inv], index=dataset.index, name="meta_prob")  # caller row order
 
 
 def evaluate_meta(dataset: pd.DataFrame, oos_prob: pd.Series, threshold: float = 0.5) -> dict:
-    """Rule-alone vs rule-filtered-by-meta-model, out-of-sample."""
+    """Rule-alone vs rule-filtered-by-meta-model, out-of-sample.
+
+    `oos_prob` must be the Series returned by `walk_forward_meta_prob(dataset)` (it is
+    keyed on `dataset`'s index); we realign by index so caller row order can't desync.
+    """
     y = dataset["y"].to_numpy()
-    prob = oos_prob.to_numpy()
+    prob = oos_prob.reindex(dataset.index).to_numpy()
     valid = ~np.isnan(prob)
     y_v, prob_v = y[valid], prob[valid]
     take = prob_v > threshold

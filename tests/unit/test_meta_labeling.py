@@ -69,3 +69,16 @@ def test_walk_forward_meta_prob_random_no_edge():
     ev = evaluate_meta(ds, prob, threshold=0.5)
     assert 0.3 < ev["auc"] < 0.7               # no real edge -> AUC near 0.5
     assert set(ev) >= {"n_events", "rule_hit_rate", "meta_hit_rate", "lift", "auc"}
+
+
+def test_walk_forward_prob_aligns_to_caller_order():
+    # C1 regression: probabilities must follow the CALLER's row order, so shuffling the
+    # input rows cannot change a row's prob or the reported AUC.
+    ds = _learnable_dataset()
+    shuffled = ds.sample(frac=1.0, random_state=3).reset_index(drop=True)
+    p_sorted = walk_forward_meta_prob(ds, feature_cols=["f_signal", "f_noise"], n_splits=5)
+    p_shuf = walk_forward_meta_prob(shuffled, feature_cols=["f_signal", "f_noise"], n_splits=5)
+    assert abs(evaluate_meta(ds, p_sorted)["auc"] - evaluate_meta(shuffled, p_shuf)["auc"]) < 1e-9
+    a = ds.assign(p=p_sorted.to_numpy()).sort_values("t_event")["p"].to_numpy()
+    b = shuffled.assign(p=p_shuf.to_numpy()).sort_values("t_event")["p"].to_numpy()
+    assert np.allclose(a, b, equal_nan=True)   # same per-event prob regardless of input order
