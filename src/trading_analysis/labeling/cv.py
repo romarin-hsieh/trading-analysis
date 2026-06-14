@@ -13,6 +13,8 @@ Reimplemented from the published algorithm; not copied.
 
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 import pandas as pd
 
@@ -35,21 +37,35 @@ class PurgedKFold:
             raise ValueError("X and t1 must share the same index, in the same order")
         n = X.shape[0]
         indices = np.arange(n)
+        # NOTE: int() truncates the embargo to 0 for small n / small pct (de Prado does the same).
         embargo = int(n * self.pct_embargo)
-        starts = self.t1.index                                  # per-sample label start
-        ends = pd.DatetimeIndex(self.t1.values)                 # per-sample label end (t1)
-        test_ranges = [(fold[0], fold[-1] + 1) for fold in np.array_split(indices, self.n_splits)]
+        starts = self.t1.index                                  # per-sample label start (event time)
+        ends = pd.DatetimeIndex(self.t1.values)                 # per-sample label end (t1 = touch time)
+        folds = [(fold[0], fold[-1] + 1) for fold in np.array_split(indices, self.n_splits)]
 
-        for lo, hi in test_ranges:
+        for lo, hi in folds:
             test_indices = indices[lo:hi]
             test_t0 = self.t1.index[lo]                          # first test event time
-            # extend the right edge of the purge window by `embargo` bars past the
-            # latest test label-end (kills serial-correlation leakage across the boundary)
-            max_t1_idx = self.t1.index.searchsorted(self.t1.iloc[test_indices].max())
-            purge_end = self.t1.index[min(max_t1_idx + embargo, n - 1)]
-            # purge: drop any train sample whose label interval [start, t1] overlaps
-            # the (embargoed) test window [test_t0, purge_end] — touching counts as overlap.
-            overlap = (starts <= purge_end) & (ends >= test_t0)
-            train_mask = ~np.asarray(overlap)
-            train_mask[test_indices] = False
-            yield indices[train_mask], test_indices
+            test_t1_max = self.t1.iloc[lo:hi].max()              # latest test label-END *time*
+            # (1) exact interval-overlap purge: drop any train label whose [start, t1]
+            #     intersects the test label span [test_t0, test_t1_max]. Compared as
+            #     timestamps directly — no axis mixing (the prior searchsorted-of-a-t1-value
+            #     conflated label-end *time* with event *position* and could under-purge).
+            overlap = (starts <= test_t1_max) & (ends >= test_t0)
+            # (2) embargo: also drop the `embargo` samples whose EVENT positions immediately
+            #     follow the test labels' resolution (serial-correlation guard), anchored on
+            #     position via searchsorted of the *end time* into the event index.
+            emb_start = int(self.t1.index.searchsorted(test_t1_max, side="right"))
+            emb_mask = np.zeros(n, dtype=bool)
+            emb_mask[emb_start : emb_start + embargo] = True
+            train_mask = ~(np.asarray(overlap) | emb_mask)
+            train_mask[lo:hi] = False                           # never put test rows in train
+            train_indices = indices[train_mask]
+            if train_indices.size == 0:
+                warnings.warn(
+                    f"PurgedKFold: fold [{lo}:{hi}] purged all train samples "
+                    f"(n={n}, n_splits={self.n_splits}, embargo={embargo}); "
+                    "reduce n_splits, embargo, or label horizon.",
+                    stacklevel=2,
+                )
+            yield train_indices, test_indices

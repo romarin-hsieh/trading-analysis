@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 from trading_analysis.labeling.cv import PurgedKFold
 from trading_analysis.labeling.trend_scanning import trend_scanning_labels
@@ -7,6 +8,7 @@ from trading_analysis.labeling.triple_barrier import (
     get_bins,
     triple_barrier_events,
     triple_barrier_labels,
+    vertical_barriers,
 )
 from trading_analysis.labeling.volatility import ewma_vol
 
@@ -114,7 +116,33 @@ def test_purged_kfold_rejects_mismatched_index():
     idx = pd.date_range("2024-01-01", periods=10, freq="B")
     X = pd.DataFrame({"f": range(10)}, index=idx)
     t1 = pd.Series(idx, index=idx[::-1])  # wrong index
-    import pytest
-
     with pytest.raises(ValueError):
         list(PurgedKFold(n_splits=3, t1=t1).split(X))
+
+
+# ---------- adversarial-review fixes ----------
+
+
+def test_vertical_barriers_reject_off_grid_event():
+    c = _close([100, 101, 102, 103, 104])
+    with pytest.raises(ValueError):
+        vertical_barriers(c, [pd.Timestamp("2099-01-01")], 2)
+
+
+def test_triple_barrier_honors_asymmetric_stop():
+    # pt=3 (+6% PT, never hit), sl=1 (-2% SL, hit at bar 1). The old symmetric-forcing
+    # bug would have used sl=3 (-6%) and missed it -> vertical -> bin 0.
+    c = _close([100, 97.5, 98, 99, 100])
+    target = pd.Series(0.02, index=c.index)
+    bins = get_bins(triple_barrier_events(c, [c.index[0]], [3, 1], target, num_bars=4), c)
+    assert bins["bin"].iloc[0] == -1.0
+
+
+def test_purged_kfold_embargo_shrinks_train():
+    n = 24
+    idx = pd.date_range("2024-01-01", periods=n, freq="B")
+    X = pd.DataFrame({"f": range(n)}, index=idx)
+    t1 = pd.Series(idx[np.minimum(np.arange(n) + 3, n - 1)], index=idx)
+    train0 = sum(len(tr) for tr, _ in PurgedKFold(4, t1, 0.0).split(X))
+    train1 = sum(len(tr) for tr, _ in PurgedKFold(4, t1, 0.20).split(X))
+    assert train1 < train0  # embargo removes additional train samples

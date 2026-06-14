@@ -24,9 +24,16 @@ from trading_analysis.labeling.volatility import ewma_vol
 
 
 def vertical_barriers(close: pd.Series, t_events, num_bars: int) -> pd.Series:
-    """Vertical (time) barrier = `num_bars` bars after each event (NaT if it runs off the end)."""
+    """Vertical (time) barrier: the bar `num_bars` bars AFTER each event.
+
+    `num_bars` is an OFFSET, not an inclusive count — for an event at bar i the barrier
+    is bar i+num_bars (the held path spans num_bars+1 bars inclusive); NaT if it runs off
+    the end. `t_events` must be a subset of `close.index` (off-grid event times raise).
+    """
     t_events = pd.DatetimeIndex(t_events)
-    locs = close.index.searchsorted(t_events)
+    locs = close.index.get_indexer(t_events)
+    if (locs < 0).any():
+        raise ValueError("t_events must be a subset of close.index (off-grid event time)")
     end = locs + num_bars
     t1 = pd.Series(pd.NaT, index=t_events, dtype="datetime64[ns]")
     valid = end < close.shape[0]
@@ -70,12 +77,8 @@ def triple_barrier_events(
         pd.NaT, index=trgt.index, dtype="datetime64[ns]"
     )
 
-    if side is None:
-        side_ = pd.Series(1.0, index=trgt.index)
-        pt_sl_ = [pt_sl[0], pt_sl[0]]
-    else:
-        side_ = side.reindex(trgt.index)
-        pt_sl_ = [pt_sl[0], pt_sl[1]]
+    pt_sl_ = [pt_sl[0], pt_sl[1]]  # honor both PT and SL multipliers (symmetric only if equal)
+    side_ = pd.Series(1.0, index=trgt.index) if side is None else side.reindex(trgt.index)
 
     events = pd.concat({"t1": vb, "trgt": trgt, "side": side_}, axis=1).dropna(subset=["trgt"])
     touches = _first_touch(close, events, pt_sl_)

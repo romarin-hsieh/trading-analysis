@@ -39,6 +39,8 @@ def trend_scanning_labels(
     min_sample: int = 5,
 ) -> pd.DataFrame:
     """Return columns: t1, t_value, bin (indexed by event time)."""
+    if not close.index.is_unique:
+        raise ValueError("close index must be unique (duplicate timestamps break get_loc slicing)")
     idx = close.index if t_events is None else pd.DatetimeIndex(t_events)
     vals = close.to_numpy(dtype=float)
     n = len(close)
