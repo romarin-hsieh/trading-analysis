@@ -1,9 +1,10 @@
-# Tiny smoke-test config — 5 tickers, 1-year window. Used for end-to-end verification.
+# Tiny smoke-test config — 5 tickers + SPY benchmark, ~1.5-year window.
+# Used for end-to-end verification of minervini_trend + the market-regime gate.
 
 universe:
   name: smoke
-  description: 5-ticker smoke test
-  symbols: [AAPL, MSFT, GOOGL, NVDA, JPM]
+  description: 5-ticker smoke test (+ SPY for benchmark & regime gate)
+  symbols: [AAPL, MSFT, GOOGL, NVDA, JPM, SPY]
 
 data:
   source: yahoo
@@ -20,14 +21,15 @@ model:
   device: cpu
 
 strategy:
-  rule: sma_crossover
+  rule: minervini_trend
   params:
-    fast: 10
-    slow: 30
+    min_rs: 70
   fallback_rule: sma_crossover
   fallback_params:
     fast: 20
     slow: 50
+  regime_gate: true       # gate longs by SPY 200-SMA regime (CAN SLIM "M")
+  regime_window: 200
 
 sizing:
   method: fixed_fraction
@@ -45,5 +47,5 @@ backtest:
   slippage_bps: 5
   cash: 100000
   freq: "1d"
-  benchmark: null
+  benchmark: SPY
   output_dir: ./data/backtest_reports

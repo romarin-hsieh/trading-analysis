@@ -6,9 +6,8 @@ details. Treat anything outside this module as private and subject to change.
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 
@@ -21,12 +20,14 @@ from trading_analysis.models.kronos import KronosForecaster
 from trading_analysis.models.naive import NaiveDriftForecaster
 from trading_analysis.observability.logging import get_logger
 from trading_analysis.strategy.rules.kronos_trend import KronosTrendRule
+from trading_analysis.strategy.rules.minervini_trend import MinerviniTrendRule
 from trading_analysis.strategy.rules.sma_crossover import SMACrossoverRule
 
 log = get_logger(__name__)
 
 _RULES = {
     "kronos_trend": KronosTrendRule,
+    "minervini_trend": MinerviniTrendRule,
     "sma_crossover": SMACrossoverRule,
 }
 
@@ -218,6 +219,21 @@ def backtest_strategy(
         )
         if not b.empty:
             benchmark_close = b.set_index("ts")["close"]
+
+    # Never trade the benchmark itself if it happens to sit in the universe.
+    if cfg.backtest.benchmark and cfg.backtest.benchmark in direction.columns:
+        direction = direction.copy()
+        direction[cfg.backtest.benchmark] = 0
+
+    # Market-regime gate (CAN SLIM "M"): zero out new longs while the market is risk-off.
+    if cfg.strategy.regime_gate and benchmark_close is not None and not benchmark_close.empty:
+        from trading_analysis.regime.sma_gate import SMARegimeGate
+
+        gate = SMARegimeGate(window=cfg.strategy.regime_window).mask(benchmark_close)
+        # float→ffill→shift→bool avoids the object-downcast FutureWarning on a bool reindex
+        gate = gate.reindex(direction.index).astype("float").ffill().shift(1).fillna(0.0) > 0
+        direction = direction.mul(gate.astype(int), axis=0)
+        log.info(f"regime gate ({cfg.backtest.benchmark}): {int(gate.sum())}/{len(gate)} bars risk-on")
 
     result = run_backtest(close_pivot, direction, cfg.backtest, benchmark_close=benchmark_close)
 

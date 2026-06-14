@@ -33,6 +33,8 @@ class StrategyConfig(BaseModel):
     params: dict[str, Any] = Field(default_factory=dict)
     fallback_rule: str | None = "sma_crossover"
     fallback_params: dict[str, Any] = Field(default_factory=dict)
+    regime_gate: bool = False        # gate new longs by market regime (CAN SLIM "M")
+    regime_window: int = 200         # benchmark SMA window for the regime gate
 
 
 class SizingConfig(BaseModel):
