@@ -1,14 +1,15 @@
 import numpy as np
 import pandas as pd
+import pytest
 
-from trading_analysis.portfolio.allocate import allocate
+from trading_analysis.portfolio.allocate import allocate, rebalance
 from trading_analysis.portfolio.allocators import (
     equal_weight,
     max_sharpe,
     min_variance,
     risk_parity,
 )
-from trading_analysis.portfolio.covariance import shrunk_covariance
+from trading_analysis.portfolio.covariance import james_stein_mean, shrunk_covariance
 from trading_analysis.portfolio.sizing import kelly_leverage, vol_target_scale
 
 
@@ -80,3 +81,34 @@ def test_sizing_kelly_and_vol_target():
     assert kelly_leverage(10.0, 0.0001, cap=1.0) == 1.0      # capped
     assert abs(vol_target_scale(0.20, 0.10, max_leverage=2.0) - 0.5) < 1e-9
     assert vol_target_scale(0.05, 0.10, max_leverage=1.0) == 1.0  # capped
+
+
+# ---------- adversarial-review fixes (C1/C2/R1) ----------
+
+
+def test_shrunk_cov_rejects_zero_variance_column():
+    r = _returns(seed=7)
+    r["A0"] = 0.0  # a constant column would silently capture min-var/risk-parity
+    with pytest.raises(ValueError, match="zero-variance"):
+        shrunk_covariance(r)
+
+
+def test_james_stein_mean_shrinks_toward_grand_mean():
+    rng = np.random.default_rng(8)
+    means = np.array([0.002, -0.001, 0.0005, 0.001, -0.0008, 0.0003])
+    r = pd.DataFrame(rng.normal(means, 0.01, (300, 6)), columns=[f"A{i}" for i in range(6)])
+    js = james_stein_mean(r)
+    raw = r.mean().to_numpy()
+    grand = raw.mean()
+    assert np.sum((js - grand) ** 2) < np.sum((raw - grand) ** 2)  # shrunk toward the grand mean
+
+
+def test_rebalance_is_leak_free():
+    r = _returns(t=400, seed=9)
+    cut = r.index[300]
+    full = rebalance(r, lookback=120, step=20, method="risk_parity")
+    trunc = rebalance(r[r.index <= cut], lookback=120, step=20, method="risk_parity")
+    common = full.index[full.index <= cut].intersection(trunc.index)
+    assert len(common) > 0
+    # weights at a rebalance date use only prior data, so future bars can't change them
+    pd.testing.assert_frame_equal(full.loc[common], trunc.loc[common])

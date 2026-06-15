@@ -18,6 +18,15 @@ def _as_matrix(cov) -> np.ndarray:
     return cov.to_numpy(dtype=float) if isinstance(cov, pd.DataFrame) else np.asarray(cov, dtype=float)
 
 
+def _finalize(res, n: int) -> np.ndarray:
+    """Honor optimizer convergence, then clip tiny negatives and renormalize to sum 1."""
+    if not res.success:
+        raise RuntimeError(f"portfolio optimizer did not converge: {res.message}")
+    w = np.clip(res.x, 0.0, None)
+    s = w.sum()
+    return w / s if s > 0 else np.full(n, 1.0 / n)
+
+
 def equal_weight(n_or_cov) -> np.ndarray:
     n = n_or_cov if isinstance(n_or_cov, int) else len(n_or_cov)
     return np.full(n, 1.0 / n)
@@ -34,7 +43,7 @@ def min_variance(cov) -> np.ndarray:
         constraints=[_SUM_TO_ONE],
         options={"ftol": 1e-12, "maxiter": 500},
     )
-    return res.x
+    return _finalize(res, n)
 
 
 def risk_parity(cov) -> np.ndarray:
@@ -55,6 +64,8 @@ def risk_parity(cov) -> np.ndarray:
         bounds=[(1e-8, None)] * n,     # w > 0; no sum constraint (normalized after)
         options={"ftol": 1e-14, "maxiter": 2000},
     )
+    if not res.success:
+        raise RuntimeError(f"risk-parity optimizer did not converge: {res.message}")
     return res.x / res.x.sum()
 
 
@@ -76,4 +87,4 @@ def max_sharpe(expected_returns, cov, rf: float = 0.0) -> np.ndarray:
         constraints=[_SUM_TO_ONE],
         options={"ftol": 1e-12, "maxiter": 500},
     )
-    return res.x
+    return _finalize(res, n)
