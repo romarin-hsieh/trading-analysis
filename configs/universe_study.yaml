@@ -3,7 +3,7 @@
 # (they are large *because* they survived/grew). A point-in-time constituent feed is
 # the proper fix (scorecard #2); absent that, treat any result here as optimistic.
 name: us_study
-description: 50 current large-cap US equities + SPY benchmark (survivorship-biased)
+description: 51 current large-cap US equities + SPY benchmark = 52 symbols (survivorship-biased)
 symbols:
   - AAPL
   - MSFT

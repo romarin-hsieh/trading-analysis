@@ -49,8 +49,7 @@ def main():
     base = load_config(CFG)
     res = backtest_strategy(base, write_report=False)
     ret = res.returns
-    direction = res.weights                       # 0/1 [ts x symbol]
-    trades = res.trades.copy()
+    direction = res.weights                       # 0/1 [ts x symbol] (post-cap holding state)
     pf = res.raw
 
     # realized gross exposure = 1 - cash/value (group level)
@@ -108,26 +107,43 @@ def main():
     print(f"  downside capture (bear): {(s_dn/dn) if dn!=0 else float('nan'):6.0%}   (want LOW/positive — avoid losses)")
     print(f"  strat return in bear   : {s_dn:+.1%}   basket in bear: {dn:+.1%}")
 
-    # ---- entry/exit effectiveness, tagged by entry regime ----
-    trades["Entry Timestamp"] = pd.to_datetime(trades["Entry Timestamp"])
-    trades["Exit Timestamp"] = pd.to_datetime(trades["Exit Timestamp"])
-    t5 = trades[(trades["Entry Timestamp"] >= W0) & (trades["Entry Timestamp"] <= W1)].copy()
-    bull_on_day = bull.reindex(ret.index).fillna(False)
-    t5["entry_regime"] = t5["Entry Timestamp"].map(
-        lambda d: "bull" if bool(bull_on_day.get(d, False)) else "bear")
-    t5["dur"] = (t5["Exit Timestamp"] - t5["Entry Timestamp"]).dt.days
-    t5["tiny"] = t5["Size"] * t5["Avg Entry Price"] < 1000.0   # < $1k = cash-starved scrap fill
+    # ---- holding-run analysis from the DIRECTION pivot (engine-independent) ----
+    # from_orders rebalances daily, so pf.trades are rebalance lots, not positions. Derive each
+    # name's continuous LONG run (entry->exit of the screen state) directly from the held mask.
+    held = direction > 0
+    px = store.load_close_pivot(base.universe.symbols, start=base.data.start, end=base.data.end,
+                                column="adj_close").ffill().reindex(index=held.index, columns=held.columns)
+    bull_on_day = bull.reindex(held.index).fillna(False)
+    runs = []
+    idxv = held.index
+    for c in held.columns:
+        col = held[c].to_numpy()
+        i = 0
+        while i < len(col):
+            if col[i]:
+                j = i
+                while j < len(col) and col[j]:
+                    j += 1
+                t0 = idxv[i]
+                if W0 <= t0 <= W1:
+                    p0, p1 = px[c].iloc[i], px[c].iloc[j - 1]
+                    r = (p1 / p0 - 1.0) if (p0 and p0 > 0) else np.nan
+                    rg = "bull" if bool(bull_on_day.iloc[i]) else "bear"
+                    runs.append((j - i, r, rg))
+                i = j
+            else:
+                i += 1
+    rdf = pd.DataFrame(runs, columns=["bars", "ret", "regime"]).dropna()
     print("-" * 70)
-    print("ENTRY/EXIT EFFECTIVENESS (trades entered 2020-2024, tagged by entry regime)")
-    print(f"{'regime':8s} {'n':>5s} {'win%':>6s} {'avg_ret':>8s} {'med_dur':>8s} {'tiny%':>6s}")
+    print("HOLDING-RUN EFFECTIVENESS (continuous LONG runs entered 2020-2024, by entry regime)")
+    print(f"{'regime':8s} {'n':>6s} {'win%':>6s} {'avg_ret':>9s} {'med_hold':>9s}")
     for rg in ["bull", "bear"]:
-        g = t5[t5["entry_regime"] == rg]
+        g = rdf[rdf["regime"] == rg]
         if len(g) == 0:
             continue
-        print(f"{rg:8s} {len(g):5d} {(g['Return']>0).mean():6.0%} {g['Return'].mean():+8.2%} "
-              f"{g['dur'].median():7.0f}d {g['tiny'].mean():6.0%}")
-    print(f"  cash-starved scrap fills (<$1k): {t5['tiny'].mean():.0%} of all entries  "
-          f"[{int(t5['tiny'].sum())}/{len(t5)}]  <-- sizing/cash-contention artifact")
+        print(f"{rg:8s} {len(g):6d} {(g['ret']>0).mean():6.0%} {g['ret'].mean():+9.2%} {g['bars'].median():7.0f}b")
+    print(f"  all runs: n={len(rdf)}, median hold {rdf['bars'].median():.0f} bars, "
+          f"{(rdf['bars']<=5).mean():.0%} last <=5 bars  <-- churn / no hysteresis")
 
     # ---- turning-point timing ----
     print("-" * 70)

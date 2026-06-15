@@ -40,21 +40,6 @@ class BacktestResult:
         }
 
 
-def _direction_to_entries_exits(
-    direction: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Translate -1/0/+1 holdings into vectorbt-style entries/exits (long-only MVP).
-
-    Long signal becomes an entry the first bar it appears, exit when it returns to 0/-1.
-    Shorts ignored at MVP; treat as flat.
-    """
-    long = (direction > 0).astype(int)
-    prev = long.shift(1, fill_value=0)
-    entries = (long == 1) & (prev == 0)
-    exits = (long == 0) & (prev == 1)
-    return entries, exits
-
-
 def run_backtest(
     close: pd.DataFrame,
     direction: pd.DataFrame,
@@ -76,35 +61,34 @@ def run_backtest(
     close_ = close.loc[common_ts, common_syms].astype(float).ffill()
     direction_ = direction.loc[common_ts, common_syms].fillna(0).astype(int)
 
-    entries, exits = _direction_to_entries_exits(direction_)
     fees = cfg.fees_bps / 10_000.0
     slippage = cfg.slippage_bps / 10_000.0
 
+    # Equal-weight TARGET-PERCENT sizing via from_orders: each currently-signaled long targets
+    # `target_percent` of CURRENT equity (equity-scaled — not a fixed dollar tied to init_cash,
+    # which would de-gross as equity compounds). With an upstream top-N cap the per-bar targets
+    # sum to <= 1.0, so under cash_sharing every target is met exactly and the result is
+    # ORDER-INDEPENDENT (no alphabetical column-order rationing). call_seq="auto" runs sells
+    # before buys within a bar so freed cash funds new entries.
+    target_pct = getattr(cfg, "target_percent", 0.10)
+    target_weights = (direction_ > 0).astype(float) * target_pct
+    n_long_bars = int((direction_ > 0).any(axis=1).sum())
     log.info(
         f"backtest: {close_.shape[0]} bars x {close_.shape[1]} symbols, "
-        f"{int(entries.sum().sum())} entries, freq={cfg.freq}"
+        f"{n_long_bars} bars with >=1 long, freq={cfg.freq}"
     )
 
-    # Equal-DOLLAR sizing: each entry commits a fixed dollar value (= cash * target_percent),
-    # so every held name is an equal-weight position regardless of nominal share price — NOT
-    # the old equal-share-count, which sized weight ∝ price and let high-priced names dominate.
-    # vectorbt's from_signals supports Amount/Value/Percent (NOT TargetPercent), so this is a
-    # FIXED-dollar stake (not equity-scaled): gross exposure de-grosses as equity compounds.
-    target_pct = getattr(cfg, "target_percent", 0.10)
-    size_value = cfg.cash * target_pct
-
-    pf = vbt.Portfolio.from_signals(
+    pf = vbt.Portfolio.from_orders(
         close=close_,
-        entries=entries,
-        exits=exits,
-        size=size_value,
-        size_type="value",
+        size=target_weights,
+        size_type="targetpercent",
         init_cash=cfg.cash,
         fees=fees,
         slippage=slippage,
         freq=cfg.freq,
         cash_sharing=True,
         group_by=True,
+        call_seq="auto",
     )
 
     equity = pf.value()
@@ -123,6 +107,10 @@ def run_backtest(
 
     metrics = compute_metrics(equity, returns, benchmark_equity)
     trades = pf.trades.records_readable if hasattr(pf.trades, "records_readable") else pd.DataFrame()
+    # per-TRADE win rate (distinct from daily_hit_rate, which is a per-day equity-return stat)
+    if len(trades) and "Return" in trades.columns:
+        metrics["trade_win_rate"] = float((trades["Return"] > 0).mean())
+        metrics["n_trades"] = len(trades)
 
     return BacktestResult(
         equity=equity,
@@ -152,7 +140,7 @@ def compute_metrics(
         "cagr": cagr(equity),
         "sharpe": sharpe(returns),
         "max_drawdown": max_drawdown(equity),
-        "hit_rate": hit_rate(returns),
+        "daily_hit_rate": hit_rate(returns),  # per-DAY win rate (NOT per-trade — see trade_win_rate)
         "total_return": float(equity.iloc[-1] / equity.iloc[0] - 1.0) if len(equity) else 0.0,
     }
     if benchmark_equity is not None and len(benchmark_equity) > 0:

@@ -25,6 +25,7 @@ from trading_analysis.backtest.deflated_sharpe import (
 )
 from trading_analysis.backtest.metrics import cagr, max_drawdown, sharpe
 from trading_analysis.backtest.pbo import probability_of_backtest_overfitting
+from trading_analysis.backtest.spa import reality_check_pvalue, spa_pvalue
 from trading_analysis.config import load_config
 from trading_analysis.data.store import DuckStore
 
@@ -102,6 +103,20 @@ def main():
     pbo = probability_of_backtest_overfitting(mat.to_numpy(), n_splits=16)
     mtrl = min_track_record_length(best_ret.to_numpy())
 
+    # E9: the 12 grid configs are ~collinear, so the effective number of INDEPENDENT trials is
+    # near 1 — which collapses DSR's deflation bar to ~0 and makes DSR uninformative here.
+    cm = mat.corr().to_numpy()
+    k = len(cm)
+    avg_corr = float((cm.sum() - k) / (k * (k - 1)))
+    n_eff = n_trials / (1.0 + (n_trials - 1) * avg_corr)
+
+    # E14: SPA / White Reality Check — across ALL 12 trials, does the BEST config truly beat the
+    # 1/N benchmark? d = config_return - benchmark_return. High p => no config beats 1/N (luck).
+    cb = mat.index.intersection(ew_ret.index)
+    d = mat.loc[cb].subtract(ew_ret.loc[cb], axis=0).to_numpy()
+    spa_p = spa_pvalue(d)
+    rc_p = reality_check_pvalue(d)
+
     common = mat.index.intersection(spy_ret.index)
     attr = attribution(best_ret.reindex(common).fillna(0.0))
 
@@ -119,6 +134,8 @@ def main():
     print(f"  PSR  P(Sharpe > 1/N benchmark)  : {psr_vs_bench:.3f}      (THE bar that matters)")
     print(f"  DSR  survives {n_trials:2d} trials       : {dsr:.3f}      (>0.95 survives)")
     print(f"  PBO  P(best is overfit)         : {pbo['pbo']:.3f}      (<0.5 good)  [{pbo['n_combinations']} splits]")
+    print(f"  grid avg corr / effective trials: {avg_corr:.3f} / {n_eff:.1f}   (DSR's {n_trials}-trial bar is fake — ~1 real trial)")
+    print(f"  SPA  P(no config beats 1/N)     : {spa_p:.3f}      (HIGH => none beats it; White RC {rc_p:.3f})")
     print(f"  min track record length (bars)  : {mtrl:,.0f}      (have {len(best_ret):,})")
     print("-" * 64)
     print("FAIR BENCHMARKS (same window, same 51 names)")

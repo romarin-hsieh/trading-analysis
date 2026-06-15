@@ -8,20 +8,24 @@
 
 ## 0. 最終誠實結論（先講結果，再講過程）
 
-把我自己蓋的嚴謹工具（O1 DSR/PBO、O3 因子歸因）真的指向自己的策略後：
+把我自己蓋的嚴謹工具（O1 DSR/PBO/SPA、O3 因子歸因）真的指向自己的策略後（數字為**修正引擎後**、order-invariant）：
 
 | 指標 | 數值 | 判讀 |
 |---|---|---|
-| 策略年化 Sharpe | **+0.75** | — |
+| 策略年化 Sharpe / 總報酬 | **+0.71 / +149.5%** | — |
 | **等權買進持有（同 51 檔）Sharpe** | **+1.02** | 策略**輸**給 1/N |
 | SPY 買進持有 Sharpe | +0.79 | 策略連 SPY 都沒贏 |
-| 等權買進持有總報酬 | **+457%** | 策略只有 +131% |
+| 等權買進持有總報酬 | **+457%** | 策略只有 +149.5% |
 | PSR `P(真 Sharpe>0)` | 0.99 | 「不是純運氣」✅ |
-| **PSR `P(Sharpe > 1/N)`** | **0.20** | 「贏不過替代方案」❌ |
-| PBO `P(最佳參數是過擬合)` | **0.93** | 參數挑選不可信 ❌ |
-| Carhart 年化 alpha | +2.66%，**t=0.81 (p=0.42)** | **與 0 無法區分**；所謂 edge 其實是 0.35 市場 beta＋0.20 動能 beta |
+| **PSR `P(Sharpe > 1/N)`** | **0.17** | 「贏不過替代方案」❌ |
+| **SPA `P(12 個參數無一勝過 1/N)`** | **1.000** | 跨全部 trials，**無一勝過 1/N**（純運氣）❌ |
+| DSR `survives 12 trials` | 0.98（**但有效獨立 trial ≈1.0**） | 配置共線性 0.993 → DSR 的 deflation bar 崩成 0，**DSR 在此無意義** |
+| PBO `P(最佳參數是過擬合)` | **0.62** | 仍 >0.5，參數挑選不可信 ❌ |
+| Carhart 年化 alpha | +2.97%，**t=0.77 (p=0.44)** | **與 0 無法區分**；所謂 edge 其實是 0.40 市場 beta＋0.27 動能 beta |
 
-**結論：在這個 universe／窗口，Minervini 篩選＋擇時沒有可證實的 alpha，報酬與 Sharpe 都輸給「等權買進持有同一籃子」。它唯一的價值是 maxDD 較淺（−15.7%，靠 regime gate 在風險off時抱現金）——它是一個「降風險 overlay」，不是 alpha 來源。** 這個結論本身是嚴謹回測的勝利：把一個看似漂亮的策略證偽，比假裝它能賺錢有價值得多。
+**結論：在這個 universe／窗口，Minervini 篩選＋擇時沒有可證實的 alpha——SPA 顯示 12 個參數無一勝過 1/N，alpha t=0.77 不顯著，報酬與 Sharpe 都輸給「等權買進持有同一籃子」。它唯一的價值是 maxDD 較淺（靠 regime gate 在風險off時抱現金）——是一個「降風險 overlay」，不是 alpha 來源。** 這個結論本身是嚴謹回測的勝利：把一個看似漂亮的策略證偽，比假裝它能賺錢有價值得多。
+
+> 註：以上數字來自**修正後**的引擎（見 §4）。修正前的 +131%/Sharpe 0.75 其實是**字母排序的 artifact**（見 E7），不可信。
 
 ---
 
@@ -94,5 +98,37 @@
 - **必要 ≠ 充分**：通過「不是運氣」(PSR-vs-0) 不代表「贏得過替代方案」(PSR-vs-1/N)。對照基準要選**可投資的替代方案**。
 - **蓋閘門 ≠ 走閘門**：建好嚴謹工具，要真的把它指向自己的結果；否則裸 Sharpe 會一路自我欺騙。
 
+## 4. 對抗式 error-hunt（6 維度、24 agents、11 確認 / 7 證偽）
+
+跑了一個多代理對抗式稽核（workflow `w4t5jewta`）：6 個維度的 finder（look-ahead／execution／metrics／regime-signal／data／rigor）各提候選錯誤，**每個候選都要實際跑程式量測才算數**，再由獨立 verifier 對抗式確認。結果：**11 個確認、7 個證偽（phantom）**——證偽的那 7 個正是「先量測」紀律在運作。
+
+### 確認的錯誤（接續 E1–E6）
+
+| # | 嚴重度 | 錯誤 | 量測證據 | 狀態 |
+|---|---|---|---|---|
+| **E7** | **HIGH** | `cash_sharing`＋固定$ value sizing **隨字母排序 ration/丟棄**同 bar 群集進場 | 67/1777 進場被靜默丟棄；**反轉欄位順序使總報酬變動 12.4pp**（≈總報酬 10%）→ 我上一輪的 +118% 是排序 artifact | ✅ 已修 |
+| **E8** | **HIGH** | 部位容量靠「現金耗盡」而非 RS cap 決定 → 溢出訊號按字母序丟棄，**持股與 RS 排名脫鉤** | 50% 的 bar 訊號>10 檔；持有名單非 top-RS；`sizing.max_positions` 從沒被讀（dead code） | ✅ 已修 |
+| **E9** | **HIGH** | DSR「survives 12 trials」是**非 deflation 假象** | 12 配置日報酬相關性中位 0.973 → **有效獨立 trial≈1.0**，expected-max bar 崩成 0，DSR 必過 | ✅ 已揭露 |
+| **E10** | MED | `hit_rate` 是**每日**勝率(0.55)卻被當**每筆交易**勝率(實際 0.43) | 重算每日 nonzero 勝率=0.5515 與 metric 完全吻合 | ✅ 已修 |
+| E11 | MED | regime gate 無 hysteresis，1-bar OFF 全清倉再進場 ~6pp whipsaw 成本 | 確認（與 E4/E5 重疊） | 📋 |
+| E12 | MED | 固定$ sizing 部署僅 54% gross（idle cash 46%） | 確認（=E6 under-investment） | ✅ 已修（equity-scaled） |
+| E13 | MED | universe 純倖存者（真），但「+5.71% free alpha」**被證偽**——策略本來就輸 SPY | 52 檔每檔剛好 2515 bars=全程存活；但 verifier 修正了 overclaim | 📋（資料限制） |
+| **E14** | MED | SPA/Reality-Check 是 **dead code**——唯一「最佳是否勝 1/N」的檢定從沒跑 | grep 確認只有 def、無 caller | ✅ 已接上 |
+| E15 | LOW | Sharpe 用 rf=0，28.6% idle-cash 平盤日使其對 rf 慣例敏感 | 確認 | 📋（已記） |
+| E16 | LOW | docstring 寫「50 large caps」實際 51+SPY=52 | 確認 | ✅ 已修 |
+| E17 | LOW | MTRL headline 對照 0 而非 1/N（與報告自述矛盾） | 確認 | 📋 |
+
+### 7 個被證偽的幽靈（「先量測」紀律的成果）
+verifier 跑程式後**駁回**了這些貌似合理的疑慮：① 進出場時點正確（1-bar lag、收盤成交、無 look-ahead）；② regime gate 的 reindex/ffill/shift(1) 對齊正確無洩漏；③ `close_.ffill()` 在此資料 inert；④ minervini rolling/shift/rank 全為 trailing、無洩漏；⑤ IR 含現金日是**正確**非 bug；⑥ SPY 進入 RS cross-section 在 min_rs=70 對訊號**零影響**；⑦ 拆股/股利/缺洞/時區/重複全乾淨。
+
+### 本輪修正（引擎重寫）
+- **E7+E8 修正**：在 `api.backtest_strategy` 加 **top-N(=`max_positions`)-by-RS 部位上限**（同 bar 只留 RS 最高的 N 檔），保證同 bar 需求 ≤ 現金；引擎從 `from_signals(value)` 改為 **`from_orders(size_type="targetpercent", call_seq="auto")`**（equity-scaled、sells-before-buys）。**結果：反轉欄位順序總報酬差距 12.4pp → 0.0001pp（≈消除）**。順帶修掉 E12/E6 de-gross（牛市曝險 68%→90%、upside capture 71%→100%）。
+- **E10 修正**：metric key `hit_rate`→`daily_hit_rate`，並新增由 trades 算的 `trade_win_rate`。
+- **E14 修正**：`scripts/backtest_study.py` 接上 `spa_pvalue`/`reality_check_pvalue` → **SPA P(無一勝 1/N)=1.000**。
+- **E9 揭露**：harness 報出 grid 平均相關 0.993、有效 trial≈1.0，標明 DSR 在此 collinear grid 不可信，改以 SPA＋PSR-vs-1/N 為準。
+- 副作用（已誠實處理）：`from_orders` 每日 rebalance → `pf.trades` 變成 rebalance lot 而非部位，故持有期分析改由 **direction run** 計算（engine-independent）：中位持有 **3 bars、67% ≤5 bars**（churn 比之前更明顯，因 RS cap 每日輪動）。
+
+> **修正前後的教訓**：我上一輪「修好」sizing（equal-share→value）其實引入了**排序相依**的新 bug，headline 數字是字母排序 artifact。**一個修正要附上「反轉輸入順序結果不變」這種不變量測試**，否則只是把一個 bug 換成另一個。這是本輪最重要的自我打臉。
+
 ---
-*數據：`scripts/backtest_study.py`（2026-06-16 跑）。前後對照——sizing 修正前 Sharpe 0.36／+32%；修正後 0.71／+118%；最佳參數 0.75／+131%，但全數輸給 1/N 的 1.02／+457%。*
+*數據：`scripts/backtest_study.py`＋`scripts/regime_analysis.py`（2026-06-16，修正引擎後）。錯誤總計：E1–E6（手動）＋E7–E17（對抗式 hunt 確認）＝17 個確認問題、7 個證偽。核心結論在每一版引擎下都不變：策略無可證實 alpha、輸給 1/N 買進持有。*

@@ -238,6 +238,22 @@ def backtest_strategy(
         direction = direction.mul(gate.astype(int), axis=0)
         log.info(f"regime gate ({cfg.backtest.benchmark}): {int(gate.sum())}/{len(gate)} bars risk-on")
 
+    # Position-count cap: among the same-bar longs keep only the top-N by RS rank (lagged one
+    # bar, like the signal). This (a) makes realized holdings track the signal's ranking and
+    # (b) guarantees concurrent longs <= N so N x stake never exceeds cash — otherwise
+    # cash_sharing rations clustered entries in alphabetical COLUMN ORDER, an order-dependent
+    # artifact that silently drops entries. N = sizing.max_positions.
+    max_pos = getattr(cfg.sizing, "max_positions", 0)
+    if max_pos and not direction.empty and int((direction > 0).sum(axis=1).max()) > max_pos:
+        from trading_analysis.strategy.rules.minervini_trend import rs_rating
+
+        rs = rs_rating(close_pivot, quarter=int(params.get("quarter", 63))).shift(1)
+        rs = rs.reindex(index=direction.index, columns=direction.columns)
+        active = direction > 0
+        keep = rs.where(active).rank(axis=1, ascending=False, method="first") <= max_pos
+        direction = direction.where(keep, 0).astype(int)
+        log.info(f"position cap: <= {max_pos} top-RS longs/bar (was up to {int(active.sum(axis=1).max())})")
+
     result = run_backtest(close_pivot, direction, cfg.backtest, benchmark_close=benchmark_close)
 
     if write_report:
