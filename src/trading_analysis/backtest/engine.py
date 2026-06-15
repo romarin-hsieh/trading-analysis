@@ -13,7 +13,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-import numpy as np
 import pandas as pd
 
 from trading_analysis.config import BacktestConfig
@@ -86,17 +85,20 @@ def run_backtest(
         f"{int(entries.sum().sum())} entries, freq={cfg.freq}"
     )
 
-    # Per-name fixed-fraction sizing — equal share count split across initial cash.
-    size = cfg.cash / max(close_.shape[1], 1) / close_.iloc[0].replace(0, np.nan)
-    size_value = float(np.nan_to_num(size.median(), nan=0.0))
-    size_value = max(size_value, 1.0)
+    # Equal-DOLLAR sizing: each entry commits a fixed dollar value (= cash * target_percent),
+    # so every held name is an equal-weight position regardless of nominal share price — NOT
+    # the old equal-share-count, which sized weight ∝ price and let high-priced names dominate.
+    # vectorbt's from_signals supports Amount/Value/Percent (NOT TargetPercent), so this is a
+    # FIXED-dollar stake (not equity-scaled): gross exposure de-grosses as equity compounds.
+    target_pct = getattr(cfg, "target_percent", 0.10)
+    size_value = cfg.cash * target_pct
 
     pf = vbt.Portfolio.from_signals(
         close=close_,
         entries=entries,
         exits=exits,
         size=size_value,
-        size_type="amount",
+        size_type="value",
         init_cash=cfg.cash,
         fees=fees,
         slippage=slippage,

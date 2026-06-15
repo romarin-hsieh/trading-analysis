@@ -1,0 +1,78 @@
+# 回測事後檢討（Backtest Post-mortem）— 我自己抓出的三輪失誤
+
+> 任務：認真把回測做深，並**強迫自己找出至少三輪失誤**，記錄「思考方式哪裡錯了」「錯誤紀錄」「回測數據該如何改善」。
+> 標的：Minervini 趨勢樣板（long/flat）＋ 200SMA regime gate；universe `us_study`（51 檔現任大型股＋SPY）；窗口 2015–2024（跨 2018 殺盤、2020 COVID、2022 熊市、2023–24 多頭）。
+> 可重現：`configs/study.yaml`、`scripts/backtest_study.py`。
+
+---
+
+## 0. 最終誠實結論（先講結果，再講過程）
+
+把我自己蓋的嚴謹工具（O1 DSR/PBO、O3 因子歸因）真的指向自己的策略後：
+
+| 指標 | 數值 | 判讀 |
+|---|---|---|
+| 策略年化 Sharpe | **+0.75** | — |
+| **等權買進持有（同 51 檔）Sharpe** | **+1.02** | 策略**輸**給 1/N |
+| SPY 買進持有 Sharpe | +0.79 | 策略連 SPY 都沒贏 |
+| 等權買進持有總報酬 | **+457%** | 策略只有 +131% |
+| PSR `P(真 Sharpe>0)` | 0.99 | 「不是純運氣」✅ |
+| **PSR `P(Sharpe > 1/N)`** | **0.20** | 「贏不過替代方案」❌ |
+| PBO `P(最佳參數是過擬合)` | **0.93** | 參數挑選不可信 ❌ |
+| Carhart 年化 alpha | +2.66%，**t=0.81 (p=0.42)** | **與 0 無法區分**；所謂 edge 其實是 0.35 市場 beta＋0.20 動能 beta |
+
+**結論：在這個 universe／窗口，Minervini 篩選＋擇時沒有可證實的 alpha，報酬與 Sharpe 都輸給「等權買進持有同一籃子」。它唯一的價值是 maxDD 較淺（−15.7%，靠 regime gate 在風險off時抱現金）——它是一個「降風險 overlay」，不是 alpha 來源。** 這個結論本身是嚴謹回測的勝利：把一個看似漂亮的策略證偽，比假裝它能賺錢有價值得多。
+
+---
+
+## 1. 三輪失誤（錯誤紀錄＋思考檢討）
+
+### 🔴 第一輪｜思考失誤：被「精選窗口」的數字騙了
+
+- **症狀**：先前我用 smoke 回測（6 檔 AAPL/MSFT/GOOGL/NVDA/JPM＋SPY、2023-01～2024-06）得到 Sharpe **1.65**、CAGR +10%，並當成「策略可行」的訊號。
+- **根因**：那是**三重偏誤**疊加——(1) 倖存者偏誤（手挑現在已知會漲的大型股）、(2) 單一 regime（純多頭窗口）、(3) 樣本太小（6 檔，cross-sectional RS 在 6 檔上幾乎沒意義）。換成誠實的多 regime、51 檔 universe，Sharpe 立刻掉到 **0.36**。
+- **我的思考錯在哪**：我讓一個「感覺像成功」的數字取代了「受控比較」。沒有同 universe 的 benchmark、沒有多 regime、沒有對 universe 構成做偏誤審查，就先在心裡把策略歸類為「有效」。
+- **修正**：任何 headline 數字都必須同時帶（a）同 universe 的 benchmark、（b）≥3 個 regime、（c）明確標注倖存者偏誤。建 `configs/study.yaml`（2015–2024、51 檔）取代 smoke 當作評估基準。
+
+### 🔴 第二輪｜程式 bug：等「股數」而非等「金額」的部位 sizing
+
+- **症狀**：多 regime 上 maxDD 只有 −15.5%、交易 1728 筆，數字怪。深挖 `engine.py` sizing。
+- **根因（實測）**：舊碼 `size = cash/n/first_close`、`size_value = median(...)`，**對所有標的套用同一個純量股數（31.62 股）**。於是進場 BLK（$1027）投入 **$32,486**、進場 INTC（$19.8）只投入 **$627**——**52 倍**的金額離散，純粹由名目股價（拆股後是任意數字）決定。這根本不是 equal-weight，是「權重 ∝ 股價」，高價股（LLY/COST/BLK/AVGO/GS）獨佔 P&L。
+- **我的思考錯在哪**：我寫了一行「看起來合理」的 sizing 就放行，**從沒檢查實際成交權重**。我信任了一段我沒有 instrument 過的程式。
+- **修正**：改為等金額 `size_type="value"`、`size = cash * target_percent`（`BacktestConfig.target_percent=0.10`）。修正後 Sharpe 0.36→**0.71**、總報酬 +32%→**+118%**。
+  - ⚠️ 已知殘留限制：vectorbt `from_signals` 不支援 `TargetPercent`，所以這是**固定金額**而非隨權益縮放——權益複利成長後 gross exposure 會逐步下降（拖累報酬）。正解是走 O5 `rebalance()`／`from_orders` 的目標權重路徑。
+
+- **附帶：差點記下一個不存在的 bug（思考方式的教訓）**：我從 `yahoo.py` 看到 `auto_adjust=False`，**先入為主地推論**「close 沒拆股調整 → 2015–24 的 AAPL/NVDA/TSLA/AMZN 拆股會在 close 製造 −75% 假崩盤、污染 SMA 與 P&L」。**實測打臉**：yfinance 的 `Close` 早已拆股調整（只是沒還原股利），5 檔最差單日 return 都 < −22%，沒有任何 >40% 的假跳空。**教訓：在「讀程式碼就斷言 bug」之前先量測**；我差點把幽靈 bug 寫進紀錄。
+- **真正的相關修正（較小）**：`close` 有拆股調整但**沒有股利調整**。改用 `adj_close`（total-return）餵訊號、P&L、benchmark，三者一致，才是公平比較。
+
+### 🔴 第三輪｜思考失誤（＋一個真 bug）：我從沒把自己的嚴謹工具指向自己的回測
+
+這是最重要的一輪。我蓋了 O1（DSR/PBO/SPA）、O3（因子歸因），卻一路只報「裸 Sharpe」——正是這些工具存在要防止的那個錯。真的跑 `scripts/backtest_study.py` 後：
+
+- **(a) 多重測試 gate 的誤讀**：策略 PSR-vs-0 = 0.99（過關），DSR 12 trials = 0.99（過關）——我**差點宣布「策略通過嚴謹檢驗」**。但 PSR/DSR 的對照基準若用 **0**，只回答「不是純運氣」，不回答「贏得過替代方案」。把 benchmark 改成**可投資的替代方案**（1/N 等權的 per-period Sharpe）後，**PSR-vs-1/N = 0.20**——策略其實**贏不過 1/N**。**`DSR>0.95` 是必要、非充分條件**。
+- **(b) 因子歸因**：alpha +2.66%/yr 但 **t=0.81、p=0.42**——統計上與 0 無異；R²=0.33，所謂 edge 是 0.35 市場 beta＋0.20 動能 beta 借來的。
+- **(c) PBO=0.93**：in-sample 最佳參數在 OOS 系統性墊底 → 參數挑選是過擬合／regime 不穩，沒有穩定的「最佳參數」。
+  - ⚠️ 方法論自我修正：對 **12 個高度共線的參數微調**跑 PBO 本身是輕微誤用——PBO 設計給 N 個**真正不同**的策略。0.93 的正確解讀窄一點：「沒有穩定最佳參數」，而非嚴格的策略過擬合機率。
+- **(d) 真 bug**：O3 的 Ken French loader 在 **Python 3.12 直接崩潰**（`No module named 'distutils'`；`pandas_datareader` 仍 import 已被移除的 distutils，而 `setuptools` 沒裝）。**這條歸因路徑從來沒真的執行過**——單元測試只測了合成資料、沒碰真實 loader。修正：`uv add setuptools`（81 版提供 distutils shim），live 拉取 Ken French 成功。
+- **我的思考錯在哪**：我把「我建好了嚴謹模組」當成「我的策略很嚴謹」。**蓋好閘門 ≠ 自己走過閘門。**
+- **修正**：策略在「對照 1/N benchmark 的 PSR/DSR 過關」且「alpha t>2」之前，一律不算 done；把這個 gate 接進回測報告，讓裸 Sharpe 永遠不單獨出現。
+
+---
+
+## 2. 回測數據／方法該如何改善（優先序）
+
+1. **Universe（最大資料缺口）**：現在用「現任」S&P 大型股＝結構性倖存者偏誤。正解是 **point-in-time 成分股**（scorecard #2）；在拿到之前，每個結果都標注「樂觀偏誤」。
+2. **Benchmark**：主要對照改成**同名單的等權買進持有（1/N）**，SPY 退為次要；報「對 1/N 的超額、且扣周轉成本」（DeMiguel-Garlappi-Uppal）。
+3. **Sizing**：從固定金額升級為**隨權益縮放的等權**（O5 `rebalance()`／`from_orders` 目標權重），讓 gross exposure 不衰減；現在的 `value` sizing 只是 stopgap。
+4. **把 rigor gate 接進報告**：DSR **對 benchmark Sharpe**（非 0）、PBO 只對**真正不同**的策略跑、列 alpha t 值；自動 fail 條件：`alpha t<2` 或 `PBO>0.5` 或 `PSR-vs-benchmark<0.95`。
+5. **成本**：接上 O2 size-dependent 成本（現在是固定 10bps）、報扣周轉後淨報酬。
+6. **策略定位**：作為 long/flat overlay 它降了 DD 卻犧牲報酬——價值在「降風險」不在「alpha」。要嘛 (a) 把它重新定位成 1/N 核心之上的 regime/波動 overlay，要嘛 (b) 加入真正的橫截面 alpha 來源（光是這個篩選在此 universe 不是 alpha）。
+
+## 3. 思考方式的三條總結教訓
+
+- **量測先於斷言**：看程式碼「推論」出的 bug，有可能是幽靈（拆股那次）；先跑數字。
+- **必要 ≠ 充分**：通過「不是運氣」(PSR-vs-0) 不代表「贏得過替代方案」(PSR-vs-1/N)。對照基準要選**可投資的替代方案**。
+- **蓋閘門 ≠ 走閘門**：建好嚴謹工具，要真的把它指向自己的結果；否則裸 Sharpe 會一路自我欺騙。
+
+---
+*數據：`scripts/backtest_study.py`（2026-06-16 跑）。前後對照——sizing 修正前 Sharpe 0.36／+32%；修正後 0.71／+118%；最佳參數 0.75／+131%，但全數輸給 1/N 的 1.02／+457%。*

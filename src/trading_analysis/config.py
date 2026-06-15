@@ -56,6 +56,10 @@ class BacktestConfig(BaseModel):
     cash: float = 100_000.0
     freq: str = "1d"
     benchmark: str | None = "SPY"
+    # Equal-DOLLAR sizing: each held name targets this fraction of equity (≈ 1/max_positions).
+    # ~10 concurrent longs ⇒ fully invested; fewer ⇒ the remainder sits in cash (long/flat).
+    target_percent: float = 0.10
+    price_field: str = "adj_close"   # total-return prices for both signals and P&L
     output_dir: Path = Path("./data/backtest_reports")
 
 

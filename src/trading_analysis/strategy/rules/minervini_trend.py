@@ -66,8 +66,12 @@ class MinerviniTrendRule:
         """Return a [ts x symbol] pivot of 0/1 (LONG) signals, lagged one bar."""
         if ohlcv.empty:
             return pd.DataFrame()
+        # Prefer total-return (dividend+split-adjusted) prices when available, so SMAs /
+        # 52w-high-low / RS are computed on the same series the P&L compounds. yfinance's
+        # raw "close" is split-adjusted but NOT dividend-adjusted.
+        price_col = "adj_close" if "adj_close" in ohlcv.columns else "close"
         close = (
-            ohlcv.pivot_table(index="ts", columns="symbol", values="close", aggfunc="last")
+            ohlcv.pivot_table(index="ts", columns="symbol", values=price_col, aggfunc="last")
             .sort_index()
         )
 

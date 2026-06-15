@@ -205,8 +205,10 @@ def backtest_strategy(
     else:
         direction = rule_obj.to_pivot(ohlcv)
 
+    price_field = getattr(cfg.backtest, "price_field", "adj_close")
     close_pivot = store.load_close_pivot(
-        cfg.universe.symbols, bar=cfg.data.bar, start=cfg.data.start, end=cfg.data.end
+        cfg.universe.symbols, bar=cfg.data.bar, start=cfg.data.start, end=cfg.data.end,
+        column=price_field,
     )
 
     benchmark_close = None
@@ -218,7 +220,8 @@ def backtest_strategy(
             end=cfg.data.end,
         )
         if not b.empty:
-            benchmark_close = b.set_index("ts")["close"]
+            col = price_field if price_field in b.columns else "close"
+            benchmark_close = b.set_index("ts")[col]
 
     # Never trade the benchmark itself if it happens to sit in the universe.
     if cfg.backtest.benchmark and cfg.backtest.benchmark in direction.columns:

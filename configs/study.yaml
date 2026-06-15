@@ -1,0 +1,26 @@
+# Multi-regime backtest study config (covers 2018 selloff, 2020 COVID crash,
+# 2022 bear, 2023-24 bull) — deliberately NOT the flattering smoke window.
+universe: configs/universe_study.yaml
+data:
+  source: yahoo
+  start: 2015-01-01
+  end: 2024-12-31
+  bar: 1d
+  cache_dir: ./data
+model:
+  use_kronos: false
+strategy:
+  rule: minervini_trend
+  params: {}
+  regime_gate: true
+  regime_window: 200
+sizing:
+  method: fixed_fraction
+  fraction: 0.05
+  max_positions: 10
+backtest:
+  fees_bps: 5.0
+  slippage_bps: 5.0
+  cash: 100000.0
+  benchmark: SPY
+  output_dir: ./data/backtest_reports

@@ -1,0 +1,59 @@
+# Study universe = us_top50 + SPY (benchmark must be ingested for the regime gate).
+# NOTE: these are *current* S&P large caps — survivorship-biased by construction
+# (they are large *because* they survived/grew). A point-in-time constituent feed is
+# the proper fix (scorecard #2); absent that, treat any result here as optimistic.
+name: us_study
+description: 50 current large-cap US equities + SPY benchmark (survivorship-biased)
+symbols:
+  - AAPL
+  - MSFT
+  - GOOGL
+  - AMZN
+  - META
+  - NVDA
+  - TSLA
+  - AVGO
+  - ORCL
+  - ADBE
+  - CRM
+  - CSCO
+  - INTC
+  - QCOM
+  - TXN
+  - IBM
+  - NFLX
+  - DIS
+  - CMCSA
+  - VZ
+  - JPM
+  - BAC
+  - WFC
+  - GS
+  - MS
+  - BLK
+  - V
+  - MA
+  - AXP
+  - SCHW
+  - UNH
+  - JNJ
+  - PFE
+  - ABBV
+  - MRK
+  - TMO
+  - LLY
+  - ABT
+  - WMT
+  - HD
+  - MCD
+  - KO
+  - PEP
+  - COST
+  - NKE
+  - SBUX
+  - XOM
+  - CVX
+  - CAT
+  - BA
+  - GE
+  - SPY

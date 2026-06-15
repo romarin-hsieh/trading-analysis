@@ -29,6 +29,7 @@ dependencies = [
     "statsmodels>=0.14",
     "lightgbm>=4.3",
     "pandas-datareader>=0.10",
+    "setuptools>=81.0.0",
 ]
 
 [project.optional-dependencies]
