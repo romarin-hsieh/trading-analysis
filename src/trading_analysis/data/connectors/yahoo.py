@@ -7,6 +7,7 @@ download up to 50 symbols per call and back off on failure.
 from __future__ import annotations
 
 from datetime import date
+from typing import ClassVar
 
 import pandas as pd
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -19,7 +20,7 @@ log = get_logger(__name__)
 class YahooConnector:
     name = "yahoo"
 
-    _BAR_MAP = {"1d": "1d", "1wk": "1wk", "1mo": "1mo"}
+    _BAR_MAP: ClassVar[dict[str, str]] = {"1d": "1d", "1wk": "1wk", "1mo": "1mo"}
 
     def __init__(self, batch_size: int = 50):
         self.batch_size = batch_size

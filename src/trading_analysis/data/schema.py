@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Annotated
 
 import pandas as pd
 from pydantic import BaseModel, Field, field_validator

@@ -1,6 +1,5 @@
 """Property tests on sizing & risk: invariants must hold for any reasonable input."""
 
-import math
 
 import pandas as pd
 from hypothesis import given, settings

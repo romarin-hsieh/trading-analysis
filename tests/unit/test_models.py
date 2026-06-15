@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from trading_analysis.models.naive import NaiveDriftForecaster
-from trading_analysis.models.ta_indicators import atr, ema, rsi, sma  # noqa: F401
+from trading_analysis.models.ta_indicators import atr, ema, rsi, sma
 
 
 def _make_ohlcv(n: int = 80, drift: float = 0.001, seed: int = 0) -> pd.DataFrame:

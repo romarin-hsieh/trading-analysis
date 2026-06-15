@@ -107,9 +107,12 @@ class DuckStore:
         if not self.ohlcv_dir.exists():
             return out
         for symdir in self.ohlcv_dir.iterdir():
-            if symdir.is_dir() and symdir.name.startswith("symbol="):
-                if (symdir / f"bar={bar}" / "data.parquet").exists():
-                    out.append(symdir.name.removeprefix("symbol="))
+            if (
+                symdir.is_dir()
+                and symdir.name.startswith("symbol=")
+                and (symdir / f"bar={bar}" / "data.parquet").exists()
+            ):
+                out.append(symdir.name.removeprefix("symbol="))
         return sorted(out)
 
     def latest_ts(self, symbol: str, bar: str = "1d") -> datetime | None:

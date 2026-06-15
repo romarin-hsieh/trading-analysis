@@ -3,7 +3,7 @@
 Logic per bar:
   - Look at the smoothed predicted return at the configured horizon.
   - Long if pred_return >= +threshold; flat otherwise (no shorts in MVP).
-  - Strength scales linearly between threshold and 5×threshold.
+  - Strength scales linearly between threshold and 5x threshold.
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ class KronosTrendRule:
         self,
         ohlcv: pd.DataFrame,
         forecasts: pd.DataFrame | None = None,
-        params: dict[str, Any] | None = None,  # noqa: ARG002
+        params: dict[str, Any] | None = None,
     ) -> list[Signal]:
         if forecasts is None or forecasts.empty:
             return []
@@ -41,10 +41,7 @@ class KronosTrendRule:
         out: list[Signal] = []
         for _, row in h1.iterrows():
             pr = float(row["pred_return_smoothed"])
-            if pr >= self.forecast_threshold:
-                direction = Direction.LONG
-            else:
-                direction = Direction.FLAT
+            direction = Direction.LONG if pr >= self.forecast_threshold else Direction.FLAT
             strength = min(max(pr / (5 * self.forecast_threshold), 0.0), 1.0)
             out.append(
                 Signal(

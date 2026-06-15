@@ -68,6 +68,8 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["B", "SIM"]
+# typer.Option(...) in argument defaults is the required Typer idiom, not a B008 bug.
+"src/trading_analysis/cli.py" = ["B008"]
 
 [tool.mypy]
 python_version = "3.12"

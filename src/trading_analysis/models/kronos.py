@@ -90,7 +90,7 @@ class KronosForecaster:
                     model, tokenizer, device=device, max_context=512
                 )
                 self._fallback = None
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 log.warning(f"Failed to load Kronos ({e}); using NaiveDriftForecaster fallback.")
                 self._fallback = NaiveDriftForecaster()
 
@@ -117,7 +117,7 @@ class KronosForecaster:
                 continue
             try:
                 forecast_df = self._run_kronos(symbol, sub, horizon)
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 log.warning(f"kronos inference failed for {symbol}: {e}; falling back")
                 forecast_df = self._naive_for_symbol(symbol, sub, horizon)
             self._write_cache(cache_key, forecast_df)

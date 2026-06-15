@@ -23,8 +23,8 @@ class SMACrossoverRule:
     def generate(
         self,
         ohlcv: pd.DataFrame,
-        forecasts: pd.DataFrame | None = None,  # noqa: ARG002
-        params: dict[str, Any] | None = None,  # noqa: ARG002
+        forecasts: pd.DataFrame | None = None,
+        params: dict[str, Any] | None = None,
     ) -> list[Signal]:
         signals: list[Signal] = []
         for symbol, sub in ohlcv.sort_values(["symbol", "ts"]).groupby("symbol"):
@@ -55,7 +55,7 @@ class SMACrossoverRule:
     def to_pivot(
         self, ohlcv: pd.DataFrame, params: dict[str, Any] | None = None
     ) -> pd.DataFrame:
-        """Vector form for backtests: returns pivot of -1/0/1 by ts × symbol."""
+        """Vector form for backtests: returns pivot of -1/0/1 by ts x symbol."""
         from trading_analysis.strategy.signal import signals_to_pivot
 
         signals = self.generate(ohlcv, params=params)
