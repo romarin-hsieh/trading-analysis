@@ -1,0 +1,15 @@
+# Leveraged sector ETFs (and their underlyings for the regime filter). This is the realistic
+# retail path to 50-100% CAGR — at the cost of much higher drawdown. Daily-reset decay is baked
+# into the ETF's adj_close, so backtesting on it is realistic.
+name: us_leveraged
+description: 3x/2x sector ETFs (SOXL/TQQQ/TECL/FNGU/SPXL/USD) + underlyings for trend filter
+symbols:
+  - SOXL   # 3x semiconductors
+  - TQQQ   # 3x Nasdaq-100
+  - TECL   # 3x technology
+  - FNGU   # 3x FANG+ (since 2018)
+  - SPXL   # 3x S&P 500
+  - USD    # 2x semiconductors
+  - SOXX   # semis underlying (regime)
+  - QQQ    # Nasdaq underlying (regime)
+  - SPY    # market (regime)
