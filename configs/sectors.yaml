@@ -1,0 +1,27 @@
+# Ingest/backtest config for the industry-focused strategy study.
+universe: configs/universe_sectors.yaml
+data:
+  source: yahoo
+  start: 2015-01-01
+  end: 2024-12-31
+  bar: 1d
+  cache_dir: ./data
+model:
+  use_kronos: false
+strategy:
+  rule: minervini_trend
+  params: {}
+  regime_gate: true
+  regime_window: 200
+sizing:
+  method: fixed_fraction
+  fraction: 0.10
+  max_positions: 10
+backtest:
+  fees_bps: 5.0
+  slippage_bps: 5.0
+  cash: 100000.0
+  benchmark: SPY
+  target_percent: 0.10
+  price_field: adj_close
+  output_dir: ./data/backtest_reports

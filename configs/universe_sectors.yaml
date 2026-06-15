@@ -1,0 +1,66 @@
+# Sector universes for the industry-focused strategy study (tech / AI / semis /
+# space-satellite-defense / robotics) + benchmarks & defensive assets for rotation.
+# Newer IPOs (PLTR 2020, SNOW 2020, CRWD 2019, KTOS, ...) have partial history — the
+# backtest handles the NaN warmup; treat their early-window contribution as absent.
+name: us_sectors
+description: AI/semis + software + space/defense + robotics + bench/bonds (survivorship-biased)
+symbols:
+  # --- AI / Semiconductors ---
+  - NVDA
+  - AMD
+  - AVGO
+  - TSM
+  - ASML
+  - MU
+  - AMAT
+  - LRCX
+  - KLAC
+  - MRVL
+  - QCOM
+  - TXN
+  - INTC
+  - ADI
+  - ANET
+  - SMCI
+  # --- Software / AI-application ---
+  - MSFT
+  - GOOGL
+  - META
+  - CRM
+  - ADBE
+  - NOW
+  - PANW
+  - CRWD
+  - PLTR
+  - SNOW
+  # --- Space / Satellite / Defense ---
+  - LMT
+  - RTX
+  - NOC
+  - GD
+  - LHX
+  - BA
+  - HII
+  - LDOS
+  - TDG
+  - HEI
+  - AVAV
+  - KTOS
+  - IRDM
+  # --- Robotics / Automation ---
+  - ISRG
+  - ABB
+  - ROK
+  - EMR
+  - TER
+  - ZBRA
+  - PTC
+  - IRBT
+  - KEYS
+  - HON
+  # --- Benchmarks / defensive (for rotation + comparison) ---
+  - SPY
+  - QQQ
+  - IEF
+  - TLT
+  - GLD
