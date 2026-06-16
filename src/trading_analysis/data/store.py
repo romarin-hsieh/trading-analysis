@@ -30,7 +30,8 @@ class DuckStore:
         self.cache_dir = Path(cache_dir)
         self.ohlcv_dir = self.cache_dir / "ohlcv"
         self.forecasts_dir = self.cache_dir / "forecasts"
-        for d in (self.ohlcv_dir, self.forecasts_dir):
+        self.fundamentals_dir = self.cache_dir / "fundamentals"
+        for d in (self.ohlcv_dir, self.forecasts_dir, self.fundamentals_dir):
             d.mkdir(parents=True, exist_ok=True)
         self._con = duckdb.connect(":memory:")
 
@@ -177,6 +178,39 @@ class DuckStore:
         if not frames:
             return pd.DataFrame()
         return pd.concat(frames, ignore_index=True)
+
+    # ---------- Fundamentals (alt-data, point-in-time by `as_of` = SEC filed date) ----------
+
+    def _fundamentals_path(self, symbol: str) -> Path:
+        return self.fundamentals_dir / f"symbol={symbol.upper()}" / "data.parquet"
+
+    def upsert_fundamentals(self, df: pd.DataFrame) -> int:
+        """Insert/replace fundamental facts. Idempotent on (symbol, tag, period_end, form, as_of)."""
+        if df.empty:
+            return 0
+        total = 0
+        for symbol, part in df.groupby("symbol", sort=False):
+            path = self._fundamentals_path(symbol)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if path.exists():
+                merged = pd.concat([pd.read_parquet(path), part], ignore_index=True)
+                merged = merged.drop_duplicates(
+                    subset=["symbol", "tag", "period_end", "form", "as_of"], keep="last")
+            else:
+                merged = part
+            merged.to_parquet(path, index=False)
+            total += len(merged)
+        return total
+
+    def load_fundamentals(self, symbols: list[str]) -> pd.DataFrame:
+        frames = [pd.read_parquet(self._fundamentals_path(s)) for s in symbols
+                  if self._fundamentals_path(s).exists()]
+        if not frames:
+            return pd.DataFrame()
+        df = pd.concat(frames, ignore_index=True)
+        df["as_of"] = pd.to_datetime(df["as_of"])
+        df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce")
+        return df
 
     # ---------- DuckDB ad-hoc query ----------
 
