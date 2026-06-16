@@ -86,6 +86,33 @@ edgar.point_in_time(fund, tag, dates, symbols) # as-of 對齊成 [date x symbol]
 
 **廣 universe 因子總排名（本 session）**：gross_profitability(ICIR +0.30 穩) > asset_growth(−0.22 弱) > insider(+0.13 不穩) > momentum(~0 死) > value(FAIL)。**唯一穩健的新 alpha 是基本面品質因子**；insider 弱、價值死、動量在廣市場死。
 
+## 4e. 深掘品質因子 — quality 是 regime-**universal**，與動量互補（最有價值的發現）
+
+`scripts/quality_research.py`：(1) quality 複合因子 vs gross profitability 單獨；(2) quality 的 regime 適用地圖。
+
+**(1) 複合 vs 單一**：
+
+| 因子 | cover | IC | ICIR |
+|---|---|---|---|
+| gross_profitability | 248（銀行無 GP）| **+0.034** | **+0.30** |
+| quality_composite（GP+ROA+accruals z 平均）| **485**（近全 universe）| +0.024 | +0.20 |
+
+複合因子 IC 較低但**覆蓋率近全市場**（銀行有 ROA/accruals）——用一點訊號強度換廣度。gross profitability 仍是最強單一訊號。
+
+**(2) Quality 的 regime 適用地圖（vs 動量 docs/09）**：
+
+| regime | quality IC | 動量 IC |
+|---|---|---|
+| **bear** | **+0.038** | −0.032（反轉！）|
+| **drawdown** | **+0.050** | 死 |
+| **high-vol** | **+0.048** | 死 |
+| bull | +0.024 | +0.039 |
+| low-vol / normal | +0.018 / +0.020 | 正 |
+
+> **最有價值的發現：quality 在「每一個」regime 都是正的，且在 bear/壓力/高波動時「最強」——與動量完全相反（動量只在 bull 有效、bear 反轉）。** 這是教科書的「flight to quality」：壓力時投資人獎勵獲利能力強的公司。所以 **quality 與 momentum 跨 regime 互補**——quality 是更可靠的因子（從不翻號），且正好在動量失效時最強。誠實註記：逐 regime 經 FDR 校正後無單一 cell 達顯著（每 regime 樣本小），但**方向在所有 regime 一致為正**（動量則翻號），全樣本 ICIR +0.30 才是穩健證據。
+>
+> **總結整個另類資料弧線**：唯一穩健的新 alpha 是**基本面品質因子**，而且它的真正價值不只是 IC，而是 **regime-universal + 與動量互補**——這正是 docs/09「動量是 universe/regime 特定」缺口的補位。最佳組合方向：**集中動量（bull）+ 品質（bear/壓力）的 regime-互補配置**。
+
 ## 5. 下一步（讓另類資料真正提高 IC）
 
 1. **擴到 S&P 500 基本面**（廣度×10，讓基本面因子有統計力——這正是 docs/09 缺的）。

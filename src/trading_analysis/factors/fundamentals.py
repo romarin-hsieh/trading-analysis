@@ -17,6 +17,7 @@ Factors are signed so that HIGHER = predicted-better (long the high end):
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 from trading_analysis.data.connectors.edgar import point_in_time
@@ -65,6 +66,21 @@ def book_to_market(fund, px: pd.DataFrame, syms) -> pd.DataFrame:
 def asset_growth(fund, dates, syms, lookback: int = 252) -> pd.DataFrame:
     at = point_in_time(fund, "Assets", dates, syms)
     return -(at / at.shift(lookback) - 1.0)
+
+
+def _zscore(f: pd.DataFrame) -> pd.DataFrame:
+    return f.sub(f.mean(axis=1), axis=0).div(f.std(axis=1).replace(0, np.nan), axis=0)
+
+
+def quality_composite(fund, dates, syms) -> pd.DataFrame:
+    """Equal-weight composite of the profitability/quality signals (cross-sectional z-scores of
+    gross_profitability + roa + accruals). Averaging diversifies the noise of any single metric —
+    the test is whether the composite is MORE robust (stable IC) than gross profitability alone."""
+    zs = [_zscore(gross_profitability(fund, dates, syms)),
+          _zscore(roa(fund, dates, syms)),
+          _zscore(accruals(fund, dates, syms))]
+    stack = np.nanmean(np.stack([z.to_numpy(dtype=float) for z in zs]), axis=0)
+    return pd.DataFrame(stack, index=dates, columns=list(syms))
 
 
 def build_all(fund, px, syms) -> dict[str, pd.DataFrame]:

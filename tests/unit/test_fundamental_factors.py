@@ -1,6 +1,11 @@
 import pandas as pd
 
-from trading_analysis.factors.fundamentals import accruals, gross_profitability, roa
+from trading_analysis.factors.fundamentals import (
+    accruals,
+    gross_profitability,
+    quality_composite,
+    roa,
+)
 
 
 def _setup():
@@ -36,3 +41,23 @@ def test_accruals_sign():
     fund, _, dates = _setup()
     a = accruals(fund, dates, ["AAA"])["AAA"]
     assert abs(a.loc[pd.Timestamp("2020-01-07")] - 0.02) < 1e-9
+
+
+def test_quality_composite_point_in_time():
+    # composite is NaN before the filing and finite after (needs >=2 names: it is a cross-sectional
+    # z-score average, undefined for a single-name cross-section)
+    dates = pd.to_datetime(["2020-01-02", "2020-01-08"])
+    rows = []
+    for sym, gp, ni, cfo in [("AAA", 40.0, 10.0, 12.0), ("BBB", 20.0, 5.0, 4.0)]:
+        rows += [
+            {"symbol": sym, "tag": "GrossProfit", "fp": "FY", "period_end": "2019-12-31", "as_of": "2020-01-06", "val": gp},
+            {"symbol": sym, "tag": "NetIncomeLoss", "fp": "FY", "period_end": "2019-12-31", "as_of": "2020-01-06", "val": ni},
+            {"symbol": sym, "tag": "NetCashProvidedByUsedInOperatingActivities", "fp": "FY", "period_end": "2019-12-31", "as_of": "2020-01-06", "val": cfo},
+            {"symbol": sym, "tag": "Assets", "fp": "FY", "period_end": "2019-12-31", "as_of": "2020-01-06", "val": 100.0},
+        ]
+    fund = pd.DataFrame(rows)
+    fund["as_of"] = pd.to_datetime(fund["as_of"])
+    fund["period_end"] = pd.to_datetime(fund["period_end"])
+    q = quality_composite(fund, dates, ["AAA", "BBB"])
+    assert q.loc[dates[0]].isna().all()                  # before the filing
+    assert q.loc[pd.Timestamp("2020-01-08")].notna().all()  # both finite after
