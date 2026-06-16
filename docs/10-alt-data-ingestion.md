@@ -55,6 +55,22 @@ edgar.point_in_time(fund, tag, dates, symbols) # as-of 對齊成 [date x symbol]
 
 > **結論：另類資料交付了一個真正的新訊號。** 在廣、有效率的 universe 上，**基本面品質因子（gross profitability）勝過價量動量**——這正是 alt-data 該做到的：價量做不到的、穩健、低相關的 IC 來源。它單獨 Sharpe 0.45 modest 但真實；與**集中**動量 sleeve（非廣市場動量）結合最有望提升組合 alpha。價值因子（earnings yield、B/M）在 2015-24 失效（價值失落十年）。
 
+## 4c. 把品質 sleeve 併入組合 — 真實但**邊際**（誠實收尾）
+
+把 gross-profitability sleeve 併入已驗證的多 sleeve 組合（[docs/08](08-recommended-strategy.md)，唯一顯著 alpha t=2.64），`scripts/add_quality_sleeve.py`：
+
+| 組合 | Sharpe | MDD | Calmar | alpha (t) |
+|---|---|---|---|---|
+| 5-sleeve（docs/08）| 1.22 | −19.3% | **0.61** | +6.34% (**t=2.64**) |
+| 6-sleeve 風險平價(+品質) | 1.21 | −15.1% | 0.52 | +3.69% (t=2.37) |
+| **5-sleeve + 15% 品質 tilt** | **1.23** | −17.2% | 0.59 | +5.31% (t=2.60) |
+
+- corr(品質, 5-sleeve combo) = **+0.16**（低、可加性）。
+- **風險平價(+品質)** 反而變差：inverse-vol 權重**過度配置低波動的品質 L/S** → 稀釋報酬與 alpha（Calmar 0.61→0.52、alpha t 2.64→2.37）。
+- **適度 15% tilt**：Sharpe 微升（1.22→**1.23**，全 session 最佳）、MDD 降，但 CAGR/Calmar/alpha 微降——**基本上打平**（用一點報酬換一點低回撤）。
+
+> **誠實收尾**：另類資料交付了一個**真實、低相關的新因子**（gross profitability），但把它併入已經很好的組合，貢獻是**邊際的**（最佳情況 Sharpe 1.22→1.23 + 低一點回撤，alpha 沒有 step-change）。原因：5-sleeve 組合已捕捉大部分可得的分散，且品質單獨報酬 modest。**沒有銀色子彈**——這呼應整個 session：誠實、漸進、無捷徑。最佳可交付仍是多 sleeve 組合（可選擇加 15% 品質 tilt 換取最佳 Sharpe + 較低回撤）。
+
 ## 5. 下一步（讓另類資料真正提高 IC）
 
 1. **擴到 S&P 500 基本面**（廣度×10，讓基本面因子有統計力——這正是 docs/09 缺的）。
