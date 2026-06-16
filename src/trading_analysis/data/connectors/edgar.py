@@ -34,6 +34,9 @@ DEFAULT_TAGS = (
     "StockholdersEquity",
     "OperatingIncomeLoss",
     "CashAndCashEquivalentsAtCarryingValue",
+    "NetCashProvidedByUsedInOperatingActivities",   # CFO -> accruals, Piotroski
+    "WeightedAverageNumberOfSharesOutstandingBasic",  # shares -> per-share / earnings yield
+    "CommonStockSharesOutstanding",                 # shares (point-in-time fallback)
 )
 FUNDAMENTAL_COLUMNS = ["symbol", "cik", "tag", "unit", "period_end", "fy", "fp", "form", "as_of", "val"]
 
