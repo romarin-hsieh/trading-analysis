@@ -24,7 +24,7 @@ edgar.point_in_time(fund, tag, dates, symbols) # as-of 對齊成 [date x symbol]
 |---|---|---|---|
 | **SEC EDGAR 基本面**（XBRL companyfacts）| ✅ **已接入** | quality/value/profitability/accruals | 官方、無金鑰、`filed` 即 point-in-time |
 | SEC ticker→CIK map | ✅ 已接入 | — | `company_tickers.json` |
-| SEC insider Form 4 | ⚠️ 可接（未建）| 內部人買賣 | EDGAR submissions API + XML 解析 |
+| **SEC insider Form 4** | ✅ **已接入** | 內部人買賣（Lakonishok-Lee）| bulk 季度資料集（非逐檔），open-market P/S |
 | Congress 交易 | ❌ watcher S3 已 403 | 國會議員買賣 | 需 Quiver(金鑰) 或 House Clerk PTR 解析 |
 | Google Trends 注意力 | ⚠️ pytrends（不穩）| 散戶注意力（Da 2011）| rate-limit |
 | FINRA 短期利益 | ⚠️ 免費雙週 | 空方擁擠 | — |
@@ -70,6 +70,21 @@ edgar.point_in_time(fund, tag, dates, symbols) # as-of 對齊成 [date x symbol]
 - **適度 15% tilt**：Sharpe 微升（1.22→**1.23**，全 session 最佳）、MDD 降，但 CAGR/Calmar/alpha 微降——**基本上打平**（用一點報酬換一點低回撤）。
 
 > **誠實收尾**：另類資料交付了一個**真實、低相關的新因子**（gross profitability），但把它併入已經很好的組合，貢獻是**邊際的**（最佳情況 Sharpe 1.22→1.23 + 低一點回撤，alpha 沒有 step-change）。原因：5-sleeve 組合已捕捉大部分可得的分散，且品質單獨報酬 modest。**沒有銀色子彈**——這呼應整個 session：誠實、漸進、無捷徑。最佳可交付仍是多 sleeve 組合（可選擇加 15% 品質 tilt 換取最佳 Sharpe + 較低回撤）。
+
+## 4d. 第二個另類資料源：insider Form 4 — 真實資料，但因子**弱且不穩**
+
+接入 SEC bulk 季度 Form 4 資料集（`data/connectors/insider.py`，open-market 買(P)/賣(S)），ingest 2015-2024 **65,503 筆 (symbol, 申報日) / 494 檔**。資料真實（OXY 2024Q1 買入 $246M = Berkshire，已驗證）。建 net-purchase-ratio 因子（trailing 6/12mo，point-in-time、申報日 snap 次交易日）過閘門：
+
+| 因子 | IC | ICIR | hit% | IC16-19 | IC20-24 | 判定 |
+|---|---|---|---|---|---|---|
+| insider_npr_6mo（value）| +0.011 | +0.14 | 57% | **−0.004** | **+0.027** | **FAIL（翻號）** |
+| insider_npr count-based | +0.010 | +0.13 | 57% | −0.006 | +0.029 | FAIL（同樣翻號）|
+
+- 整體**弱正向**（IC +0.01、hit 57%，方向符合 Lakonishok-Lee），但**跨期不穩**：2016-19 ~0/負，2020-24 才轉正 → **過不了穩定性閘門**。
+- value-weighted 與 count-based **結果幾乎相同** → 不是 outlier 問題，是訊號本身弱/regime-依賴。
+- **沒贏過 gross profitability**（ICIR +0.30 穩定）。內部人 alpha 自 2001 廣為人知後已衰退——又是 alpha decay。
+
+**廣 universe 因子總排名（本 session）**：gross_profitability(ICIR +0.30 穩) > asset_growth(−0.22 弱) > insider(+0.13 不穩) > momentum(~0 死) > value(FAIL)。**唯一穩健的新 alpha 是基本面品質因子**；insider 弱、價值死、動量在廣市場死。
 
 ## 5. 下一步（讓另類資料真正提高 IC）
 
