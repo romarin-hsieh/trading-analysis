@@ -14,6 +14,7 @@ Run: uv run python scripts/meta_portfolio.py
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 from loguru import logger
 
 logger.remove()
@@ -21,6 +22,7 @@ import leveraged_strategies as ls  # noqa: E402  (scripts/ is on sys.path when r
 import sector_strategies as ss  # noqa: E402
 
 from trading_analysis.backtest.metrics import cagr, max_drawdown, sharpe  # noqa: E402
+from trading_analysis.portfolio import rebalance  # noqa: E402  (O5 leak-free walk-forward weights)
 
 
 def stats(ret):
@@ -84,12 +86,32 @@ def main():
     vt = ss.vol_target(blend, target=0.15, lev_cap=2.0)
     svt = stats(vt)
 
+    # (C) the RIGHT way: O5 risk-parity across genuinely diverse sleeves (adds gold + bonds, which
+    # are low-correlation to equity), using the leak-free walk-forward rebalance().
+    gld = ss._px(["GLD"]).iloc[:, 0].pct_change().reindex(idx).fillna(0)
+    ief = ss._px(["IEF"]).iloc[:, 0].pct_change().reindex(idx).fillna(0)
+    sleeves = pd.DataFrame({"equity_mom": div_ret, "defensive": def_ret, "lev_trend": tq_ret,
+                            "gold": gld, "bonds": ief}).dropna()
+    W = rebalance(sleeves, lookback=126, step=21, method="risk_parity")
+    Wd = W.reindex(sleeves.index).ffill().shift(1).fillna(0.0)
+    rp = (Wd * sleeves).sum(axis=1)
+    srp = stats(rp)
+    rp_vt = ss.vol_target(rp, target=0.15, lev_cap=3.0)
+    svrp = stats(rp_vt)
+
+    print("-" * 76)
+    print("(C) O5 RISK-PARITY across 5 diverse sleeves (equity-mom / defensive / lev-trend / gold / bonds):")
+    cmat = sleeves.corr()
+    print(f"  avg pairwise corr {((cmat.values.sum() - 5) / 20):+.2f}  (diversification source)")
+    print(f"  risk-parity combo  : CAGR {srp['CAGR']:+.1%}  MDD {srp['MDD']:+.1%}  Sharpe {srp['Sharpe']:+.2f}  Calmar {srp['Calmar']:.2f}")
+    print(f"  + lever to 15% vol : CAGR {svrp['CAGR']:+.1%}  MDD {svrp['MDD']:+.1%}  Calmar {svrp['Calmar']:.2f}")
+
+    best_calmar = max(best[1]["Calmar"], svt["Calmar"], srp["Calmar"], svrp["Calmar"])
     print("=" * 76)
-    print(f"BEST BLEND: w_offense={best[0]:.2f}  ->  CAGR {best[1]['CAGR']:+.1%}, "
-          f"MDD {best[1]['MDD']:+.1%}, Calmar {best[1]['Calmar']:.2f}")
-    print(f"  + vol-target 15%        ->  CAGR {svt['CAGR']:+.1%}, MDD {svt['MDD']:+.1%}, Calmar {svt['Calmar']:.2f}")
-    print(f"GOAL needs Calmar ~ 3.3 (50% CAGR / 15% MDD).  Best achieved: {max(best[1]['Calmar'], svt['Calmar']):.2f}")
-    print(f"  => gap of ~{3.3 / max(best[1]['Calmar'], svt['Calmar'], 0.01):.1f}x. Unbridgeable on this data.")
+    print(f"BEST single-blend: w_offense={best[0]:.2f} -> Calmar {best[1]['Calmar']:.2f}")
+    print(f"BEST overall Calmar (incl. O5 risk-parity): {best_calmar:.2f}")
+    print("GOAL needs Calmar ~ 3.3 (50% CAGR / 15% MDD).")
+    print(f"  => gap ~{3.3 / max(best_calmar, 0.01):.1f}x. Even optimal portfolio construction cannot reach it.")
     print("=" * 76)
 
 
