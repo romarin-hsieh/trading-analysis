@@ -47,5 +47,25 @@
 🥇 擴廣度（S&P500/全市場）｜🥈 PIT 成分股（修倖存者）｜🥉 更長歷史（更多 regime cycle）｜4 regime 條件歸因模組｜5 把 PurgedKFold+DSR/PBO 用在搜尋階段。
 **瓶頸不是演算法，是資料地基**：廣度 > 歷史長度 > 另類資料 > 演算法。
 
+## 五、廣度測試結果 —— 我的假說被**推翻**（51 → ~500 檔）
+
+我預測：擴廣度到 S&P 500 會收緊 ICIR、穩定因子符號（Grinold）。**ingest 501 檔（1.2M rows）實測後，假說被打臉**：
+
+| 因子 | ICIR 51檔 | ICIR 500檔 | 符號穩定(51) | 符號穩定(500) |
+|---|---|---|---|---|
+| mom_12_1 | +0.03 | **−0.03** | 否(翻號) | 否(翻號) |
+| mom_6_1 | **+0.11** | **−0.01** | 是 | 是 |
+| mom_3_1 | +0.11 | −0.04 | 是 | 否(翻號) |
+| lowvol | −0.15 | −0.11 | 是 | 是（唯一兩邊都 PASS）|
+
+**真相（比假說更深刻）**：
+1. **擴廣度沒有收緊 ICIR、也沒穩定符號**——又一次「先量測再斷言」：我預測會改善，量測說沒有。
+2. **動量在廣市場反而變死/變負**（mom_6_1 ICIR +0.11 → −0.01）。它在 51 檔集中科技股強，是因為那 universe 被少數強勢趨勢股（NVDA 等）主導——**那不是穩健的橫截面動量因子，是對特定贏家的 beta**。換到分散、較有效率的 500 檔大盤，動量就消失（呼應 2009 後「動量已死」的學術爭論）。
+3. **Grinold 的盲點**：`Sharpe = IC × √breadth` 假設 IC 不變；但**universe 越廣越有效率，IC 反而下降**。廣度與 IC 互相抵銷——廣度不是免費的 Sharpe。
+4. **唯一跨 universe 存活的是 lowvol**（兩邊都負 IC、單調、穩定）——它是少數不隨 universe 改變的真效應。
+5. **回頭重新詮釋本 session 的產業策略**：它們的「動量 edge」**大半是對少數贏家的 beta，不是因子 alpha**——這也解釋了為何因子搜尋的 alpha 都不顯著（[docs/06](06-factor-search-frontier.md)），而唯一顯著 alpha 來自**多 sleeve 分散**（[docs/08](08-recommended-strategy.md)），不是任何單一因子。
+
+> **修正後的結論**：瓶頸不只是「廣度」——是「**沒有一個 universe-無關的穩健因子**」。提升成效的真正路徑不是盲目擴廣度，而是 (a) 為**每個 universe 分別驗證**因子（因子是 universe 特定的）、(b) 靠**多元分散**榨 alpha（已證實有效）、(c) 補**另類資料**提高 IC 本身。擴廣度單獨無效——這是這次實測最重要的修正。
+
 ---
-*工具：`scripts/factor_determination.py`、`scripts/{factor_search,sector_strategies,leveraged_strategies,meta_portfolio,validate_recommendation}.py`。2026-06-16。*
+*工具：`scripts/factor_determination.py`（51 vs 500 廣度測試）、`configs/{universe_sp500,sp500}.yaml`（501 檔已 ingest）。2026-06-16。*

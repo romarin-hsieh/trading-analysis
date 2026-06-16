@@ -1,0 +1,10 @@
+universe: configs/universe_sp500.yaml
+data:
+  source: yahoo
+  start: 2015-01-01
+  end: 2024-12-31
+  bar: 1d
+  cache_dir: ./data
+model: {use_kronos: false}
+strategy: {rule: minervini_trend, regime_gate: true}
+backtest: {benchmark: SPY, price_field: adj_close}
