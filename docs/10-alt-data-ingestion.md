@@ -113,6 +113,26 @@ edgar.point_in_time(fund, tag, dates, symbols) # as-of 對齊成 [date x symbol]
 >
 > **總結整個另類資料弧線**：唯一穩健的新 alpha 是**基本面品質因子**，而且它的真正價值不只是 IC，而是 **regime-universal + 與動量互補**——這正是 docs/09「動量是 universe/regime 特定」缺口的補位。最佳組合方向：**集中動量（bull）+ 品質（bear/壓力）的 regime-互補配置**。
 
+## 4f. 配置實測：regime-互補（動量↔品質）— 切換**有**幫助，但量小
+
+`scripts/regime_complementary.py`：S&P 500 上，動量 vs 品質 vs 靜態 50/50 blend vs **regime-switched**（bull/calm 用動量、bear/壓力用品質），forward 63d、L/S net 10bps：
+
+| 因子 | IC | 16-19 | 20-24 | LS 年化 | LS Sharpe | LS MDD | Calmar |
+|---|---|---|---|---|---|---|---|
+| momentum | +0.001 | −0.002 | +0.003 | −1.3% | −0.14 | −23.1% | −0.07 |
+| **quality** | **+0.024** | +0.035 | +0.013 | +0.6% | +0.15 | **−7.8%** | 0.07 |
+| static_blend(50/50) | +0.015 | +0.017 | +0.014 | −0.3% | −0.05 | −14.1% | −0.04 |
+| **regime_switched** | +0.017 | +0.019 | +0.015 | **+1.2%** | **+0.18** | −12.9% | **0.08** |
+
+**結果**：
+- **regime_switched 是最佳配置**（Sharpe +0.18、Calmar 0.08）——**勝過靜態 blend（−0.05）也勝過各別因子**。
+- 為什麼 blend 反而差：50/50 把「死掉的廣市場動量」摻進品質 → 稀釋。regime-switch 只在動量有利時才用動量 → 避免稀釋。
+- **quality 單獨 MDD 最低（−7.8%）**，是最可靠的單一因子。
+
+> **精煉的「擇時」教訓（修正前面的發現）**：本 session 一路說「擇時/gating 減損價值」，但那是指 **gate 到現金**。這裡證明：**在兩個互補因子之間 regime-switch（動量↔品質）是有幫助的**——關鍵差別是「off 狀態是生產性的替代訊號（品質）還是現金」。switch 到替代 alpha 有益；gate 到現金有害。
+>
+> **但誠實的量級**：絕對表現仍弱（Sharpe 0.18、年化 1.2%），因為廣市場動量已死、quality L/S 也只是 modest。真正的動量強度在**集中** universe（us_study/sector，bull 期 +0.039），不在廣市場。所以最有潛力的實作是：**集中動量 sleeve（bull）+ 廣品質 sleeve（bear/壓力）的 regime-互補**，而非廣市場 L/S。這留作下一步。
+
 ## 5. 下一步（讓另類資料真正提高 IC）
 
 1. **擴到 S&P 500 基本面**（廣度×10，讓基本面因子有統計力——這正是 docs/09 缺的）。
