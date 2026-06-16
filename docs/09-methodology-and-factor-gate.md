@@ -85,5 +85,25 @@
 
 > 教訓：選擇規則（「只在這些 regime 套用」）**必須做多重測試校正 + 自相關感知的 CI + 有效樣本數**，否則 regime-conditional 分析會系統性地亂中星。模組現在內建這三道防線。本 session 第二次靠對抗式 review 把自己的過度自信糾正回來。
 
+## 七、C 結果：regime-conditional 切換**沒有**提升成效（誠實負面結果）
+
+把適用地圖（動量顯著於 bull/low-vol/normal）做成實際切換規則，對照不切換與簡單 200SMA gate（`scripts/regime_switching.py`，net 10bps）：
+
+| 變體 | CAGR | Sharpe | MDD | **Calmar** | 16-19 Sh | 20-24 Sh |
+|---|---|---|---|---|---|---|
+| **A 不切換（純動量）** | +23.5% | 1.06 | −37% | **0.63** | 1.22 | 1.10 |
+| B 200SMA gate | +16.0% | 0.95 | −31% | 0.51 | 1.16 | 1.01 |
+| C 適用地圖→現金 | +11.2% | 0.74 | −22% | 0.52 | 1.08 | **0.69** |
+| D 適用地圖→債券 | +10.4% | 0.67 | −32% | 0.33 | 1.08 | 0.60 |
+| 1/N 買進持有 | +18.8% | 1.02 | −33% | 0.56 | — | — |
+
+**結論（清楚的負面結果）**：
+- **不切換的純動量（A）Calmar 最高（0.63）、Sharpe 最高**——切換**犧牲的報酬大於省下的回撤**，風險調整後反而更差。
+- **精緻的多 regime 條件化（C）≈ 簡單 200SMA gate（B）**（Calmar 0.52 vs 0.51）→ **複雜度毫無增益**。
+- C/D 在 **2020-24 子期 Sharpe 大跌**（0.69/0.60 vs A 的 1.10）——gate 在 COVID/2022 後一直錯過反彈，**主動傷害**近期績效。
+- 嚴謹閘門（A）：PSR-vs-0=0.999 但 **PSR-vs-1/N=0.58、SPA p=0.05**——純動量也只是勉強贏 1/N。
+
+> **最深的教訓：conditional IC（描述性）≠ 可獲利的 gate（處方性）。** 適用地圖說「動量在 bull 的 IC 較高」是**對的**，但據此 gate 到 bull-only **不會**提升 Sharpe——因為 (a) regime 標籤有 lag、(b) **退出市場的機會成本 > 省下的回撤**（市場多數時間在漲，低-IC 的 bear 區段平均報酬仍為正）。這呼應整個 session 的反覆發現：**擇時/gating 傾向減損價值**。適用地圖適合**理解因子**，不適合直接當**擇時開關**。
+
 ---
-*工具：`scripts/factor_determination.py`（51 vs 500 廣度測試）、`scripts/regime_applicability.py`（適用地圖）、`src/trading_analysis/regime/conditional_attribution.py`。2026-06-16。*
+*工具：`scripts/factor_determination.py`、`scripts/regime_applicability.py`、`scripts/regime_switching.py`、`src/trading_analysis/regime/conditional_attribution.py`。2026-06-16。*
