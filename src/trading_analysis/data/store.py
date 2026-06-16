@@ -212,6 +212,37 @@ class DuckStore:
         df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce")
         return df
 
+    # ---------- Insider transactions (alt-data, point-in-time by `as_of` = SEC filing date) ----------
+
+    def _insider_path(self, symbol: str) -> Path:
+        return (self.cache_dir / "insider" / f"symbol={symbol.upper()}" / "data.parquet")
+
+    def upsert_insider(self, df: pd.DataFrame) -> int:
+        """Insert/replace aggregated insider rows. Idempotent on (symbol, as_of)."""
+        if df.empty:
+            return 0
+        total = 0
+        for symbol, part in df.groupby("symbol", sort=False):
+            path = self._insider_path(symbol)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if path.exists():
+                merged = pd.concat([pd.read_parquet(path), part], ignore_index=True)
+                merged = merged.drop_duplicates(subset=["symbol", "as_of"], keep="last")
+            else:
+                merged = part
+            merged.to_parquet(path, index=False)
+            total += len(merged)
+        return total
+
+    def load_insider(self, symbols: list[str]) -> pd.DataFrame:
+        frames = [pd.read_parquet(self._insider_path(s)) for s in symbols
+                  if self._insider_path(s).exists()]
+        if not frames:
+            return pd.DataFrame()
+        df = pd.concat(frames, ignore_index=True)
+        df["as_of"] = pd.to_datetime(df["as_of"])
+        return df
+
     # ---------- DuckDB ad-hoc query ----------
 
     def query(self, sql: str) -> pd.DataFrame:
