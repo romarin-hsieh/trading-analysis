@@ -36,6 +36,25 @@ edgar.point_in_time(fund, tag, dates, symbols) # as-of 對齊成 [date x symbol]
 - **示範因子**（證明 pipeline 通且防洩漏）：gross profitability = GrossProfit(年度)/Assets，point-in-time 對齊 → IC(fwd 63d) ≈ +0.002（25/51 檔有資料，銀行無 GrossProfit）。**因子弱（如預期：25 檔、慢年度因子），但基礎設施是交付物，且 leak-free。**
 - 96 tests pass、ruff clean、預算 $0。
 
+## 4b. S&P 500 基本面因子閘門結果（1+2 完成）— 另類資料**真的**帶來新訊號
+
+已 ingest **全 S&P 500：731,085 筆事實 / 503 檔**。建 6 個 point-in-time 基本面因子（`factors/fundamentals.py`），過閘門（`scripts/fundamental_factors.py`，forward 63d IC）：
+
+| 因子 | cover | IC | ICIR | IC16-19 | IC20-24 | 判定 |
+|---|---|---|---|---|---|---|
+| **gross_profitability**（Novy-Marx）| 248 | **+0.034** | **+0.30** | +0.048 | +0.019 | **最強、跨期同號** ✅ |
+| asset_growth | 493 | −0.027 | −0.22 | −0.052 | −0.006 | weak（方向與文獻反，本十年高成長贏）|
+| roa / accruals | ~480 | ~0 | ~0 | 翻號 | — | FAIL |
+| earnings_yield / book_to_market（價值）| ~480 | 負 | 負 | 翻號 | — | **FAIL（價值的失落十年）** |
+
+**關鍵對比（另類資料的價值主張被證實）**：在廣市場上 [docs/09](09-methodology-and-factor-gate.md) 證明**動量已死**（ICIR≈−0.01），但**gross profitability 活著**（ICIR **+0.30**，全 session 最強 IC）。實測 L/S sleeve：
+
+- gross_profitability L/S：年化 +1.7%、**Sharpe +0.45**（正）
+- 廣市場動量 L/S：年化 −1.3%、Sharpe **−0.14**（負，呼應 docs/09）
+- **相關性 +0.08**（極低 → 真正分散）
+
+> **結論：另類資料交付了一個真正的新訊號。** 在廣、有效率的 universe 上，**基本面品質因子（gross profitability）勝過價量動量**——這正是 alt-data 該做到的：價量做不到的、穩健、低相關的 IC 來源。它單獨 Sharpe 0.45 modest 但真實；與**集中**動量 sleeve（非廣市場動量）結合最有望提升組合 alpha。價值因子（earnings yield、B/M）在 2015-24 失效（價值失落十年）。
+
 ## 5. 下一步（讓另類資料真正提高 IC）
 
 1. **擴到 S&P 500 基本面**（廣度×10，讓基本面因子有統計力——這正是 docs/09 缺的）。
