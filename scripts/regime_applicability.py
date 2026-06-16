@@ -53,12 +53,15 @@ def main():
             print(f"  [{rn}]")
             for regime_label, row in tbl.iterrows():
                 ci = f"[{row['ic_lo']:+.3f}, {row['ic_hi']:+.3f}]" if np.isfinite(row.get("ic_lo", np.nan)) else "[n/a]"
-                star = " *" if row.get("ci_excludes_0") else ""
-                print(f"     {regime_label:10s} n={int(row['n_days']):4d}  IC {row['mean_ic']:+.3f}  "
-                      f"ICIR {row['icir']:+.2f}  CI90 {ci}{star}")
+                star = " *APPLY" if row.get("significant_fdr") else ""
+                # n_eff << n_days: overlapping 21d windows -> few independent obs (honesty)
+                print(f"     {regime_label:10s} n={int(row['n_days']):4d} (n_eff~{int(row['n_eff']):3d})  "
+                      f"IC {row['mean_ic']:+.3f}  CI90 {ci}{star}")
     print("\n" + "=" * 80)
-    print("  '*' = CI excludes 0 (edge survives in that regime). Read this as: APPLY the factor")
-    print("  only in starred regimes; gate it OFF elsewhere. But note the tiny # of episodes.")
+    print("  '*APPLY' = FDR-corrected significant (Benjamini-Hochberg across the whole regime")
+    print("  family). Read: apply the factor only in *APPLY regimes; gate it OFF elsewhere.")
+    print("  n_eff = n_days / autocorrelation-inflation — a 350-day regime may hold ~30 indep obs,")
+    print("  so even a *APPLY star rests on few independent episodes. ICIR omitted (overlap-inflated).")
     print("=" * 80)
 
 

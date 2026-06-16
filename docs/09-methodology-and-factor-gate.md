@@ -67,5 +67,23 @@
 
 > **修正後的結論**：瓶頸不只是「廣度」——是「**沒有一個 universe-無關的穩健因子**」。提升成效的真正路徑不是盲目擴廣度，而是 (a) 為**每個 universe 分別驗證**因子（因子是 universe 特定的）、(b) 靠**多元分散**榨 alpha（已證實有效）、(c) 補**另類資料**提高 IC 本身。擴廣度單獨無效——這是這次實測最重要的修正。
 
+## 六、B 落地：regime-conditional 歸因模組（filter 適用地圖）
+
+建 `src/trading_analysis/regime/conditional_attribution.py`（`scripts/regime_applicability.py` demo、93 tests）：量測因子 IC **在每個 regime 桶內**，含防洩漏 lagged 標籤 + stationary-bootstrap CI。經 **10-agent 對抗式 review**（每個發現都實測），修了 5 個確認問題：
+
+| # | 嚴重 | 問題 | 修正 |
+|---|---|---|---|
+| 1 | HIGH | ~14 個 (因子×regime×桶) cell 用 90% CI 無多重測試校正 → 純噪音因子 ~69% 機率亂中星 | 加 **Benjamini-Hochberg FDR**，決策旗標改 `significant_fdr`（家族層級）|
+| 2 | MED | bootstrap block=10 太短（21d 重疊 IC 自相關 φ≈0.93、VIF=13）→ CI 過窄、假陽性率 0.32 | block = max(horizon, VIF)；並報 **n_eff = n/VIF**（350 天 regime 只 ~30 獨立觀測）|
+| 3 | MED | 空 regime 桶丟 cryptic KeyError | 空 groupby 回傳空表 |
+| 4 | LOW | ICIR 在重疊 IC 上被誤讀為顯著 | demo 移除 ICIR、改顯示 CI + n_eff |
+| 5 | LOW | trend_regime 暖身期誤標 "bear" | 暖身 mask 成 NaN |
+
+**修正後的適用地圖（更誠實）**：
+- **動量**：FDR 後仍顯著於 **bull / low-vol / normal**（穩健）。
+- **lowvol**：FDR + 正確 block 後**所有星號消失**——它先前的 regime「edge」**通不過多重測試**，是 review 抓到的假陽性。
+
+> 教訓：選擇規則（「只在這些 regime 套用」）**必須做多重測試校正 + 自相關感知的 CI + 有效樣本數**，否則 regime-conditional 分析會系統性地亂中星。模組現在內建這三道防線。本 session 第二次靠對抗式 review 把自己的過度自信糾正回來。
+
 ---
-*工具：`scripts/factor_determination.py`（51 vs 500 廣度測試）、`configs/{universe_sp500,sp500}.yaml`（501 檔已 ingest）。2026-06-16。*
+*工具：`scripts/factor_determination.py`（51 vs 500 廣度測試）、`scripts/regime_applicability.py`（適用地圖）、`src/trading_analysis/regime/conditional_attribution.py`。2026-06-16。*
