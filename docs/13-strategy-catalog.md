@@ -122,6 +122,37 @@ LSTM/Transformer 價格預測(Kronos)、強化學習(Deng)、GNN 股票關聯(Al
 
 > **鐵律確立**：在「2015-24 美股日線 + 基本面」這個資料上，**多 sleeve 風險平價組合（docs/08，alpha t=2.64）是天花板，加任何網路/論文熱門策略都不改善**——它們不是 in-sample、就是衰退、就是賠錢、就是被短歷史誤判。**這不是策略不夠多，是資料維度到頂。** 真正的下一步只剩 [docs/11](11-data-dimensions.md)：①修偏誤(PIT 成分股) ②延長歷史(1990s，讓 TAA/品質/regime 能被公平驗證) ③新 IC 來源(PEAD/13F/估計修正) ④日內(ORB)。**先換資料，策略才有意義。**
 
+## 8. 已試：多資產 TAA「延長歷史」決定性測試 — **我上一條 commit 的預測一半被證偽**（自抓第 N 個失誤）
+
+§6 我下了一個**可證偽的預測**：「2015-24 對 TAA 不利，延長到含熊市的多十年歷史，TAA 會大放異彩（Sharpe 應遠高於 0.74）」。我用 `scripts/taa_long_history.py` 直接驗證——同樣的 Antonacci/Faber 規則，換成有真實多週期記錄的 Vanguard 共同基金代理（含息調整，回溯到 1996，**窗口現在真的包含 2000-02 網路泡沫破裂 + 2007-09 GFC**）：
+
+宇宙 risk=`VFINX(美) VGTSX(國際) VEIEX(EM) VGSIX(REIT)`、def=`VUSTX(長債) VBMFX(總債) VFITX(中債)`、cash=`VFISX(短債)`。
+
+| 策略（1996-2024，淨 10bps） | CAGR | Sharpe | MDD | Calmar |
+|---|---|---|---|---|
+| Antonacci dual-mom | +8.6% | 0.64 | −40.1% | 0.22 |
+| Faber GTAA | +5.8% | **0.58** | −35.0% | 0.16 |
+| 60/40 (US/bond) | +7.6% | **0.70** | −34.7% | 0.22 |
+| US buy&hold | +9.2% | 0.55 | **−55.3%** | 0.17 |
+
+**各歷史片段總報酬（資本保護測試 — TAA 的整個賣點）：**
+
+| 策略 | 網路泡沫 00-02 | 復甦 03-07 | GFC 07-09 | QE 牛 09-19 | 2015-24 | covid+22 |
+|---|---|---|---|---|---|---|
+| Antonacci dual-mom | **−8.0%** | +172% | **+3.6%** | +130% | +43% | +13% |
+| Faber GTAA | **−1.9%** | +121% | **−12.1%** | +87% | +25% | +5% |
+| 60/40 | −11.0% | +59% | −26.2% | +220% | +128% | +53% |
+| US buy&hold | **−33.2%** | +88% | **−45.8%** | +400% | +238% | +96% |
+
+**誠實對帳——我的預測一半對、一半錯：**
+
+- ❌ **錯的一半（Sharpe）**：延長歷史**沒有**讓 TAA 的 Sharpe 變好。Faber 全週期 Sharpe **0.58 < 它在 2015-24 的 0.74**；Antonacci 0.64。**全宇宙、全策略、28 年，沒有一個 Sharpe 贏過簡單 60/40 的 0.70。** 我以為「換對窗口 TAA 就會發光」是錯的——TAA 不是被窗口埋沒了「Sharpe」。
+- ✅ **對的一半（回撤/資本保護）**：TAA 在兩次真熊市**確實**保護資本，如設計所言。GFC 中 buy&hold −45.8%、60/40 −26.2%，而 **Antonacci 是 +3.6%（正報酬！因絕對動量正確輪到飆漲的長債）**、Faber −12.1%。網路泡沫中 buy&hold −33.2%，TAA 只 −2~8%。全週期 MDD：TAA −35/40% vs buy&hold −55%。
+
+> **更鋒利的結論（比 §7 更強）**：TAA 是**「回撤保險」交易，不是報酬或 Sharpe 增強交易**。它用犧牲牛市漲幅換取熊市保護，兩者對稱 → 全週期 Sharpe 打平甚至略輸 60/40。**真正的鐵證是：這個資產類別宇宙的 Sharpe 天花板 ≈ 0.70，對「策略」不變、對「28 年歷史長度」也不變。** 我把 docs/11 ②「延長歷史」這根槓桿真的拉了，Sharpe 天花板紋風不動——**這是「綁定約束是資料維度（宇宙的資訊含量），不是策略、不是窗口」最強的一次證明。**
+
+> **接回使用者的雙重目標**：使用者要「50-100% CAGR **且** 不承受大幅失本金風險」。Calmar 牆已證明 CAGR 那一半不可能；但**這次證明 TAA/防禦疊加能交付「不失本金」那一半**——把最大回撤從 −55% 壓到 −35%，且**安然度過（甚至獲利於）GFC 與網路泡沫**。對一個會計較「2008 我不能 −50%」的真實投資人，這個防禦價值是真的、可重現的——即使它永遠給不了 CAGR 那一半。這是這整輪研究第一個**對使用者實際效用為正**的可交付結論。
+
 ---
 **Sources（主要）**：[Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
 *接續 docs/00 §E、docs/11(換資料維度)、docs/12(方法地圖)。2026-06-17。*
