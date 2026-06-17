@@ -15,6 +15,7 @@
 | **另類資料 ingestion（EDGAR 基本面 + insider）+ 品質因子發現** | [10-alt-data-ingestion.md](10-alt-data-ingestion.md) |
 | 投資組合對抗審查（O5） | [04-portfolio-review.md](04-portfolio-review.md) |
 | **換資料維度：突破 Grinold 上限的具體項目與優先序** | [11-data-dimensions.md](11-data-dimensions.md) |
+| **量化方法地圖（Kalman/GARCH/HRP/de Prado…）+ 實作示範** | [12-quant-methods-survey.md](12-quant-methods-survey.md) |
 | ★ **執行依據：Master 實作計畫**（M0-M7、契約、CI、第一個 PR）| [01-implementation-plan.md](01-implementation-plan.md) |
 | 計畫生成輸入 BRIEF | [design-brief.md](design-brief.md) |
 | 策略與投資者量化、USIC 冠軍 | [research-inventory.md](research-inventory.md) |
