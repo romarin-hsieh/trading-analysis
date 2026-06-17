@@ -208,6 +208,24 @@ LSTM/Transformer 價格預測(Kronos)、強化學習(Deng)、GNN 股票關聯(Al
 
 > **三根可用免費資料拉的槓桿都拉了，天花板紋風不動。** 結合 §7/§8，**「綁定約束是資料維度」現在從三個獨立角度被證實**。剩下的 ④日內 ORB 需要我們沒有、且 <$15/月 預算內拿不到的資料。**研究弧線到此徹底收斂**：誠實的可交付不是 50% CAGR 策略（Calmar 牆證明不可能），而是**多 sleeve 組合 + 回撤預算前緣（§9C）**——交付使用者「不失本金」那一半目標。
 
+### 9E — 「組合是不是都輸給 VOO？」誠實對帳（`scripts/combo_vs_voo.py`）— **修正我自己 §9C 的單邊框架**
+
+使用者一針見血：raw CAGR 上組合確實輸 VOO。我跑了完整對帳，**不洗白**：
+
+| 2015-07..2024-12（$10k 起） | CAGR | Sharpe | vol | MDD | Calmar | 終值 |
+|---|---|---|---|---|---|---|
+| **VOO（S&P 500）** | +13.7% | 0.80 | 18.1% | −34.0% | 0.40 | **$33,775** |
+| combo（未槓桿）| +11.0% | 1.18 | 9.2% | −19.3% | 0.57 | $26,954 |
+| **combo 槓桿 ×1.96（=VOO 波動，淨 T-bill 融資）** | **+19.8%** | 1.09 | 18.0% | −36.1% | 0.55 | **$55,583** |
+
+- **raw 報酬**：VOO 贏 +2.7%/yr（$33.8k vs $27.0k）。使用者是對的——但這是**拿半風險的組合（9.2% vol）比全風險的指數（18.1% vol）**，對組合不公平。
+- **同波動對打（公平戰）**：把組合槓桿到 VOO 的 18% 波動，**組合反過來大勝 VOO**——CAGR +19.8% vs +13.7%、終值 $55.6k vs $33.8k、Calmar 仍贏(0.55 vs 0.40)，兩個子期(+148%/+124% vs +71%/+98%)都贏。
+- **回撤才是組合的命**（存在理由）：2020 COVID 崩盤 VOO −33.7% **組合僅 −3.9%**；2018Q4 VOO −18.8% 組合 −5.2%；2022 VOO −24.1% 組合 −15.8%。
+- **滾動 1 年**：未槓桿組合只 37% 時間贏 VOO，**槓桿組合 56%**——多頭年輸、跌/盤整年贏。
+- **誠實警告**：×1.96 槓桿用 T-bill 融資是樂觀下界（真實 margin 更貴、gap risk、LETF 損耗）；它的 −36% MDD 比 VOO 還深一點。2015-24 是史上最強多頭十年之一=VOO 近最佳、防禦近最差；全週期(§8 含 2000-02/2008)VOO 優勢縮小、−55% MDD 是代價。
+
+> **自我修正**：我 §9C 的回撤前緣**只展示了「de-lever（降風險降報酬）」方向**，害組合看起來像「報酬比 VOO 低的產品」。但組合的高 Sharpe 真正發光處是**槓桿「up」**：同風險下贏 VOO ~+6%/yr。**正確的一句話**：raw 比、且你撐得過 −34~−55% 回撤又只想要多頭終值最大 → 直接買 VOO 完全理性；想要同/更高報酬但控制回撤 → 槓桿組合（承擔槓桿風險）；想睡得著、回撤砍半 → 未槓桿組合。**沒有免費午餐，只有你選哪個軸。**
+
 ---
 **Sources（主要）**：[Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
 *接續 docs/00 §E、docs/11(換資料維度)、docs/12(方法地圖)。2026-06-17。*
