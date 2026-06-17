@@ -64,6 +64,22 @@ LSTM/Transformer 價格預測(Kronos)、強化學習(Deng)、GNN 股票關聯(Al
 >
 > **但仍守 session 鐵律**：每個新策略都要過嚴謹閘門(DSR/SPA/PSR-vs-1N + 對抗 review)，且預期**單一策略貢獻邊際、真價值在多個低相關 sleeve 的分散**。網路上的「2.4 Sharpe」「1637% 報酬」幾乎都有資料偏誤/容量/執行假設——當靈感，不當已驗證 alpha。
 
+## 4. 已試：季節性 sleeve（結果：**衰退/邊際**，誠實負面）
+
+實作 turn-of-month + overnight 兩個日曆 overlay（`scripts/seasonality_sleeve.py`，SPY、含成本）：
+
+| 策略 | CAGR | Sharpe | MDD | %在市場 |
+|---|---|---|---|---|
+| buy & hold | +13.1% | 0.79 | −33.7% | 100% |
+| **turn_of_month** | +0.6% | **0.12** | −10.2% | 24% |
+| **overnight**(close→open) | +6.7% | 0.62 | −29.4% | 99% |
+
+- **TOM 已衰退到雜訊**（Sharpe 0.12）——它是最有名的日曆異象之一，被重度套利掉了。
+- overnight 真實但 **Sharpe 0.62 < buy-hold 0.79**，且與股票 sleeve 相關（corr to combo +0.22）。
+- **加進多 sleeve 組合反而傷害**：alpha t 從 **2.64 掉到 1.94（跌破顯著）**、Calmar 0.61→0.54——風險平價過配近零報酬的 TOM 而稀釋。
+
+> **直接印證目錄自己的警告**（alpha OOS −26%/發表後 −58%）：TOM 這種廣為人知的日曆異象在 2015-24 已被套利殆盡。**又一個「網路熱門策略≠可驗證 alpha」的實證**。（註：僅測 SPY 市場擇時版；橫截面 overnight-return 因子或其他資產上可能不同，但簡單版已衰退。）
+
 ---
 **Sources（主要）**：[Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
 *接續 docs/00 §E、docs/11(換資料維度)、docs/12(方法地圖)。2026-06-17。*
