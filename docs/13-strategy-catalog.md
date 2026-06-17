@@ -153,6 +153,61 @@ LSTM/Transformer 價格預測(Kronos)、強化學習(Deng)、GNN 股票關聯(Al
 
 > **接回使用者的雙重目標**：使用者要「50-100% CAGR **且** 不承受大幅失本金風險」。Calmar 牆已證明 CAGR 那一半不可能；但**這次證明 TAA/防禦疊加能交付「不失本金」那一半**——把最大回撤從 −55% 壓到 −35%，且**安然度過（甚至獲利於）GFC 與網路泡沫**。對一個會計較「2008 我不能 −50%」的真實投資人，這個防禦價值是真的、可重現的——即使它永遠給不了 CAGR 那一半。這是這整輪研究第一個**對使用者實際效用為正**的可交付結論。
 
+## 9. 已試：兩根「換資料維度」槓桿（PEAD 新 IC 源 ∧ 修倖存者偏誤）— 多代理對抗式驗證
+
+承使用者「三者可以都做嗎」，用 ultracode workflow 同時建 A/B 並各派**兩個對抗式 skeptic**（一個獵 PIT 洩漏、一個攻 in-sample/成本/自相關），第三件 C 我自己合成。兩個 skeptic 都抓到真問題並收緊了結論——這正是本 session 的鐵律：**新 alpha 宣稱必須先被攻擊才採信**。
+
+### 9A — PEAD / SUE（docs/11 ③「新 IC 源」，免費版，只用既有 EDGAR）
+
+`scripts/pead_sue.py`：Bernard-Thomas 季節性隨機漫步 SUE，**只用我們已有的 EDGAR NetIncomeLoss + filed(as_of) 揭露日**（不需 Finnhub）。14,634 個可操作公告。
+
+- **資料品質發現（建構代理自抓）**：EDGAR 10-Q 的 NetIncomeLoss 是**年初至今累計**（~78-81% firm-years 有 |Q1|≤|Q2|≤|Q3| 簽名）→ 必須**逐季拆解** Q2=v(Q2)−v(Q1)…Q4=v(FY)−v(Q3)。直接把 10-Q 當單季會汙染 ~80% 觀測。
+- **漂移測試（事件後超額報酬，vs 等權市場）**：Q5−Q1 = **−0.37%(t=−1.66) / −0.11%(t=−0.39) / +0.07%(t=+0.17)** 於 H=21/42/63 天。**無漂移、且分位非單調**（Q1 +0.17%、Q5 −0.20%）。
+- **決定性的零訊號控制（baked into 腳本）**：long-only top-quintile sleeve 看似「幫」組合（alpha-t 2.64→2.91），**但這是 beta 不是訊號**——加一個**零訊號**等權全名 sleeve 給 2.89、隨機 20% 給 2.80，**一模一樣的 bump**。唯一隔離訊號的**市場中性 L/S**：Sharpe −0.12（gross 已 −0.04），corr +0.09，且**把 alpha-t 從 2.64 拉低到 2.05**。
+- **對抗式驗證**：兩個 lens 都 `claim_holds=true`、high confidence。洩漏 lens：as_of 永不等於 period_end（gap 中位數 +42 天）、多加一根 lag 漂移僅 −0.37%→−0.30%（穩健非刀刃）、**placebo（隨機 SUE 標籤）給 −0.30%/t=−1.33 ≈ 真值** → 那個微負是橫截面/成本 artifact，不是被壓住的正訊號。
+
+> **PEAD 在免費 EDGAR-only 資料上不存在可利用 alpha。** 但本流產出本 session **最重要的方法論升級**：**「long-only sleeve 抬高組合 alpha-t」根本不是 alpha 的證據**——零訊號籃子做得到一樣的事。**唯一有效的 sleeve 測試是市場中性版**。這**回頭打臉 docs/10 §4c**「品質 sleeve 邊際幫助」——那個「幫助」極可能也只是 beta；任何 long-only sleeve 的 incremental-α 主張都須用 L/S 重驗。
+
+### 9B — 修倖存者偏誤（docs/11 ①「修偏誤」）
+
+`scripts/survivorship_test.py`：抓 github 歷史成分股（1996+），補進 109 個**曾在 2015-24 於 S&P500、後被剔除/下市**的名字（BBBY/GME/FOSL/GNW/CZR/AAL…，僅持有到下市），重測兩個最受倖存者偏誤威脅的結論。
+
+| 測試 | cur(501) | union(610) | 結論 |
+|---|---|---|---|
+| 等權買進持有 CAGR | +16.39% | +15.12% | 倖存者**膨脹 +126bps/yr**（下界）|
+| 動量 mom_12_1 t(非重疊) | −0.13 | +0.34 | **兩者皆死**（符號在雜訊內翻）|
+| 低波動 t(naive→非重疊) | −5.54→**−1.05** | −1.48→−0.20 | AC 校正後**兩 universe 都不顯著** |
+
+- **skeptic 抓到的關鍵**：所有 IC t-stat 用**重疊 21 天窗 + 日抽樣**（AC1≈0.93）→ naive t **被灌水 ~3.7 倍**。改用**非重疊每 21 天**重算後，低波動的「−5.54 顯著性崩塌」其實是**拿兩個灌水數字對比**——真相是低波動**在兩個 universe 上本來就不顯著**（n_eff=117）。已把非重疊 t 寫進腳本。
+- **+126bps 的成分**：~97% 是**世代稀釋**（現成分股是事後贏家），只有 ~+6bps 來自 9 個真正窗內下市者（且用樂觀的「以最後價出場」模型，真倒閉是 −100% → 仍是下界）。
+- **覆蓋率誠實註記**：只救回 111/262=42%；最慘的 bankrupt-to-zero（AABA/CBS/ENDP 等）被資料源清掉 → **每個數字都是下界**。
+
+> **修倖存者偏誤後，動量依舊死（強化 docs/09），沒有新 alpha 冒出來**；它揭露的是「單一 universe 的因子顯著性被偏誤+自相關雙重灌水」這個**方法論**問題，不是一個新訊號源。
+
+### 9C — 可交付：回撤預算前緣（`scripts/defensive_overlay.py`）
+
+把已證實的防禦價值變成**可直接用**的東西：在唯一顯著-alpha 策略（5-sleeve 組合，docs/08）上，列出**選你能承受的最大回撤 → 讀出配置 → 接受它誠實的 CAGR**：
+
+| 配置（2015-24, 淨10bps） | CAGR | Sharpe | MDD | Calmar |
+|---|---|---|---|---|
+| combo 100%（無防禦）| +11.0% | 1.18 | −19.3% | 0.57 |
+| 靜態 de-lever L=60% | +7.3% | 1.30 | −11.3% | 0.65 |
+| 靜態 de-lever L=40% | +5.4% | 1.45 | −7.0% | 0.78 |
+| trend overlay floor=0% | +10.4% | 1.17 | −12.7% | **0.82** |
+
+同回撤(−12.7%)下 trend overlay 比靜態 de-lever 多 +2.5% CAGR（in-sample；已附 §8 的「趨勢擇時不改善全週期 Sharpe」誠實警告 → 靜態 de-lever 是零擇時風險的安全預設）。腳本另印**今日目標權重**（債 49.5%/金 21.9%/股動量 15.7%/防禦 7.7%/槓桿趨勢 5.2%）。
+
+### 9D — 元結論：docs/11 四根槓桿已拉三根
+
+| docs/11 槓桿 | 狀態 | 結果 |
+|---|---|---|
+| ②延長歷史(1996+) | ✅已試(§8) | Sharpe 天花板 ≈0.70 不動 |
+| ③新 IC 源(PEAD) | ✅已試(§9A) | 免費 EDGAR 上無 PEAD alpha |
+| ①修倖存者偏誤 | ✅已試(§9B) | 動量仍死、只揭露顯著性灌水 |
+| ④日內(ORB) | ❌未試 | 需日內資料（無、且超預算）|
+
+> **三根可用免費資料拉的槓桿都拉了，天花板紋風不動。** 結合 §7/§8，**「綁定約束是資料維度」現在從三個獨立角度被證實**。剩下的 ④日內 ORB 需要我們沒有、且 <$15/月 預算內拿不到的資料。**研究弧線到此徹底收斂**：誠實的可交付不是 50% CAGR 策略（Calmar 牆證明不可能），而是**多 sleeve 組合 + 回撤預算前緣（§9C）**——交付使用者「不失本金」那一半目標。
+
 ---
 **Sources（主要）**：[Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
 *接續 docs/00 §E、docs/11(換資料維度)、docs/12(方法地圖)。2026-06-17。*
