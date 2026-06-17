@@ -80,6 +80,20 @@ LSTM/Transformer 價格預測(Kronos)、強化學習(Deng)、GNN 股票關聯(Al
 
 > **直接印證目錄自己的警告**（alpha OOS −26%/發表後 −58%）：TOM 這種廣為人知的日曆異象在 2015-24 已被套利殆盡。**又一個「網路熱門策略≠可驗證 alpha」的實證**。（註：僅測 SPY 市場擇時版；橫截面 overnight-return 因子或其他資產上可能不同，但簡單版已衰退。）
 
+## 5. 已試：Kalman 配對交易（結果：**真市場中性但已死**，精煉教訓）
+
+用 Kalman 動態 hedge ratio（`scripts/kalman_pairs.py`）測 6 組經典配對（V/MA、KO/PEP、XOM/CVX、GS/MS、HD/LOW、MSFT/GOOGL），z-score 均值回歸、含成本：
+
+| | Sharpe | corr to combo | 加進組合 |
+|---|---|---|---|
+| 配對 sleeve | **−0.50**（全部 −0.43~+0.10）| **+0.01**（真市場中性 ✅）| 反而傷害：alpha t 2.66→**1.79** |
+
+- **市場中性假說正確**：corr +0.01——配對確實是「不同 beta」的東西，理論上能分散。
+- **但配對 alpha 已死**：6 組全部 net-negative，成本吃光（Gatev 2006 之後人人在做，pairs 套利衰退殆盡）。
+- **精煉教訓：「不相關」不夠，必須「不相關 ∧ 有利可圖」。** 一個賠錢但不相關的 sleeve，風險平價仍給它權重 → 拖累。
+
+> **三連敗（rotation→seasonality→pairs）的鐵律**：每個網路/論文熱門新策略，不是 in-sample 雜訊、就是衰退、就是賠錢。**多 sleeve 風險平價組合（docs/08，alpha t=2.64）仍是這個資料上的天花板，加任何東西都不改善。** 要突破只剩 [docs/11](11-data-dimensions.md) 的換資料維度（PEAD 需估計資料、ORB 需日內、正版 TAA 需更多資產類別）。
+
 ---
 **Sources（主要）**：[Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
 *接續 docs/00 §E、docs/11(換資料維度)、docs/12(方法地圖)。2026-06-17。*
