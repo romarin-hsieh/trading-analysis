@@ -1,11 +1,19 @@
 # trading-analysis 研究總報告（Executive Summary）
 
-> 日期：2026-06-14。本檔是三輪研究的**單一進入點與總索引**；各主題的細節在連結的專文。
-> 範圍：量化策略/指標、知名投資者量化、開源 repo 盤點與 code-level 評估、資料源、回測嚴謹度、與既有 dashboard 的整合架構。
+> 更新：2026-06-17。本檔是**單一進入點與總索引**；細節在連結的專文。
+> **兩部分**：第一部分（規劃/盤點，2026-06-14，§0-§8）＋ **第二部分（實證研究結論，2026-06，§E，docs 05-10）**。
+> 範圍：量化策略/repo/資料源/整合（第一部分）＋ 真實回測、因子搜尋、另類資料、嚴謹度證偽（第二部分）。
 
 ## 文件地圖
 | 主題 | 文件 |
 |---|---|
+| **★ 實證研究（讀這個）：回測 postmortem（17 錯誤+三輪自我修正）** | [05-backtest-postmortem.md](05-backtest-postmortem.md) |
+| **自主因子搜尋：適應度函數下的前沿（Grinold 上限）** | [06-factor-search-frontier.md](06-factor-search-frontier.md) |
+| **產業策略（5+ 可重現）+ 50-100% 目標的 Calmar 證明** | [07-industry-strategies.md](07-industry-strategies.md) |
+| **推薦策略（唯一通過嚴謹閘門、顯著 alpha 的多 sleeve 組合）** | [08-recommended-strategy.md](08-recommended-strategy.md) |
+| **方法論：樣本盤點 + 因子確定閘門 + regime 切換** | [09-methodology-and-factor-gate.md](09-methodology-and-factor-gate.md) |
+| **另類資料 ingestion（EDGAR 基本面 + insider）+ 品質因子發現** | [10-alt-data-ingestion.md](10-alt-data-ingestion.md) |
+| 投資組合對抗審查（O5） | [04-portfolio-review.md](04-portfolio-review.md) |
 | ★ **執行依據：Master 實作計畫**（M0-M7、契約、CI、第一個 PR）| [01-implementation-plan.md](01-implementation-plan.md) |
 | 計畫生成輸入 BRIEF | [design-brief.md](design-brief.md) |
 | 策略與投資者量化、USIC 冠軍 | [research-inventory.md](research-inventory.md) |
@@ -30,6 +38,55 @@
 4. **資料關鍵缺口**：我們 DuckStore 只有 OHLCV，**沒有基本面**。美股用 **SEC EDGAR（point-in-time）** 補，是解鎖 Magic Formula/Graham/QMJ 的前置。
 5. **AI/Kronos 現實檢查**：所有 AI/LLM 交易框架與 Kronos 的 headline 數字**都禁不起嚴格回測檢驗**；當架構骨架/選配，不當已驗證 alpha。規則式核心優先。
 6. **授權**：8 個參考 repo 授權全部寬鬆（MIT/Apache-2.0），無 copyleft 污染（唯 AI-Trader 缺 LICENSE 檔 → 勿複製碼）。
+
+---
+
+# 第二部分：實證研究結論（§E，2026-06，docs 05-10）
+
+> 把第一部分的規劃**真的做出來並嚴格回測**之後的誠實結論。一句話：**沒有穩健的 edge 超過「長部位 + modest 品質傾斜 + 多 sleeve 分散」；50-100% 安全報酬是獨角獸；唯一統計顯著的 alpha 是多 sleeve 風險平價組合（且邊際）。**
+
+## E0. 目前狀態
+- master **41 commits、102 tests、ruff clean、預算 $0**（全部未推 GitHub，待使用者 PAT）。
+- 樣本：**519 檔美股日線 2015-2024（1.26M bar）+ 731k SEC 基本面事實（503 檔）+ 65,503 insider 列**。
+- 已建：修正版 order-independent 回測引擎、O1 嚴謹閘門（DSR/PBO/SPA）、O5 組合（risk-parity）、regime-conditional 歸因模組（FDR）、2 個另類資料 connector（EDGAR 基本面 + insider Form 4，皆 point-in-time）。
+
+## E1. 硬目標證明：50-100% CAGR + 低回撤 = 不可達（docs/07,08）
+- 它等於 **Calmar(CAGR/|MDD|) ≈ 3.3**；跨所有方法（單一/槓桿 0.5-3x/混合/O5 風險平價）**可達最佳 Calmar = 0.64**，差 5 倍。
+- **槓桿是 Calmar 不變量**（同比放大報酬與回撤）；SOXL/TQQQ+趨勢濾網在多頭期確能 40-84% CAGR，但 **MDD −50~−90%**。
+- 三條件（≥5策略 ∧ 低風險 ∧ 50-100%）**數學互斥**。根因：Calmar≈Sharpe 函數，Sharpe 被廣度鎖在 ~1（Grinold）。
+
+## E2. 因子發現：沒有穩健的單因子，**除了基本面品質**（docs/06,09,10）
+| 因子 | 廣 universe ICIR | 判定 |
+|---|---|---|
+| **gross profitability（基本面品質）** | **+0.30 穩定** | ✅ 唯一穩健新 alpha，**regime-universal**（bear/壓力最強=flight-to-quality）|
+| momentum | ~−0.01（廣市場死）| universe 特定（集中科技才強）＝對少數贏家的 beta，非因子 |
+| value（earnings yield, B/M）| 負/翻號 | FAIL（價值失落十年）|
+| insider net-buying | +0.13 不穩 | FAIL（alpha 已衰退）|
+| low-vol | universe 特定 | 不可外推 |
+- 自主因子搜尋 **0/56 配置達 Sharpe 2**；SPA 顯示**無一配置勝 1/N**；擴廣度 51→503 檔**沒幫助**（IC 隨 universe 變廣而下降）。
+
+## E3. 擇時/gating 的真相（docs/05,09,10）
+- **gate 到「現金」減損價值**（退出機會成本 > 省下回撤；200SMA 錯過 SMA 之下反彈）。
+- **但在兩個互補因子間 switch（動量↔品質）有幫助**（off 狀態是生產性替代訊號非現金）——量級小。
+- conditional IC（描述性）≠ 可獲利 gate（處方性）。
+
+## E4. 唯一顯著的 alpha：多 sleeve 風險平價組合（docs/08）
+- 5 sleeve（動量/防禦輪動/槓桿趨勢/黃金/債券）風險平價：**Carhart alpha +6.34%/yr, t=2.64**、Sharpe 1.22、MDD −19%——全 session 唯一統計顯著、過 DSR 的策略。
+- 加品質 sleeve = **邊際**（Sharpe 1.22→1.23、alpha t 降到 2.60）——無 step-change、無銀色子彈。
+
+## E5. Minervini / USIC 驗證：仍有效但**顯著衰退**（docs/05,07）
+- 趨勢/動量是真效應，但 alpha 砍半（Minervini Sharpe 2016-19 1.17 → 2020-24 0.64；AI 集中動量 CAGR 48%→10%；太空軍工 18%→−1%）。正如使用者預測的 alpha decay。
+
+## E6. 嚴謹度是真正的交付物：3 次對抗式 review 抓到真問題
+- **sizing 排序相依**（我「修好」的 value sizing 其實讓 headline 是字母排序 artifact，差 12.4pp；改 from_orders）。
+- **regime-attribution 假陽性**（~14 cell 無多重測試校正，加 Benjamini-Hochberg FDR）。
+- **regime-rotation in-sample 雜訊**（+0.05 Sharpe edge bootstrap P=0.59、OSS 反轉；flight-to-quality 防禦在 2022 反而多虧 7pp；CAGR 被倖存者 CVNA 灌水）。
+- 加上回測 postmortem 自己抓的（等股數 sizing、無除息、distutils）——**共 17+13 個錯誤**，全靠「先量測、deflate、對抗驗證」。
+
+## E7. 誠實的最佳交付 + 限制
+- **最佳可交付 = 多 sleeve 風險平價組合**（docs/08，唯一顯著 alpha）；可選 +15% 品質 tilt 換最佳 Sharpe(1.23)+較低回撤。
+- 要更高報酬只能加槓桿（報酬與回撤同比放大）。要 50-100% 必須接受 −50%+ 回撤。
+- **核心限制（按影響）**：倖存者偏誤（現任成分股）> 廣度/單一市場/日頻 > 無更長歷史（僅 ~3-4 個真熊）> 樣本內調參。要真突破需**換資料維度**（更長歷史、更多市場、更高頻、更強另類資料 IC），非換演算法。
 
 ---
 
