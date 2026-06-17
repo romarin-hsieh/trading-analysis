@@ -133,6 +133,25 @@ edgar.point_in_time(fund, tag, dates, symbols) # as-of 對齊成 [date x symbol]
 >
 > **但誠實的量級**：絕對表現仍弱（Sharpe 0.18、年化 1.2%），因為廣市場動量已死、quality L/S 也只是 modest。真正的動量強度在**集中** universe（us_study/sector，bull 期 +0.039），不在廣市場。所以最有潛力的實作是：**集中動量 sleeve（bull）+ 廣品質 sleeve（bear/壓力）的 regime-互補**，而非廣市場 L/S。這留作下一步。
 
+## 4g. regime-rotation 策略：對抗式 review **證偽**（誠實收尾）
+
+把「集中動量(bull)+品質(bear)」做成 long-only top-20 regime-rotation 策略（`scripts/regime_rotation_strategy.py`），初看最佳（Sharpe 1.21、Calmar 0.89、CAGR +31%，勝 always-momentum 1.16/quality 0.92/SPY 0.79）。但 **16-agent 對抗式 review（13/13 確認）把它證偽**：
+
+| # | 發現 | 證據 |
+|---|---|---|
+| 1 | **+0.05 Sharpe edge 是雜訊** | bootstrap P=0.59、CI[−0.36,+0.49] 跨 0；OOS(2016+) diff Sharpe −0.01 |
+| 2 | **flight-to-quality 防禦被證偽** | 2022 熊市確實切到品質(20/20 持股)，但品質 1:1 崩(−29.9%)，**比純動量多虧 ~7pp** |
+| 3 | **edge 純屬 in-sample** | 16-19 +0.217 Sharpe → 20-24 **−0.061**；全期累積**輸純動量 −6.6%** |
+| 4 | **CAGR 被倖存者灌水** | top-5 名=22% PnL、top-1 CVNA(Carvana 晚上市倖存者)=7% |
+| 5 | **3 條件 regime 規則過擬合** | 一行 SPY>200SMA gate 一樣好或更好 |
+| 6-7 | rotation **~75% 其實就是 always-momentum** | 隔離貢獻=coin-flip；quality leg≈雜訊 |
+| 8 | 倖存者＋成分股 look-ahead 偏誤 | 500 檔全現任、0 下市、22 檔 2019 後才入指數 |
+| 9-11 | ✅ **無 look-ahead 洩漏**（兩種方法驗證）| 訊號全 point-in-time、filed-date 對齊 leak-free |
+
+> **誠實結論：regime-rotation 沒有真實 edge。** +0.05 Sharpe 是 in-sample 雜訊、OOS 反轉；regime 規則過擬合(簡單 200SMA 一樣好)；rotation 本質就是 always-momentum；**「壓力時切品質防禦」在 2022 反而虧更多（防禦機制本身是最大虧損來源）**；CAGR 被倖存者(CVNA)灌水。**唯一的好消息：策略 leak-free**(review 9-11 確認數字是真的、只是 in-sample-fitted)。
+>
+> **這是 session 紀律的完美示範**：我標了 in-sample 風險、照做、對抗式 review，review 決定性地證明它是 in-sample artifact——**第三次** review workflow 抓到真問題(前兩次：sizing 排序相依、regime-attr FDR)。誠實 baseline 是 always-momentum(Sharpe~1.16，本身 leak-free 但 −35% MDD ＋倖存者灌水)，rotation 加不了任何東西。
+
 ## 5. 下一步（讓另類資料真正提高 IC）
 
 1. **擴到 S&P 500 基本面**（廣度×10，讓基本面因子有統計力——這正是 docs/09 缺的）。
