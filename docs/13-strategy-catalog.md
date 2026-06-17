@@ -94,6 +94,34 @@ LSTM/Transformer 價格預測(Kronos)、強化學習(Deng)、GNN 股票關聯(Al
 
 > **三連敗（rotation→seasonality→pairs）的鐵律**：每個網路/論文熱門新策略，不是 in-sample 雜訊、就是衰退、就是賠錢。**多 sleeve 風險平價組合（docs/08，alpha t=2.64）仍是這個資料上的天花板，加任何東西都不改善。** 要突破只剩 [docs/11](11-data-dimensions.md) 的換資料維度（PEAD 需估計資料、ORB 需日內、正版 TAA 需更多資產類別）。
 
+## 6. 已試：多資產 TAA（Antonacci/Faber）— **此十年弱，但這正是「短歷史偏誤」的鐵證**
+
+正版多資產 TAA（`scripts/taa_dual_momentum.py`，10 個資產類別 ETF：美/國際/EM 股、REIT、商品、金、債、現金）：
+
+| 策略 | CAGR | Sharpe | MDD | Calmar | 16-19 | 20-24 |
+|---|---|---|---|---|---|---|
+| Antonacci dual-mom | +7.5% | 0.54 | −29% | 0.26 | 0.55 | 0.55 |
+| **Faber GTAA** | +6.6% | 0.74 | **−15.5%** | 0.42 | 0.82 | 0.71 |
+| 60/40 (SPY/AGG) | +9.6% | **0.87** | −21.7% | 0.44 | 1.32 | 0.71 |
+| SPY buy&hold | +14.6% | 0.85 | −33.7% | 0.43 | 1.11 | 0.75 |
+
+- TAA（0.54/0.74）**輸給簡單 60/40（0.87）和 SPY（0.85）**——Faber 確實壓低回撤（−15.5%）但犧牲報酬。
+- 對組合 corr **+0.66**（高，因組合已有 trend/債/金 sleeve）→ 加進去稀釋（alpha t 2.64→2.27）。
+- **但這是 period-specific**：2015-24 是「持續股票多頭」十年，**對 TAA 最不利的環境**（它一直去風險、錯過漲幅）。TAA 在**熊市十年（2000-2010）大放異彩**（Faber 原始回測橫跨多次熊市）——而我的樣本只有 ~3-4 個熊市。
+
+> **這是 docs/11 ②「延長歷史」最乾淨的鐵證**：一個有真實百年 OOS 記錄的策略（TAA），在一個刻意對它不利的 10 年窗口上看起來很弱。**用 2015-24 評斷 TAA 是不公平的——這正是短歷史偏誤。** 這個結果不削弱 TAA，反而**強化「綁定約束是資料/歷史長度，不是策略」**的結論。
+
+## 7. 四連敗的結論（rotation→seasonality→pairs→TAA）
+
+| 候選 | 結果 | 失敗模式 |
+|---|---|---|
+| regime-rotation | 證偽 | in-sample 雜訊 |
+| seasonality(TOM/overnight) | 邊際 | 異象衰退 |
+| Kalman pairs | 賠錢 | 套利殆盡、成本吃光（但**真市場中性** corr +0.01）|
+| 多資產 TAA | 此十年弱 | 短歷史偏誤（樣本是 TAA 最差環境）|
+
+> **鐵律確立**：在「2015-24 美股日線 + 基本面」這個資料上，**多 sleeve 風險平價組合（docs/08，alpha t=2.64）是天花板，加任何網路/論文熱門策略都不改善**——它們不是 in-sample、就是衰退、就是賠錢、就是被短歷史誤判。**這不是策略不夠多，是資料維度到頂。** 真正的下一步只剩 [docs/11](11-data-dimensions.md)：①修偏誤(PIT 成分股) ②延長歷史(1990s，讓 TAA/品質/regime 能被公平驗證) ③新 IC 來源(PEAD/13F/估計修正) ④日內(ORB)。**先換資料，策略才有意義。**
+
 ---
 **Sources（主要）**：[Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
 *接續 docs/00 §E、docs/11(換資料維度)、docs/12(方法地圖)。2026-06-17。*
