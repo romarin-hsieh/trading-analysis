@@ -226,6 +226,19 @@ LSTM/Transformer 價格預測(Kronos)、強化學習(Deng)、GNN 股票關聯(Al
 
 > **自我修正**：我 §9C 的回撤前緣**只展示了「de-lever（降風險降報酬）」方向**，害組合看起來像「報酬比 VOO 低的產品」。但組合的高 Sharpe 真正發光處是**槓桿「up」**：同風險下贏 VOO ~+6%/yr。**正確的一句話**：raw 比、且你撐得過 −34~−55% 回撤又只想要多頭終值最大 → 直接買 VOO 完全理性；想要同/更高報酬但控制回撤 → 槓桿組合（承擔槓桿風險）；想睡得著、回撤砍半 → 未槓桿組合。**沒有免費午餐，只有你選哪個軸。**
 
+**雙向槓桿前緣（`scripts/defensive_overlay.py` 已改成完整雙向菜單，借款以 BIL+1.5%/yr 融資）：**
+
+| L | CAGR | Sharpe | vol | MDD | Calmar | $10k→ | vs VOO |
+|---|---|---|---|---|---|---|---|
+| 0.40（重防禦）| +5.4% | 1.45 | 3.7% | −7.0% | 0.78 | $16,527 | |
+| 1.00（組合本體）| +11.0% | 1.18 | 9.2% | −19.3% | 0.57 | $26,954 | 風險調整贏、raw 輸 |
+| 1.50 | +14.8% | 1.07 | 13.8% | −29.1% | 0.51 | $36,913 | **勝 VOO($) ∧ 支配(Calmar≥VOO)** |
+| 1.75 | +16.6% | 1.03 | 16.1% | −33.6% | 0.49 | $42,872 | **勝 ∧ 支配** |
+| 2.00（≈VOO 波動）| +18.4% | 1.01 | 18.4% | −37.9% | 0.49 | $49,543 | **勝 ∧ 支配** |
+| VOO 基準 | +13.7% | 0.80 | 18.1% | −34.0% | 0.40 | $33,775 | — |
+
+**L≥1.5 整段都「支配」VOO**（終值更高 ∧ Calmar 更高），因為 VOO 的 Calmar(0.40) 太差。代價：L=2 的 MDD −37.9% 比 VOO 略深、且承擔保證金/gap/融資風險。腳本另印**今日權重**（債49.5/金21.9/股動量15.7/防禦7.7/槓桿趨勢5.2），乘上你選的 L 即可。
+
 ---
 **Sources（主要）**：[Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
 *接續 docs/00 §E、docs/11(換資料維度)、docs/12(方法地圖)。2026-06-17。*
