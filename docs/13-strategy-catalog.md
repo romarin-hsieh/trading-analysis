@@ -239,6 +239,33 @@ LSTM/Transformer 價格預測(Kronos)、強化學習(Deng)、GNN 股票關聯(Al
 
 **L≥1.5 整段都「支配」VOO**（終值更高 ∧ Calmar 更高），因為 VOO 的 Calmar(0.40) 太差。代價：L=2 的 MDD −37.9% 比 VOO 略深、且承擔保證金/gap/融資風險。腳本另印**今日權重**（債49.5/金21.9/股動量15.7/防禦7.7/槓桿趨勢5.2），乘上你選的 L 即可。
 
+## 10. 外部掃描（Falak Khan / London Strategic Edge）＋ 本業面（營運）基本面因子實測
+
+使用者給了 IG @falaktb 三支 reel ＋ londonstrategicedge.com/backtest?mode=auto，要「依本業面參數想更多量化可能」。
+
+**來源辨識**：@falaktb = **Falak Khan**，**London Strategic Edge(LSE) 創辦人**（£5.5M seed）——IG 帳號與那個 backtest 工具是同一個產品。LSE = 免費「Bloomberg 替代」：tick 級回測 30 年、ML Studio(XGBoost/LSTM/**transformer**)、策略語言 Brue、16,000+ 商品、「訓練在自家所有回測上的 LLM」（=reel3 的 20B LoRA 微調）。三支 reel：①transformer attention 動態加權 returns/vol/autocorr——**他自己的結論正是本 session 主軸**：「測 attention 在**樣本外**是否成立，還是只是擬合 regime 一變就消失的結構」；②gamma scalping/delta hedging(選擇權，需我們沒有的資料)；③微調 20B LLM 做「機構級」分析。
+
+> **戰略判讀**：LSE 是**技術/ML/tick 強權，但明說「非基本面」**（"rather than traditional fundamental analysis"）。那個盲點正是我們**已證實的唯一 edge**：point-in-time **本業基本面**。而 `mode=auto`＝**自動策略優化器**＝Falak reel#1 自己警告、也正是我們 DSR/PBO/SPA＋市場中性 L/S-vs-beta 控制專門在抓的**過擬合機器**。哲學一致，工具的誘惑就是陷阱。→ 正確的事是往 LSE 忽略的軸（本業基本面）加碼。
+
+**實測：7 個新「本業（營運）基本面」因子**（`scripts/core_business_factors.py`，500 檔 S&P500，2015-24，leak-free，市場中性 L/S 淨10bps，加零訊號控制）：
+
+| 因子 | ICIR | t | IR16-19 | IR20-24 | L/S Sharpe | a_t+LS | verdict |
+|---|---|---|---|---|---|---|---|
+| op_margin_level（營益率 OpInc/Rev）| −0.07 | **−3.63** | −0.07 | −0.08 | −0.60 | 1.17 | **反號(穩定)** |
+| op_margin_trend（營益率擴張）| +0.10 | +4.52 | +0.00 | +0.16 | +0.13 | 2.17 | WEAK(前半死) |
+| gp_level（毛利/資產，已知贏家）| +0.15 | +7.43 | +0.20 | +0.11 | +0.36 | 2.53 | 重現但 <控制 |
+| gp_trend（品質動量）| −0.04 | −2.03 | −0.09 | −0.01 | +0.01 | 2.22 | FAIL |
+| cfo_profitability（現金獲利）| +0.04 | +1.77 | +0.10 | +0.02 | −0.05 | 2.02 | FAIL |
+| revenue_growth（營收成長）| +0.04 | +2.08 | +0.06 | +0.03 | +0.19 | 2.15 | WEAK(beta) |
+| quality_improving（高∧改善品質）| +0.05 | +2.60 | +0.02 | +0.08 | +0.12 | 2.31 | WEAK |
+| **零訊號 EW 控制(beta baseline)** | | | | | | **2.89** | combo base 2.64 |
+
+- **沒有任何新因子是真訊號（winners=空）**。決定性發現：**零訊號 EW-all 控制 sleeve 把 combo alpha-t 從 2.64 抬到 2.89**，而**每個因子的市場中性 L/S sleeve 都 <2.89** → 組合層級「加分散 beta」勝過「疊因子訊號」。連 gp_level(L/S 2.53)都過不了這嚴格 portfolio bar。
+- **兩個有意思的真發現**：(1)**`op_margin_level` 穩定反號**（高營益率→低報酬，IC t=−3.63，兩半都負）——這**完全符合 Novy-Marx**：毛利/**資產**有效，但**營益率/營收**無效(高margin被追捧/擁擠)。(2)**portfolio 教訓**：combo 的 edge 是**分散/beta-shaping，不是因子 alpha**——這從新角度再次證實本 session 主軸。
+- **誠實註記**：portfolio bar(贏零訊號 beta 控制)很嚴，連 gp_level 都「WEAK」——這不代表 GP 無用(它**獨立** ICIR+0.15/兩半同號/L/S+0.36 都真、重現已知贏家)，而是**沒有新本業因子超過 GP**＋組合不需更多因子 sleeve。
+
+> **§10 鐵律**：**本業基本面因子空間在 gross_profitability 到頂**，7 個新營運因子無一超越。結合 §4-9，**所有「能用現有資料測」的 alpha 路徑都已測盡**。剩餘真路：(A)需新資料的 alpha(日內 ORB／選擇權 VRP-gamma／分析師估計修正／sector-relative 需 sector map)；(B)**非 alpha 但有產品價值**＝Falak/LSE 式的 **LLM 分析層**（把我們的因子/regime/combo 輸出轉成機構級敘述餵 dashboard，對齊使用者 V1 LLM 路線）。**alpha 的綁定約束仍是資料維度；新增量價值在分析/呈現層，不在再找因子。**
+
 ---
-**Sources（主要）**：[Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
+**Sources（主要）**：[London Strategic Edge](https://londonstrategicedge.com/) · [LSE GitHub](https://github.com/londonstrategicedge) · [Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
 *接續 docs/00 §E、docs/11(換資料維度)、docs/12(方法地圖)。2026-06-17。*
