@@ -266,6 +266,29 @@ LSTM/Transformer 價格預測(Kronos)、強化學習(Deng)、GNN 股票關聯(Al
 
 > **§10 鐵律**：**本業基本面因子空間在 gross_profitability 到頂**，7 個新營運因子無一超越。結合 §4-9，**所有「能用現有資料測」的 alpha 路徑都已測盡**。剩餘真路：(A)需新資料的 alpha(日內 ORB／選擇權 VRP-gamma／分析師估計修正／sector-relative 需 sector map)；(B)**非 alpha 但有產品價值**＝Falak/LSE 式的 **LLM 分析層**（把我們的因子/regime/combo 輸出轉成機構級敘述餵 dashboard，對齊使用者 V1 LLM 路線）。**alpha 的綁定約束仍是資料維度；新增量價值在分析/呈現層，不在再找因子。**
 
+## 11. 使用者自選宇宙（137 檔高波動）的動量規則消融實驗（2025，多代理驗證）
+
+使用者問「把規範套到這 137 檔、2025 賺多少」＋「測高波動友善變體能否不輸 buy&hold」。`scripts/custom_universe_2025.py`＋`scripts/custom_universe_variants.py`（8 變體消融），2 個 skeptic 驗證（洩漏＋框架）。
+
+| 操作 | 2025 報酬 | Sharpe | 波動 | MDD | 年換手 |
+|---|---|---|---|---|---|
+| V6 純動量 k=20 | **+67.9%** | 1.13 | 64% | −45% | 806% |
+| **等權 buy&hold（全宇宙）** | **+62.8%** | **1.75** | 31% | −26% | 0% |
+| V5 純動量 k=10（無規則）| +62.7% | 1.02 | 77% | −47% | 927% |
+| VOO | +17.8% | 0.98 | 19% | −19% | 0% |
+| V3 拿掉現金擇時 | +12.0% | 0.48 | 50% | −38% | 2359% |
+| V1 baseline（全規則）| +6.8% | 0.38 | 49% | −38% | 2056% |
+| V4 只留上升趨勢濾網 | +2.3% | 0.36 | 66% | −52% | 1351% |
+| V7 寬停損(150日) | −1.3% | 0.29 | 63% | −45% | 1331% |
+| V2 拿掉停損、留擇時 | **−10.4%** | 0.15 | 64% | −50% | 1290% |
+
+- **單調鏈 V1(+6.8%)→V3(+12.0%)→V5(+62.7%)**：每拿掉一條規則就多賺。**最大元兇＝SPY-200SMA 現金擇時**（春季賣壓轉現金、錯過 V 型反彈，拿掉它報酬翻倍）；**日 50 日線停損是第二稅**（48-54% 波動股被甩耳光，換手 2000%+）。
+- **唯二追平/贏 buy&hold 的（V5/V6）是「拿掉所有選股、退化成宇宙本身」**——而且**風險調整輸**（Sharpe 1.13 vs 1.75、MDD −45% vs −26%）。V6 的「贏」是 k 旋鈕的抽籤（k-sweep 非單調：k=15 +54.9% 反輸 buy&hold；50bps 真實成本下優勢消失），**非 alpha**。
+- **非單調的誠實皺褶**：V2(拿掉停損但留擇時)=−10.4% 比 baseline 還差——留著現金擇時又拿掉下檔阻尼，壞 regime 全曝險。
+- **對抗式驗證（都 high confidence、claim_holds=true）**：額外 +1/+2 bar lag 報酬**不崩反升**（V6 67.9→77.6→79.0%）＝真實慢速動量訊號、非洩漏；故意洩漏控制證明 1-bar timing 無法解釋 headline；5 檔 2025 IPO 正確排除。選股偏誤實證：宇宙 79% 上漲、中位 +23.8%、PL +397%/BE +272%/ASTS +236%/OKLO +228%。
+
+> **§11 鐵律**：**在「事後挑出的飆股清單」上,規則只會減分,贏 buy&hold 的唯一方法是「停止選股、直接持有整個清單」——而那就是選股偏誤本身,不是策略。** 規則沒壞,是這套「有序大型股趨勢」規則與「高波動小型火箭股」宇宙**錯配**。要在高波動主題股上做,得設計**另一套**規則（無日停損、無現金擇時、高 K 分散）並嚴格 OOS 驗證——但 2025=n=1,任何變體的「edge」都過不了樣本外。**沒有可信的前瞻獲利數字:`+62.8%` 是回測幻覺,`+6.8%` 是規則被高波動洗掉。**
+
 ---
 **Sources（主要）**：[London Strategic Edge](https://londonstrategicedge.com/) · [LSE GitHub](https://github.com/londonstrategicedge) · [Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
 *接續 docs/00 §E、docs/11(換資料維度)、docs/12(方法地圖)。2026-06-17。*
