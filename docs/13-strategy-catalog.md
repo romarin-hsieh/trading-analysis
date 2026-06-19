@@ -289,6 +289,27 @@ LSTM/Transformer 價格預測(Kronos)、強化學習(Deng)、GNN 股票關聯(Al
 
 > **§11 鐵律**：**在「事後挑出的飆股清單」上,規則只會減分,贏 buy&hold 的唯一方法是「停止選股、直接持有整個清單」——而那就是選股偏誤本身,不是策略。** 規則沒壞,是這套「有序大型股趨勢」規則與「高波動小型火箭股」宇宙**錯配**。要在高波動主題股上做,得設計**另一套**規則（無日停損、無現金擇時、高 K 分散）並嚴格 OOS 驗證——但 2025=n=1,任何變體的「edge」都過不了樣本外。**沒有可信的前瞻獲利數字:`+62.8%` 是回測幻覺,`+6.8%` 是規則被高波動洗掉。**
 
+## 12. 為高波動標的量身設計規則 ＋ 嚴格 OOS 驗證（機械式 PIT、倖存者-aware 宇宙，多代理對抗驗證）
+
+承使用者選 (A)：設計一套**為高波動標的量身做**的規則並嚴格驗證。**關鍵誠實設計**：宇宙必須**機械式 PIT 定義**（非手挑清單，避開 §11 的選股偏誤）＋**倖存者-aware**（610 檔=501 現任+111 已剔除，讓爆掉/下市的高波動股**被納入**）。每月取**滾動 126 日實現波動前 30%** 為「高波動 cohort」（全 PIT、lagged）。`scripts/highvol_ruleset.py`，5 變體消融，2 skeptic 驗證。
+
+| 變體（2015-24） | CAGR | Sharpe | MDD | Calmar | 換手 |
+|---|---|---|---|---|---|
+| R0 舊規則（日50SMA停損+SPY現金擇時, eq-wt, K=10）| 10.9% | **0.48** | **−73%** | 0.15 | 889% |
+| R1 量身版（逆波動權重+25%波動目標+無停損+K=20）| 19.7% | 0.88 | −33% | 0.59 | 1027% |
+| **R2 = R1 拿掉波動目標** | 23.7% | **0.95** | −33% | **0.71** | 1076% |
+| R3 = R1 拿掉逆波動(等權) | 21.2% | 0.86 | −38% | 0.56 | 931% |
+| R4 = R1 拿掉 cohort 篩選(全610) | 19.2% | 0.89 | −31% | 0.62 | 1189% |
+| **BENCH cohort 等權 buy&hold（公平標竿）** | 16.2% | 0.71 | −39% | 0.42 | 223% |
+| VOO | 13.1% | 0.79 | −34% | 0.39 | 0% |
+
+- ✅ **量身版「決定性」勝過舊規則**（設計診斷正確）：**拿掉日停損＋現金擇時**，同一 cohort 從 Sharpe 0.48 / MDD −73%（R0）→ ~0.9 / −33%。**這是這次唯一穩健、可部署的大發現**：舊的停損+擇時 overlay 在高波動股上是災難。
+- 🔧 **資料糾正了我兩個設計選擇**（measure don't assume）：**波動目標反而傷害**（R2 拿掉它最佳 Sharpe 0.95）；**cohort 篩選幾乎無效**（R4 套全宇宙打平）；逆波動只是 wash。**最誠實的最小設計＝動量選股 + (等權或逆波動) + 無停損 + 無現金擇時**，比我提的還簡單。
+- ❌ **但 R1「贏 cohort buy&hold」只在 point estimate，統計上不顯著**：skeptic 把 R1 對 cohort buy&hold 回歸 → **corr 0.71、beta 0.65、~70% 只是 cohort beta**；alpha 年化 ~9.6% 但 **t(alpha)=1.74 < 1.96**；主動價差 Sharpe 僅 0.128、**11 年只有 7 年為正**（2016 −23.7%、2021 −14.4% 大虧）、PSR(R1−BH)=0.66。**時間集中、符號不穩 → 非結構性 edge。** （腳本印的 DSR=0.98 是用 5 個高度相關變體當 null 的假象,**別引用**;可信的是 t=1.74 / PSR 0.66。）
+- **換手 1000%+**:高波動股真實滑價遠超 10bps,會進一步侵蝕這個薄 edge。**2025 OOS（薄,僅 86/610 有資料）**：R1 +67.0% 小輸自己的 cohort buy&hold +76.8%,VOO +18.3%——與全期一致（R1 機制贏不過 cohort 本身）。
+
+> **§12 鐵律（與整個 project 完全一致）**：為高波動標的量身設計**確實**做出比失敗版好太多、且 point-estimate 贏 buy&hold 的規則——**但嚴格驗證後,贏 buy&hold 的部分是「風險塑形 + 一個薄、不顯著(t=1.74)、年份不穩」的價差,不是 proven alpha。** 真正穩健的可交付結論是**減法**:在高波動股上,**別用日停損、別用現金擇時**,動量+分散+不擇時就贏過那套精巧的舊規則。要超越 buy&hold 本身,這個資料(單一 10 年路徑)給不了統計證據。
+
 ---
 **Sources（主要）**：[London Strategic Edge](https://londonstrategicedge.com/) · [LSE GitHub](https://github.com/londonstrategicedge) · [Quantpedia Explains](https://quantpedia.com/quantpedia-explains-trading-strategies/) · [Carver Systematic Trading](https://qoppac.blogspot.com/p/systematic-trading-start-here.html) · [QuantConnect 策略庫](https://www.quantconnect.com/docs/v2/writing-algorithms/strategy-library) · [Ernie Chan blog](http://epchan.blogspot.com/) · [ORB 論文 SSRN 4729284](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4729284) · [ML 異象預期報酬 SSRN 4702406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4702406) · [Antonacci Dual Momentum GTAA](https://quantpedia.com/active-dual-momentum-gtaa-strategy/) · [The Wheel](https://www.predictingalpha.com/wheel/) · [Kalman pairs QuantStart](https://www.quantstart.com/articles/Dynamic-Hedge-Ratio-Between-ETF-Pairs-Using-the-Kalman-Filter/) · [londonstrategicedge.com](https://londonstrategicedge.com/)
 *接續 docs/00 §E、docs/11(換資料維度)、docs/12(方法地圖)。2026-06-17。*
