@@ -43,11 +43,23 @@ fetch 檔案庫 CSV → diff 上次已見 id(data/_serenity_seen.txt)
 
 **通知**:`.github/workflows/monitor.yml` 每交易日收盤後跑(同時跑五維止損監控),推 Telegram。Cowork 對比:claude.ai 排程任務可做同樣分析但非 $0 且不適合無人值守推播;**GitHub Actions cron + Telegram Bot 是免費穩定解**。設定只需三步:BotFather 建 bot → repo secrets 放 `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` → variables 放 `PORTFOLIO`。
 
-## 4. 後續(誠實優先序)
+## 4. ✅ 已回測:他的 dated calls 前向報酬(事件研究,多代理對抗驗證)
 
-1. **回測他的 calls**(檔案庫有帶日期的 track-record + 每則推文時間戳):抽「首次轉多」事件 → 事件後 21/63d 前向報酬 vs 同期 QQQ——把「跟單有沒有用」變成可量測的數字。這是最有價值的下一步。
-2. 方向詞抽取可升級 LLM 分類(Haiku batch,~$1/月),誤判率會顯著下降。
-3. ⚠️ 永遠記住:他發文時**已有倉位**;你看到 thesis 時是他的 exit liquidity 候選人。追蹤=情報,不是訊號。
+`scripts/serenity_calls_backtest.py`:167 檔有價格的事件標的,「首次轉多」事件 → 美東時間**嚴格次一交易日收盤**進場 → +5/21/63 交易日報酬,**超額 = 減同視窗 QQQ**。決定性控制 = **隨機擇時 placebo**(同樣的股票、每檔 20 個隨機日期):
+
+| 視窗 | n | 他的超額(均值/中位) | 勝率 | **placebo 超額** | **擇時差** | 真實值在隨機分布位置 |
+|---|---|---|---|---|---|---|
+| +5d | 166 | +0.3% / −0.8% | 46% | +1.8% | −1.5% | 第 14 百分位 |
+| +21d | 166 | +5.2% / −1.0% | 46% | +6.1% | −0.9% | 第 47 百分位 |
+| +63d | 156 | +10.7% / +1.4% | 52% | **+18.7%** | **−8.0%** | **第 4.6 百分位** |
+
+**四個誠實結論**:
+1. **正超額全來自「宇宙」,不是「擇時」**:隨機日期買進他的股票池,63 天贏 QQQ +18.7%——他的真實 call 時點反而只有 +10.7%,**顯著低於隨機**(部分因誤判產生的「遲到進場」,見 3)。跟單的價值=**他的選股宇宙**(光子/neocloud/記憶體鏈),不是他喊單的時機。
+2. **顯著性經不起校正**:plain t=2.49 好看,但事件擠在同段牛市(29% 在 2026-01),**月度聚類校正後 t≈1.0-1.4、bootstrap P=0.06-0.17 → 與零無法區分**;且**前 5 個事件(AXTI +297%/SNDK +276%/AEHR +216%…)貢獻了 ~70-100% 的全部超額**,拿掉後均值 ≈0-2.6%、**中位數為負、勝率 46-52%——超過一半的 call 輸給 QQQ**,彩券型分布。
+3. **關鍵字分類噪音大到不能歸因於「他」**:人工抽查 ~60% 的「轉多」標籤是誤判(「Never long though」被標多、清單文誤植、勝利回顧文比真 call 晚 2 個月→機械性壓低他的前向報酬)。已修一個真 bug(`tp` 匹配到 `http`,16.8% 含連結推文永遠不能標多);深層修復需 LLM 逐則分類(Haiku batch ~$1/月,已列升級路徑)。
+4. **本研究測的是「次日收盤跟單買股」**——無法證實或證偽他自報的 +3,612%(那依賴選擇權/槓桿/盤中,不可觀測)。輸家名單提醒風險:SPRB −61%、BMNR −55%、MSTR −55%、KTOS −53%(即使在瘋牛期)。
+
+> **一句話:跟單=買到一個(這一年)很強的宇宙清單,不是買到擇時能力;而且一半以上的個別 call 輸大盤,賺的錢集中在少數 moonshot。**⚠️ 他發文時已有倉位;你看到 thesis 時是他的 exit liquidity 候選人。追蹤=情報,不是訊號。
 
 ---
 *Sources: [Substack 深析](https://singularityresearchfund.substack.com/p/inside-the-mind-of-serenity-aleabitoreddit) · [bearsavings 檔案](https://www.bearsavings.com/blog/who-is-serenity-aleabitoreddit/) · [檔案庫 repo](https://github.com/yan-labs/serenity-aleabitoreddit) · [semiconstocks tracker](https://semiconstocks.com/)。2026-06-19。*

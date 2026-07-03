@@ -30,8 +30,10 @@ import pandas as pd
 RAW = "https://raw.githubusercontent.com/yan-labs/serenity-aleabitoreddit/{branch}/data/aleabitoreddit_tweets.csv"
 STATE = Path("data/_serenity_seen.txt")
 TICKER_RE = re.compile(r"\$([A-Z]{1,5})\b")
-LONG_WORDS = ("long", "bought", "buy", "adding", "entry", "calls", "accumulat", "position")
-EXIT_WORDS = ("sold", "sell", "trim", "exit", "closed", "puts", "short", "stop", "take profit", "tp")
+# word-boundary matching: a verifier audit caught the substring version flagging 'tp' inside 'http'
+# (16.8% of tweets have URLs -> could never be labeled long) and similar bleed-through.
+LONG_RE = re.compile(r"\b(long|bought|buy|adding|entry|calls|accumulat\w*|position(?:ed|s)?)\b")
+EXIT_RE = re.compile(r"\b(sold|sell(?:ing)?|trim(?:med|ming)?|exit(?:ed)?|closed|puts|short(?:ed)?|stop|take profit|tp)\b")
 NOISE = {"A", "I", "AI", "US", "IT", "CEO", "GPU", "EPS", "ETF", "IPO", "USD", "PT", "YTD", "ATH", "Q", "K", "M", "B"}
 
 
@@ -49,9 +51,9 @@ def fetch_archive() -> pd.DataFrame:
 
 def extract(text: str) -> tuple[list[str], str]:
     ticks = [t for t in TICKER_RE.findall(str(text)) if t not in NOISE]
-    low = str(text).lower()
-    d_long = any(w in low for w in LONG_WORDS)
-    d_exit = any(w in low for w in EXIT_WORDS)
+    low = re.sub(r"https?://\S+", " ", str(text).lower())    # strip URLs before keyword match
+    d_long = bool(LONG_RE.search(low))
+    d_exit = bool(EXIT_RE.search(low))
     direction = "long" if d_long and not d_exit else ("exit/short" if d_exit and not d_long else
                                                       ("mixed" if d_long and d_exit else "mention"))
     return ticks, direction
