@@ -182,7 +182,7 @@ def main():
         truth = y[te_m]
         for p_, sink in ((pred, ics), (pred_sh, ics_sh)):
             ic_by_day = p_.groupby(level=0).apply(
-                lambda s: s.droplevel(0).rank().corr(truth.loc[s.index].droplevel(0).rank()))
+                lambda s, tr=truth: s.droplevel(0).rank().corr(tr.loc[s.index].droplevel(0).rank()))
             sink.append(ic_by_day)
     ic = pd.concat(ics)
     ic_sh = pd.concat(ics_sh)
