@@ -23,8 +23,8 @@
 | 三重濾網 AND(趨勢∧動量∧量能) | 低 MDD 取向合理(holdout 0.94/−14%) | docs/15 §3 | `scripts/ensemble_mix.py` |
 | Kalman 濾波(趨勢/動態 beta) | 轉折早 10-25 天真;當 gate whipsaw;動態 beta 是真用途 | docs/12 | `src/.../models/kalman.py` |
 | Minervini/USIC Trend Template | 結構檢查有效;alpha 衰退(Sharpe 1.17→0.64)、無顯著 α | docs/05/07 | `strategy/rules/minervini_trend.py` |
-| Vegas 雙通道 | Sharpe 1.00=趨勢濾網外衣(≈SMA200),無獨特 alpha | docs/15 §2 | `scripts/strategy_zoo.py` |
-| IBS 均值回歸 | zoo TS 最佳(1.03/−16%);單規則未過 N-trials null bar | docs/15 §2 | `scripts/strategy_zoo.py` |
+| Vegas 雙通道 | Sharpe 1.00=趨勢濾網外衣(≈SMA200);TR-11 隨機視窗 P(beat)=44%(F9 PARTIAL) | docs/15 §2、TR-11 | `scripts/strategy_zoo.py` |
+| IBS 均值回歸 | zoo TS 最佳(1.03/−16%);**TR-11 隨機視窗 P(beat)=66% = 唯一 robust-PASS 的 TS 規則**(F9) | docs/15 §2、TR-11 | `scripts/tests/tr11_bagged_backtest.py` |
 | 高波動「減法」規則 | 拿掉日停損+現金擇時:Sharpe 0.48→0.9;贏 B&H 不顯著(t=1.74) | docs/13 §12 | `scripts/highvol_ruleset.py` |
 | Serenity 追蹤(情報源) | 宇宙情報真(placebo +18.7%/季);擇時無 edge | docs/16 | `scripts/notify/serenity_tracker.py` |
 | LLM agent 框架(驗證者用法) | 對抗驗證抓 30+ 真錯;alpha 來源 FAILED | TR-10 | workflow 慣例 |
@@ -38,6 +38,7 @@
 | Kalman pairs 統計套利 | 真市場中性(corr+0.01)但賠錢;套利殆盡 | docs/13 §5 |
 | 季節性(TOM/隔夜) | 衰退/成本牆(隔夜毛 0.89→淨 −0.97) | docs/13 §4、15 |
 | 帶狀突破(Keltner/Bollinger breakout) | 日線 whipsaw 稅吃光(Sharpe 0.25) | docs/15 §2 |
+| **XS 動量 top-K「選股增量」**(F9 複測降級) | 隨機 3 年窗 P(beat EW-47)=23%、隨機子集 30%——點估計榜首是路徑錨定假象;動量=beta | TR-11 |
 | 手挑清單回測、事後宇宙 | 純選股偏誤(+62.8% 幻覺) | docs/13 §11 |
 | 50-100% CAGR 低風險、2×VOO 每年、Sharpe>2 持續 | 數學不可達(Calmar 牆/前沿證明) | docs/07/14 |
 | **3×VOO 每年∧虧損不超過 VOO(本輪 goal 目標)** | **最佳 4/10 年(12-1 季動量);無策略 10/10**;需持續 Calmar~3+,此資料不存在 | `scripts/gate_3x_voo.py` |
@@ -55,6 +56,7 @@
 | TR-08 | ML 混合預測(GBM) | **FAILED** | OOS IC −0.0013、R² −4.8%;Sharpe 0.91 ≈ shuffled 控制 0.88、輸笨動量 1.16 與 EW 1.09;GKX 效應在此宇宙完全衰退;判定校準被稽核員點名為模範 |
 | TR-09 | Black-Scholes | **N/A** | 無 PIT 選擇權資料(預算);假設層由 TR-05 代測 |
 | TR-10 | LLM agent 框架 | **PARTIAL/FAILED** | 驗證者用法有效;alpha 來源無效 |
+| TR-11 | RF 理論 bagged 回測(F9 首行)+ RF 預測器 | **方法 PASSED / 預測器 FAILED** | 300 隨機 3 年窗:**XS 動量 P(beat EW)=23% 降級 FAILED、IBS 66% 升級 robust-PASS**、Vegas 44% 降級;RF 預測 IC −0.013、shuffle 控制反而 +0.011;複測改寫 2 個舊判定=F10 存在證明 |
 
 ## 2. 目標閘門實測(本輪 goal:每年 ≥3×VOO ∧ 虧損年不劣於 VOO)
 
