@@ -77,10 +77,14 @@ def event_returns(events: pd.Series, px: pd.DataFrame,
 def clustered_t(ab: np.ndarray, clusters: np.ndarray) -> tuple[float, float, int]:
     """CR1 cluster-robust t for the mean. Returns (t, se, n_clusters)."""
     n = len(ab)
+    if n == 0:
+        return np.nan, np.nan, 0
     mean = ab.mean()
     e = ab - mean
     sums = pd.Series(e).groupby(pd.Series(clusters)).sum()
     g = len(sums)
+    if g <= 1:
+        return np.nan, np.nan, g
     var = (g / (g - 1)) * float((sums**2).sum()) / n**2
     se = np.sqrt(var)
     return mean / se if se > 0 else np.nan, se, g
@@ -95,6 +99,8 @@ def month_block_bootstrap(ab: np.ndarray, clusters: np.ndarray,
     groups = {m: ser[clusters == m].to_numpy() for m in np.unique(clusters)}
     keys = list(groups)
     g = len(keys)
+    if g == 0:
+        return np.nan, np.nan, np.nan
     means = np.empty(n_boot)
     for b in range(n_boot):
         pick = rs.randint(0, g, size=g)
@@ -210,14 +216,13 @@ def main() -> None:
           f"no bought/buy/adding/accumulat): {weak_only} ({weak_only / n_ok:.0%})")
 
     multi = longs.groupby("tweet_id")["ticker"].nunique()
-    frac_multi3 = float((multi[longs.drop_duplicates('tweet_id')
-                         .set_index('tweet_id').index] >= 3).mean())
+    frac_multi3 = float((multi >= 3).mean())
     print(f"  'long' rows inherit the tweet-level label for EVERY ticker in the "
           f"tweet; {frac_multi3:.0%} of long tweets carry >=3 tickers")
 
     # random sample of 15 'long' mentions for hand judging
     print("\n  --- RANDOM SAMPLE: 15 mentions labeled 'long' (seed 123) ---")
-    samp = longs.sample(15, random_state=123).sort_values("time")
+    samp = longs.sample(min(15, len(longs)), random_state=123).sort_values("time")
     for _, r in samp.iterrows():
         text = arch["text"].get(str(r["tweet_id"]), "<not in archive>")
         lt, et = triggers(text)
