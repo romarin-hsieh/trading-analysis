@@ -1,7 +1,7 @@
 # Fabric 驗收標準 v1 — 機制/演算法/模型/理論的統一測試規格
 
 > /goal(2026-07-07):重新設計一套 fabric 驗收標準,對每個機制逐一測試並各出一份標準化測試報告(TR)。
-> v1.1(2026-07-07):新增 F9/F10(TR-11 引入);對抗性框架審查(經濟學文獻/量化公司白皮書基點)進行中,結論將以 v1.2 修訂。
+> v1.2(2026-07-07):對抗性框架審查完成(雙代理:文獻攻擊 A1-A10、程式碼攻擊 B1-B13,White/Hansen/Harvey-Liu/AHM/FIM/Shumway/Lo/Cederburg/Hoffstein 為基點)→ §5 修訂案。v1.1:新增 F9/F10(TR-11 引入)。
 > 本規格把整個專案 60+ commits 的教訓法典化:每一條 F 規則都對應一個我們真實踩過、抓過的坑。
 
 ## 1. 驗收規則(每份 TR 必須逐條核對)
@@ -42,6 +42,33 @@
 ## 4. 宇宙與期間
 
 科技/軟體/衛星航太/半導體:`sector_strategies.SECTORS`(47 檔)+ 已 ingest 的衛星/高波動延伸(ASTS/RKLB/LUNR/PL/OKLO…)+ QQQ/SPY/VOO 基準。期間 2015-01 → 2026-07(≥11 個日曆年)。
+
+## 5. v1.2 修訂案(對抗性框架審查產出;審查全文見 workflow 紀錄)
+
+**立即生效(已執行)**:
+| # | 修訂 | 文獻基點 |
+|---|---|---|
+| **A1** | 旗艦組合判定改標:「PASSED」→「**PASSED(borderline)**:Carhart t=2.64 < Harvey-Liu-Zhu t≥3.0 新因子標準;僅在有效試驗數 ≲10 時存活」。**alpha 的 F8 PASSED 門檻升為 t≥3.0 或 BHY-FDR 1%**;建立 campaign 級 append-only 試驗登記簿,任何 DSR 的 N 必須引用它 | HLZ RFS 2016;Harvey-Liu JPM 2015(Man Group 採納) |
+| **A8** | 閘門可行性預審:目標若等價於「1× 下檔 + 3× 上檔」的免費選擇權(狀態優勢),自動標記「aspirational——預期 FAILED」,不再消耗回測資源 | 無套利;SPIVA(89.5% 大型基金 15 年輸 1× S&P) |
+| **A10** | 採納 AHM 檢查表為 **F0 封面**:每份 TR 動工前先寫下可證偽宣稱與 PASSED/PARTIAL 判準(docs/18 §4 迴圈已要求先寫 §1-§4,補一句硬性化) | Arnott-Harvey-Markowitz JFDS 2019 |
+
+**規則修訂(自 v1.2 起對新 TR 生效;舊 TR 重跑列入 backlog)**:
+| # | 修訂 | 文獻基點 |
+|---|---|---|
+| **A2/B5** | **F4 v2**:3000 門檻改套用**有效樣本** n_eff = N/(1+(N−1)·ρ̄)(同日橫斷聚類);時序宣稱另須 years ≥ MinTRL(SR, trials, skew, kurt)。TR-02 的 QQQ+SPY(ρ~0.95)誠實讀數 ~2.2k,不達標 | Bailey-LdP 2014 MinTRL;Petersen RFS 2009;Grinold 1989 |
+| **A3/B2** | **F2 v2**:個股成本改 max(門檻, 波動/價格縮放 spread 代理);**每份 TR 增加「2× 成本壓力」欄**;宣告書規模;PASSED 策略附容量曲線。小型股(ASTS/RKLB 級)10bps 已知低估 | Frazzini-Israel-Moskowitz JF 2018;Novy-Marx-Velikov RFS 2016 |
+| **A4** | **F6 v2**:風控類 PARTIAL 必附**風險匹配被動控制**(常數曝險=策略平均曝險),報告對它的增量——Markov 的「MDD 減半」尚未對 0.59× 靜態控制驗證 | Cederburg et al. JFE 2020(vol-managed 不勝靜態) |
+| **A5/B3** | **指標修訂(critical)**:`sharpe()` 全域補 **rf=BIL**、空手日計 BIL 收益(現制 rf=0 在 4-5% 利率世界高估所有絕對 Sharpe,擇時家族尤甚);|lag-1 自相關|>0.05 時報 **Lo (2002) 校正 Sharpe**;A-vs-B 裁決附 Ledoit-Wolf Sharpe 差檢定;PSR 欄位常設 | Lo FAJ 2002;Sharpe 1994;GISW RFS 2007(可操縱性) |
+| **A6/B11** | **F11 宇宙合法性**:宇宙須可逐再平衡日機械重建(成分/流動性/PIT 標籤);hindsight 清單僅限相對性宣稱,**絕對數字必標「curated-universe」** | AHM 2019 cat.3;Shumway JF 1997 |
+| **A7** | **F7 v2**:經濟故事涉及 2015-26 缺席 regime(長熊/利率衝擊/失落十年)者,授予普遍性判定前須長歷史重放(`taa_long_history.py` 模式) | Dimson-Marsh-Staunton 126 年全球證據 |
+| **B1** | **F1 補充**:統一「訊號=收盤 t、成交=收盤 t+1」;中位持有 <10 bar 的規則須附 same-close vs next-close 敏感度 | Perold 1988;Almgren-Chriss 2001 |
+| **B6/B9** | **F5 v2**:變體家族以 **SPA(White/Hansen)為主要工具**(closed-form E[max] 只當保守篩;65 個相關變體的真 null 遠低於 0.85);TR 模板增「**設計參數登記**」節(refit 頻率/門檻/視窗全列,跑過替代值就計入 N) | White 2000;Hansen 2005;AHM 2019 |
+| **B7** | **F12 再平衡相位**:hold ≥21 bar 的策略須跑全部相位偏移(或 K 分批),判定用相位平均序列(單一相位=抽一張運氣牌,常 >100bps/年) | Hoffstein-Sibears-Faber JII 2019 |
+| **B8** | 日曆年閘門只作目標敘述;判定計分改用**全部滾動 252 日窗通過率**+bootstrap 分布 | Lo 2002;Bailey-LdP 2012 |
+| **B10** | **資料層規則**:價格在最後真實成交後轉 NaN(ffill 上限 5 bar);store 記下市日+原因;下市注入終端報酬(已知者用實值,否則 −30%/NASDAQ −55%) | Shumway JF 1997;Shumway-Warther 1999 |
+| **B12/B13** | 橫斷成本改「漂移權重 vs 目標」記帳(TR-08 迴圈移植進 xsect);隔夜報酬補除息分解(現制方向保守) | FIM 2018;CRSP 慣例 |
+
+**審查同時確認存活(不改)**:F1 洩漏紀律(≥LdP 標準)、F3 同宇宙可投資基準(Sharpe 1991/SPIVA 邏輯,正是抓出動量假象的機制)、F6 零訊號/shuffle 控制(超過多數已發表因子研究)、PSR/DSR/PBO/SPA 工具箱(Bailey-LdP 精確實作)、F7 聚類 t、負結果登記簿(AHM cat.7,「連量化公司都罕見」)、衰退會計(McLean-Pontiff 操作化)、大型 ETF 5bps(FIM 實測下保守)、vectorbt 引擎路徑(order-independent)、TR-05 以 block bootstrap 取代 GBM(Politis-Romano)。
 
 ---
 *對應執行工具:`scripts/tests/tr_*.py`(每份 TR 一支,可重跑);圖表 `docs/tests/img/`。2026-07-07。*

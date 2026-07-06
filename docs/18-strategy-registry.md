@@ -8,7 +8,7 @@
 ### ✅ PASSED(達成原始宣稱且過 F5/F6/F7)
 | 機制 | 判定重點 | 證據 | 可重跑 |
 |---|---|---|---|
-| 多 sleeve 風險平價組合 | 唯一顯著 alpha(Carhart t=2.64);2025 OOS +27.9%/MDD −5.7% | docs/08 | `scripts/validate_recommendation.py` |
+| 多 sleeve 風險平價組合 | 唯一顯著 alpha(Carhart t=2.64);2025 OOS +27.9%/MDD −5.7%。**v1.2 改標 PASSED(borderline):t=2.64 < HLZ t≥3.0,僅在有效試驗數 ≲10 時存活**(docs/17 §5 A1) | docs/08 | `scripts/validate_recommendation.py` |
 | gross_profitability 品質因子 | ICIR +0.30 跨期同號、regime-universal(bear 最強) | docs/10 | `scripts/fundamental_factors.py` |
 | Ensemble 投票混合(E1) | holdout Sharpe 0.99 vs B&H 0.84、MDD 減半;混合>選一(0.99 vs 0.63) | docs/15 §3 | `scripts/ensemble_mix.py` |
 | 回撤預算/雙向槓桿刻度 | L≥1.5 支配 VOO(終值∧Calmar);風險塑形如設計兌現 OOS | docs/13 §9C/9E | `scripts/defensive_overlay.py` |
