@@ -57,6 +57,7 @@
 | TR-08 | ML 混合預測(GBM) | **FAILED** | OOS IC −0.0013、R² −4.8%;Sharpe 0.91 ≈ shuffled 控制 0.88、輸笨動量 1.16 與 EW 1.09;GKX 效應在此宇宙完全衰退;判定校準被稽核員點名為模範 |
 | TR-09 | Black-Scholes | **N/A** | 無 PIT 選擇權資料(預算);假設層由 TR-05 代測 |
 | TR-10 | LLM agent 框架 | **PARTIAL/FAILED** | 驗證者用法有效;alpha 來源無效 |
+| TR-13 | 下市終端報酬(Shumway,B10 首行) | **方法 PASSED;區間化完成** | 9 個窗內下市**全為併購型**(注 −30% 幾乎不動 +1.26→+1.31%);151 個被清除名的合成上界 → **倖存者膨脹誠實區間 [+1.26%, +2.02%]/yr**;凡引 610 union 絕對數字自此標注區間 |
 | TR-12 | 再平衡相位平均(F12 首行)+2×成本壓力 | **方法 PASSED;3 修正生效** | 季動量 timing-luck 帶寬 **1,753bps/yr**(單相位數字自此不足採信)、月動量 746bps(2×成本下只 38% 相位贏 EW);**旗艦 combo 相位免疫(30bps)無需修改**;相位-0 其實偏倒楣(10-14 pctile)=無 cherry-pick 但單相位不可靠,判定改引 tranche(+1.21);實盤動量應 K=4 分批 |
 | TR-11 | RF 理論 bagged 回測(F9 首行)+ RF 預測器 | **方法 PASSED / 預測器 FAILED** | 300 隨機 3 年窗:**XS 動量 P(beat EW)=23% 降級 FAILED、IBS 66% 升級 robust-PASS**、Vegas 44% 降級;RF 預測 IC −0.013、shuffle 控制反而 +0.011;複測改寫 2 個舊判定=F10 存在證明 |
 
