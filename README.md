@@ -22,9 +22,13 @@ A personal research project. The naive starting question: *"Of all the trading s
 
 *(Figures regenerate with `uv run python scripts/readme_figures.py`; the IBS chart is TR-16's own exhibit.)*
 
+![Return vs drawdown: every strategy on a Calmar 0.6 ray, the target zone empty](docs/img/fig_frontier.png)
+
+**Why the target is a unicorn (start here).** This one plot frames everything after it. Every strategy we tested — sector rules, the flagship combo, even leveraged ETFs — sits on the same Calmar ≈ 0.6 ray. The top-left "target zone" (50%+ CAGR at under 15% drawdown, i.e. Calmar ≈ 3.3) is *structurally empty*, not merely unexplored. Leverage does not move you toward it; it slides you up the same ray with proportionally deeper drawdown. The reachable frontier is ~5× short of the target — a wall, not a tuning problem.
+
 ![Survival funnel: 226 variants, 26 families, 5 PASSED, 1 alpha](docs/img/fig_scoreboard.png)
 
-**The scoreboard.** 226 named variants registered, 26 mechanism families judged, 5 PASSED — and exactly **one** statistically significant alpha. Most of what the internet calls "a working strategy" died in this funnel; keeping the corpses on record is half this repo's value.
+**The scoreboard.** 226 named variants registered, 26 mechanism families judged, 5 PASSED — and exactly **one** statistically significant alpha. Most of what the internet calls "a working strategy" died in this funnel; keeping the failed strategies on record is half this repo's value.
 
 ![Flagship 5-sleeve combo vs VOO, equity and drawdown](docs/img/fig_combo.png)
 
@@ -52,6 +56,11 @@ A personal research project. The naive starting question: *"Of all the trading s
 ### What we now KNOW (reproducible evidence)
 
 - **Selection alpha barely exists in free daily data.** Broad momentum is dead; value has been lost for a decade; PEAD/insider/operating factors failed; ML forecasters score OOS IC≈0 (the shuffled control beat the real model); even the KMZ complexity recipe is dominated by a simple 1/σ² volatility dial in our seat. The one robust cross-sectional signal: **gross profitability** (ICIR +0.30).
+
+![Factor ICIR scoreboard: one green bar (gross profitability) above a field of near-zero/negative factors](docs/img/fig_factor.png)
+
+*One green bar stands alone. Of every cross-sectional factor we ran on the broad universe, only gross profitability clears the noise band; value went outright negative. This is why the repo leans on risk-shaping, not stock-picking.*
+
 - **Timing to cash almost always subtracts, and clever risk models rarely beat a constant.** Every cash gate lost to buy-and-hold; the Markov gate's "MDD halving" was fully reproduced by a static 57% exposure; the last surviving technical rule (IBS) died once fills were honest — its edge was trading the very close the signal was computed from.
 - **The deliverable value is all in risk-shaping.** The 5-sleeve risk-parity combo survived everything: **full-cost Carhart t=3.38 (2015–2026), above the Harvey-Liu-Zhu t≥3.0 bar, t=3.14 even at 2× costs**, phase-immune (30bps timing-luck band), 2025 out-of-sample +27.9% with −5.7% MDD vs VOO's −18.7%. Caveats stay attached: the t rose because the sample lengthened; campaign-wide Bonferroni remains open (both endpoints in the trial registry).
 - **Point estimates lie.** Quarterly momentum's rebalance-phase luck spans 1,753 bps/yr; a zoo table-topper beat equal-weight in only 23% of randomized windows; 59 technical variants collapse to ~1.8 effective independent bets.
@@ -114,73 +123,82 @@ Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only pu
 
 ## 繁體中文
 
-### 這是什麼
+### 專案概述
 
-一個個人研究的 side project。起點是一個樸素的問題:「網路上、論文裡、大師書裡那些交易策略,到底哪些今天還真的有持續套利的空間?」我們用每月 0 元的免費資料(yfinance、SEC EDGAR、公開檔案庫),歷經 80+ 次 commit、**約 140 個機制/策略的系統性測試(17 份標準化測試報告)**,得到的答案比問題本身更有價值——因為它把「什麼是已知、什麼是未知、如何判斷可不可行」變成了可重跑的程式與文件。
+一個個人研究的 side project。起點是一個天真的問題:「網路上、論文裡、大師書裡那些交易策略,到底哪些今天還真的有持續套利的空間?」我們用每月 0 元的免費資料(yfinance、SEC EDGAR、公開檔案庫),歷經 80 多次 commit、**約 140 個機制/策略的系統性測試(17 份標準化測試報告)**,得到的答案比問題本身更有價值,因為它把「什麼是已知、什麼是未知、如何判斷可不可行」變成了可重現的程式與文件。
 
-### 我們做了什麼
+### 建置內容
 
-1. **一套驗收標準(fabric v2.0,[docs/17](docs/17-fabric-acceptance.md))**——單一規則表 F0–F13,把每一次踩過的坑法典化:動工前預先承諾可證偽宣稱(F0)、無洩漏訊號+成交時點慣例(F1)、點差縮放成本+強制 2× 壓力測試(F2)、超額-over-國庫券的 Sharpe(F3)、有效樣本數(F4)、全 campaign 試驗數記帳+alpha 門檻 t≥3.0(F5)、**Nagel 對照三件套——「最簡單的什麼對照組能解釋它?」**(F6)、子期穩定+長歷史重放(F7)、判定效力=座位×棲地(F8)、路徑隨機化(F9)、複測級聯(F10)、宇宙合法性(F11)、再平衡相位平均(F12)、下市規則(F13)。經濟學前提是 **Grossman-Stiglitz**:資訊成本 0 元,均衡下的 alpha 就是 0 元——每個翻案條件都必須標價成一筆資訊成本。
-2. **17 份標準化測試報告**([docs/tests/TR-01..17](docs/tests/)):統計套利、Markov 變異變遷、PCA 因子模型、VaR、GBM 蒙地卡羅、CAPM、HRP、機器學習預測(GBM 與隨機森林)、Black-Scholes(N/A——沒有資料就不編數字)、LLM agent 框架、bagged 回測、再平衡相位運氣、下市偏誤、有效樣本、成本壓力、IBS 完整審判、以及 Kelly-Malamud-Zhou《複雜度的美德》復現(以 Nagel 批評為對照)。框架本身也**用文獻做過對抗式審查**,且每個數字都被稽核員重跑核對過。
-3. **能運轉的基礎設施**:point-in-time 資料層(DuckDB+Parquet;EDGAR 以申報日對齊;指數歷史回溯 1993)、order-independent 回測引擎、嚴謹度模組(PSR/DSR/PBO/SPA)、每日 Telegram 監控(跑在免費的 GitHub Actions 上),以及設計完成的**論文到 TR 管線**([docs/21](docs/21-paper-to-tr-pipeline.md)),讓高品質論文能持續回饋、重測既有機制。
+1. **一套驗收標準(fabric v2.0,[docs/17](docs/17-fabric-acceptance.md))**:單一規則表 F0–F13,把每一次踩過的坑逐條寫成明文規則:動工前先定案的可證偽宣稱(F0)、無洩漏訊號與成交時點慣例(F1)、以買賣價差縮放的成本加上強制 2× 壓力測試(F2)、扣除國庫券利率後的超額 Sharpe(F3)、有效樣本數(F4)、全 campaign 試驗數記帳與 alpha 門檻 t≥3.0(F5)、**Nagel 三重對照:「哪一個最簡單的對照組就能解釋它?」**(F6)、子期穩定與長歷史重放(F7)、判定效力=適用市場×適用情境(F8)、路徑隨機化(F9)、複測級聯(F10)、標的池合法性(F11)、再平衡相位平均(F12)、下市規則(F13)。經濟學前提是 **Grossman-Stiglitz**:資訊成本 0 元,均衡下的 alpha 就是 0 元;每個翻案條件都必須計為一筆資訊成本。
+2. **17 份標準化測試報告**([docs/tests/TR-01..17](docs/tests/)):統計套利、Markov 狀態轉換、PCA 因子模型、VaR、GBM 蒙地卡羅、CAPM、HRP、機器學習預測(GBM 與隨機森林)、Black-Scholes(N/A:沒有資料就不硬湊數字)、LLM agent 框架、bagged 回測、再平衡相位運氣、下市偏誤、有效樣本、成本壓力、IBS 完整檢驗、以及 Kelly-Malamud-Zhou《複雜度的美德》重現(以 Nagel 批評為對照)。框架本身也**用文獻做過對抗式審查**,且每個數字都被稽核員重跑核對過。
+3. **已建置的基礎設施**:point-in-time 資料層(DuckDB+Parquet;EDGAR 以申報日對齊;指數歷史回溯 1993)、order-independent 回測引擎、嚴謹度模組(PSR/DSR/PBO/SPA)、每日 Telegram 監控(跑在免費的 GitHub Actions 上),以及設計完成的**論文到 TR 管線**([docs/21](docs/21-paper-to-tr-pipeline.md)),讓高品質論文能持續回饋、重測既有機制。
 
-### 成果掠影
+### 成果一覽
 
 *(所有圖表可用 `uv run python scripts/readme_figures.py` 重新產生;IBS 那張直接取自 TR-16 的原始證物。)*
 
-![生存漏斗:226 個變體、26 個家族、5 個 PASSED、1 個 alpha](docs/img/fig_scoreboard.png)
+![報酬對回撤:每個策略都落在 Calmar 0.6 射線上,目標區是空的](docs/img/fig_frontier.png)
 
-**計分板。** 226 個具名變體登記在案、26 個機制家族接受審判、5 個 PASSED——而統計顯著的 alpha 恰好只有 **1 個**。網路上大多數所謂「有效的策略」都死在這個漏斗裡;把屍體留在紀錄上,正是這個 repo 一半的價值。
+**目標為何是獨角獸(先看這張)。** 這張圖替後面每一張圖定了調。我們測過的每個策略,包括產業規則、旗艦組合、甚至槓桿 ETF,全都落在同一條 Calmar ≈ 0.6 的射線上。左上角的「目標區」(50%+ CAGR、回撤低於 15%,也就是 Calmar ≈ 3.3)在結構上就是空的,不是還沒被找到。槓桿並不會把你推向那裡,只會讓你沿同一條射線往上滑,回撤也按同樣比例加深。可達的前緣離目標還差約 5 倍:這是一道牆,不是調參的問題。
+
+![生存漏斗:226 個變體、26 類機制、5 個 PASSED、1 個 alpha](docs/img/fig_scoreboard.png)
+
+**計分板。** 226 個具名變體登記在案、26 類機制接受檢驗、5 個 PASSED,而統計顯著的 alpha 恰好只有 **1 個**。網路上大多數所謂「有效的策略」都死在這個漏斗裡;把這些失敗的策略完整記錄下來,正是這個 repo 一半的價值。
 
 ![旗艦五 sleeve 組合 vs VOO:權益曲線與回撤](docs/img/fig_combo.png)
 
-**成功案例一——唯一的倖存者。** 五個 sleeve 的風險平價組合(科技動能/防禦輪動/趨勢濾網 TQQQ/黃金/債券)對上 VOO:終點財富相近,但**回撤約砍半**(−19% vs −34%);全成本 Carhart **t=3.38**,越過 Harvey-Liu-Zhu 的 3.0 門檻,成本加倍後仍有 3.14(TR-15)。它的優勢是風險塑形而非報酬極大化:依你的回撤預算上槓桿(`scripts/defensive_overlay.py`)。
+**成功案例一:唯一的倖存者。** 五個 sleeve 的風險平價組合(科技動能/防禦輪動/趨勢濾網 TQQQ/黃金/債券)對上 VOO:終點財富相近,但**回撤約砍半**(−19% vs −34%);全成本 Carhart **t=3.38**,越過 Harvey-Liu-Zhu 的 3.0 門檻,成本加倍後仍有 3.14(TR-15)。它的優勢是風險塑形而非報酬極大化:依你的回撤預算上槓桿(`scripts/defensive_overlay.py`)。
 
 | 年度報酬 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026* |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | **組合** | +17.1% | +21.1% | **+0.8%** | +15.0% | **+26.4%** | +3.0% | **−16.6%** | +25.4% | +20.2% | **+27.9%** | +15.3% |
 | VOO | +12.2% | +21.8% | −4.5% | +31.4% | +18.3% | +28.8% | −18.2% | +26.3% | +25.0% | +17.8% | +10.0% |
 
-*\*2026 為年初至今。2015 略去(風險平價需 126 天暖身)。成本拖累 12–72 bps/年(TR-15)。誠實讀法:組合**不是**每年都贏 VOO——它贏在跌得少(2018、2020、2022、2025),以及永遠不必從 −34% 的坑裡爬出來。*
+*\*2026 為年初至今。2015 略去(風險平價需 126 天暖身)。成本拖累 12–72 bps/年(TR-15)。平心而論:組合**不是**每年都贏 VOO,而是贏在跌得少(2018、2020、2022、2025),以及永遠不必從 −34% 的坑裡爬出來。*
 
 ![混合策略 holdout Sharpe 與回撤 vs 樣本內最佳單規則](docs/img/fig_ensemble.png)
 
-**成功案例二——混合勝過挑選。** 在 2015–20 挑出 52 條技術規則中最好的那條,樣本外直接崩盤(holdout Sharpe **0.63**);讓 52 條全部投票、部位=看多票數比例,則穩住(**0.99**,回撤 −16% vs 買進抱著 −35%)。混合贏的是「選擇穩健性」與回撤——數學上,單一資產的多/空手規則混合不可能贏過買進抱著的年化報酬。
+**成功案例二:混合勝過挑選。** 在 2015–20 挑出 52 條技術規則中最好的那條,樣本外直接崩盤(holdout Sharpe **0.63**);讓 52 條全部投票、部位=看多票數比例,則穩住(**0.99**,回撤 −16% vs 買進持有 −35%)。混合贏的是「選擇穩健性」與回撤控制。就數學而言,單一資產的多/空手規則混合,不可能贏過買進持有的年化報酬。
 
 ![IBS 當根收盤 vs 次日收盤成交:整個優勢就是成交慣例](docs/tests/img/tr16_ibs.png)
 
-**最意外的失敗——我們自己的判定被自己推翻。** IBS 均值回歸是 59 條技術規則裡*唯一*通過隨機視窗測試的……直到 TR-16 問了一個問題:*你實際上是在哪一根 K 棒成交的?* 用「剛算完訊號的那根收盤價」成交(橘線),它從 1999 年起打遍天下;誠實地用次日收盤成交(綠線),整個優勢掉到買進抱著之下——而且一個恆定 38% 部位就能打平它。從此所有快速換手的回測都必須通過成交時點敏感度檢查(fabric F1)。
+**最意外的失敗:我們親手推翻了自己先前的判定。** IBS 均值回歸是 59 條技術規則裡*唯一*通過隨機視窗測試的……直到 TR-16 問了一個問題:*你實際上是在哪一根 K 棒成交的?* 用「剛算完訊號的那根收盤價」成交(橘線),它從 1999 年起就勝過其他所有規則;誠實地用次日收盤成交(綠線),整個優勢掉到買進持有之下,一個恆定 38% 部位就能打平它。從此所有快速換手的回測都必須通過成交時點敏感度檢查(fabric F1)。
 
-![Markov 變異變遷閘門 vs 恆定 57% 部位](docs/img/fig_markov_static.png)
+![Markov 狀態轉換閘門 vs 恆定 57% 部位](docs/img/fig_markov_static.png)
 
-**最知名的失敗——備受推崇的 regime 模型 vs 一個常數。** walk-forward 的 Markov 變異變遷閘門確實辨識得出波動狀態,也確實把 QQQ 的最大回撤砍半——教科書級的賣點。但一個**恆定 57% 部位**(沒有模型、零交易)給出同樣的回撤、*更高*的超額 Sharpe(Cederburg 對照,TR-02b)。從此 repo 裡每一個「聰明擇時」的宣稱,都得先贏過自己的笨常數(fabric F6)。
+**最知名的失敗:備受推崇的 regime 模型,對上一個常數。** walk-forward 的 Markov 狀態轉換閘門確實辨識得出波動狀態,也確實把 QQQ 的最大回撤砍半,堪稱經典的賣點。但一個**恆定 57% 部位**(沒有模型、零交易)給出同樣的回撤、*更高*的超額 Sharpe(Cederburg 對照,TR-02b)。從此 repo 裡每一個「聰明擇時」的宣稱,都得先贏過自己那個最陽春的常數基準(fabric F6)。
 
-### 我們現在「知道」的(可重跑的證據)
+### 已確認的結論(可重現的證據)
 
-- **免費日線資料上幾乎不存在選股 alpha。** 廣市場動能已死、價值失落十年、PEAD/內部人/營運面因子全滅;機器學習預測器的樣本外 IC≈0(打亂標籤的對照組甚至贏過真模型);連 KMZ 的複雜度配方,在我們的座位上也被一個簡單的 1/σ² 波動旋鈕支配。唯一站得住的橫斷面訊號:**毛利/資產品質因子**(ICIR +0.30)。
-- **擇時轉現金幾乎一定扣分,聰明的風險模型很少贏過一個常數。** 每一個現金開關都輸給買進抱著;Markov 模型引以為傲的「回撤砍半」,用恆定 57% 部位就能完整複製;最後一條存活的技術規則(IBS)在誠實成交下陣亡——它的優勢來自「用剛算完訊號的那根收盤價成交」的假象。
-- **可交付的價值全在風險塑形。** 五個 sleeve 的風險平價組合通過了所有考驗:**全成本 Carhart t=3.38(2015–2026),越過 Harvey-Liu-Zhu 的 t≥3.0 標準,全通道 2× 成本壓力下仍有 t=3.14**;相位免疫(timing-luck 帶寬僅 30bps);2025 樣本外 +27.9%、最大回撤 −5.7%(同期 VOO −18.7%)。誠實的但書都留著:t 值上升主要因為樣本變長;全 campaign 的 Bonferroni 仍未過關(兩個端點都寫在試驗登記簿裡)。
-- **單點估計會說謊。** 季度動能的再平衡相位運氣高達 1,753 bps/年;zoo 榜首在隨機視窗下只有 23% 的機率贏過等權;59 個技術變體實際上只等於約 1.8 個獨立的賭注。
-- **網路上大多數「有效」的展示 = beta + 事後清單 + 忽略成本 + 過度寬鬆的成交假設。** 我們宇宙的倖存者偏誤膨脹:誠實區間 [+1.26%, +2.02%]/年。
+- **免費日線資料上幾乎不存在選股 alpha。** 廣市場動能已失效、價值因子低迷了十年、PEAD、內部人與營運面因子也都沒通過;機器學習預測器的樣本外 IC≈0(打亂標籤的對照組甚至贏過真模型);連 KMZ 的複雜度配方,以我們的條件來看也被一個依波動度反比(1/σ²)調整部位的簡單規則支配。唯一站得住的橫斷面訊號:**毛利/資產品質因子**(ICIR +0.30)。
 
-### 我們「知道自己不知道」的
+![因子 ICIR 計分板:一根綠柱(毛利品質)高於一排貼近零或翻負的因子](docs/img/fig_factor.png)
 
-選擇權與盤中維度(沒有 point-in-time 的免費資料——TR-09 誠實標 N/A);長空頭/利率衝擊的市場情境(2015–2026 只有 V 型崩跌;長歷史重放補了一部分);無法稽核的他人績效(以次日收盤跟單名人喊單,**對同一批股票的隨機進場沒有任何擇時優勢**——有價值的是他的選股宇宙情報,不是時點)。
+*只有一根綠柱站得起來。我們在廣標的池上跑過的每個橫斷面因子裡,只有毛利品質越過雜訊帶;價值因子直接翻負。這正是本專案倚重風險塑形、而非選股的原因。*
 
-### 我們如何判斷「可行 vs 不可行」
+- **擇時轉現金幾乎一定扣分,聰明的風險模型很少贏過一個常數。** 每一個現金開關都輸給買進持有;Markov 模型引以為傲的「回撤砍半」,用恆定 57% 部位就能完整複製;最後一條存活的技術規則(IBS)在誠實成交假設下就失效了:它的優勢來自「用剛算完訊號的那根收盤價成交」的假象。
+- **可交付的價值全在風險塑形。** 五個 sleeve 的風險平價組合通過了所有考驗:**全成本 Carhart t=3.38(2015–2026),越過 Harvey-Liu-Zhu 的 t≥3.0 標準,即使成本加倍(2×)仍有 t=3.14**;相位免疫(timing-luck 區間僅 30bps);2025 樣本外 +27.9%、最大回撤 −5.7%(同期 VOO −18.7%)。誠實的但書都留著:t 值上升主要因為樣本變長;全 campaign 的 Bonferroni 仍未過關(兩個端點都寫在試驗登記簿裡)。
+- **單點估計靠不住。** 季度動能的再平衡相位運氣高達 1,753 bps/年;zoo 榜首在隨機視窗下只有 23% 的機率贏過等權;59 個技術變體實際上只等於約 1.8 個獨立的賭注。
+- **網路上大多數「有效」的展示 = beta + 事後清單 + 忽略成本 + 過度寬鬆的成交假設。** 我們這個標的池的倖存者偏誤會灌高報酬:誠實區間 [+1.26%, +2.02%]/年。
+
+### 已知的未知
+
+選擇權與盤中維度(沒有 point-in-time 的免費資料,TR-09 因此誠實地標為 N/A);長空頭/利率衝擊的市場情境(2015–2026 只有 V 型崩跌,長歷史重放補了一部分);無法稽核的他人績效(以次日收盤跟單名人喊單,**對同一批股票的隨機進場沒有任何擇時優勢**:真正有價值的是他挑選的那批標的,而不是進場時點)。
+
+### 可行性判斷流程
 
 ```mermaid
 flowchart LR
-    A[想法] --> B["F0 預先承諾:<br/>可證偽宣稱+判定規則<br/>(動工前寫死)"]
+    A[想法] --> B["F0 預先承諾:<br/>可證偽宣稱+判定規則<br/>(動工前就先定案)"]
     B --> C["fabric F1–F13:<br/>誠實成交、2× 成本、<br/>有效樣本、對照組、子期"]
     C --> D["標準化測試報告<br/>(TR-01…17)"]
-    D --> E["判定進註冊表<br/>(負面結果也保留)"]
+    D --> E["判定寫入註冊表<br/>(負面結果也保留)"]
     E -- "PASSED" --> F["對抗式多代理驗證"]
     F --> E
     G["標準演進"] -- "F10 複測級聯" --> D
 ```
 
-這個迴圈在我們自己的工作裡抓出 **30+ 個真幻覺**——包括兩次推翻我們自己先前的判定。現行判定以[策略總註冊表(docs/18)](docs/18-strategy-registry.md)為單一事實來源;各機制的原生棲地與翻案價碼在[機制分類學(docs/19)](docs/19-mechanism-taxonomy.md)。
+這個迴圈在我們自己的工作裡抓出 **30 多個貨真價實的假象**,其中兩次還推翻了我們自己先前的判定。現行判定以[策略總註冊表(docs/18)](docs/18-strategy-registry.md)為單一事實來源;各機制的原生棲地與翻案價碼則見[機制分類學(docs/19)](docs/19-mechanism-taxonomy.md)。
 
 我們最倚重的幾條公式,以及它們各自抓到了什麼:
 
@@ -189,24 +207,24 @@ flowchart LR
 | $n_{eff} = \frac{k \cdot n}{1+(k-1)\bar{\rho}}$ | 有效樣本/有效試驗數(F4、F5) | zoo 的 59 個變體 ≈ **1.8** 個獨立賭注 |
 | Sharpe 算在 $r - r_{Tbill}$ 上+Lo(2002)校正 | 現金有 4–5% 利息時的誠實 Sharpe(F3) | 所有絕對 Sharpe 都被高估 0.04–0.11 |
 | $t_{\alpha} \geq 3.0$(Harvey-Liu-Zhu) | 全領域多重測試後的 alpha 門檻(F5) | 旗艦組合到全成本 t=3.38 才拿到 PASSED |
-| Nagel 三件套:$w \propto 1/\sigma^2$、靜態部位、隨機進場 | 「哪個笨對照組就能解釋它?」(F6) | 殺掉 Markov 閘門、IBS、KMZ 全部 18 個變體 |
+| Nagel 三重對照:$w \propto 1/\sigma^2$、靜態部位、隨機進場 | 「哪一個最簡單的對照組就能解釋它?」(F6) | 殺掉 Markov 閘門、IBS、KMZ 全部 18 個變體 |
 | $E[\alpha] \leq$ 資訊成本(Grossman-Stiglitz) | 0 元專案的經濟學先驗(F0) | 每個翻案條件從此都標上價格 |
 
-### 值得繼續走的方向
+### 後續發展方向
 
-1. **風險塑形產品化**——組合+槓桿刻度+監控已可日常使用;LLM 層當分析師/稽核員(絕不當訊號源)。
-2. **資料維度擴張**——唯一可能解鎖新 alpha 的路(G-S 紀律:先付資訊成本):盤中資料、選擇權鏈(今天就該開始存快照)、分析師預估修正。
-3. **論文到 TR 管線**——每週論文偵察 → 分診週報 → 你點名深讀 → TR → 註冊表回饋。
-4. **年度例行檢查**——每年一月重跑樣本外年檢、出手稽核與目標閘門。
+1. **風險塑形產品化**:組合、槓桿調節與監控已可日常使用;LLM 層當分析師/稽核員(絕不當訊號源)。
+2. **資料維度擴張**:唯一可能解鎖新 alpha 的路(G-S 紀律:先付資訊成本),包含盤中資料、選擇權鏈(今天就該開始存快照)、分析師預估修正。
+3. **論文到 TR 管線**:每週論文偵察 → 分類摘要 → 你點名深讀 → TR → 註冊表回饋。
+4. **年度例行檢查**:每年一月重跑樣本外年度檢查、交易稽核與嚴謹度閘門。
 
-### 快速開始
+### 快速上手
 
 ```bash
 uv sync --extra dev
 uv run trading-analysis ingest --config configs/mvp.yaml   # 匯入日線資料
 uv run python scripts/validate_recommendation.py           # 旗艦組合(完整嚴謹閘門)
 uv run python scripts/tests/tr15_combo_cost.py             # 成本壓力後的旗艦(t=3.38/3.14)
-uv run python scripts/tests/tr17_virtue_complexity.py      # 複雜度的美德復現
+uv run python scripts/tests/tr17_virtue_complexity.py      # 複雜度的美德重現
 uv run python scripts/readme_figures.py                    # 重新產生 README 成果圖
 ```
 

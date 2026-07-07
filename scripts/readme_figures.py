@@ -36,6 +36,109 @@ def dd(eq: pd.Series) -> pd.Series:
     return eq / eq.cummax() - 1.0
 
 
+def fig_frontier():
+    """The founding negative result: the (return, drawdown) plane, and why the target is empty.
+
+    Points are the documented 2015-2024 full-period CAGR / |MDD| from docs/07-08 (sector +
+    leveraged + combo studies). Iso-Calmar rays: reachable frontier (0.64) vs the target (3.3).
+    """
+    # (label, CAGR %, |MDD| %) -- docs/07 sector table, docs/08 combo, docs/07 s5 leverage
+    pts = [
+        ("S1 diversified momentum", 18.3, 26.5),
+        ("S2 AI concentrated", 22.5, 34.3),
+        ("S3 space / defense", 4.9, 30.6),
+        ("S5 dual momentum", 25.8, 50.4),
+        ("S6 Minervini trend", 14.7, 23.5),
+        ("S7 vol-target", 10.5, 24.7),
+    ]
+    fig, ax = plt.subplots(figsize=(11.5, 7.2))
+
+    # iso-Calmar rays  (CAGR = Calmar * |MDD|)
+    xs = np.linspace(0, 92, 50)
+    ax.plot(xs, 0.64 * xs, color=GREY, lw=1.6, ls="-", zorder=1)
+    ax.plot(xs, 3.3 * xs, color="#1b5e20", lw=1.6, ls="--", zorder=1)
+    ax.text(88, 0.64 * 88 + 1.5, "best reachable\nCalmar 0.64", color=GREY,
+            fontsize=9, ha="right", va="bottom")
+    ax.text(20.5, 3.3 * 15 + 4, "target needs\nCalmar 3.3", color="#1b5e20",
+            fontsize=9, ha="left", va="bottom")
+
+    # the empty target zone: CAGR >= 50, |MDD| <= 15
+    ax.add_patch(plt.Rectangle((0, 50), 15, 45, facecolor=GREEN, alpha=0.13, zorder=0))
+    ax.text(7.5, 72, "TARGET ZONE\n50%+ CAGR,\ndrawdown < 15%\n\n— empty —",
+            ha="center", va="center", color="#1b5e20", fontsize=10, fontweight="bold")
+
+    for label, cagr, mdd in pts:
+        ax.scatter(mdd, cagr, s=90, color=BLUE, edgecolor="white", lw=0.8, zorder=3)
+        ax.annotate(label, (mdd, cagr), (mdd + 1.2, cagr + 0.6), fontsize=8.2, color="#333")
+    # highlighted / special markers
+    ax.scatter(19.3, 10.4, s=230, marker="*", color=GREEN, edgecolor="white",
+               lw=1.0, zorder=4)
+    ax.annotate("5-sleeve combo\n(the one survivor)", (19.3, 10.4), (19.3 + 1.5, 10.4 - 4.5),
+                fontsize=8.6, color="#1b5e20", fontweight="bold")
+    ax.scatter(33.7, 13.7, s=90, marker="s", color=GREY, edgecolor="white", lw=0.8, zorder=3)
+    ax.annotate("VOO buy & hold", (33.7, 13.7), (33.7 + 1.2, 13.7 + 0.6), fontsize=8.2, color="#333")
+    ax.scatter(70, 32, s=110, marker="^", color=RED, edgecolor="white", lw=0.8, zorder=3)
+    ax.annotate("leveraged + trend filter\n(full period)", (70, 32), (70 - 2, 32 + 3.5),
+                fontsize=8.2, color=RED, ha="right")
+    ax.scatter(60, 83.6, s=110, marker="^", color=RED, alpha=0.4, edgecolor="white", lw=0.8, zorder=3)
+    ax.annotate("SOXL best sub-period\n(2016-19: +84%, but -60%)", (60, 83.6), (60 - 2, 83.6 - 1),
+                fontsize=8.2, color=RED, alpha=0.75, ha="right", va="top")
+
+    ax.set_xlim(0, 92)
+    ax.set_ylim(0, 92)
+    ax.set_xlabel("max drawdown (magnitude, %)")
+    ax.set_ylabel("CAGR (%)")
+    ax.set_title("Why the target is a unicorn: every strategy lives on a Calmar ~0.6 line, "
+                 "not in the top-left\n(2015-2024 full period; leverage just slides you up the "
+                 "same ray, deeper drawdown included)", fontsize=10.5)
+    ax.grid(alpha=0.25)
+    fig.tight_layout()
+    fig.savefig(OUT / "fig_frontier.png", dpi=150)
+    plt.close(fig)
+    print("[ok] fig_frontier.png")
+
+
+def fig_factor():
+    """Only one cross-sectional signal survives. ICIR values documented in docs/09-10.
+
+    All are broad-universe (S&P500) rank-IC information ratios, so they sit on one axis.
+    """
+    # (label, ICIR, color, note)  -- docs/10 sec.4/4d + docs/09 broad-universe table
+    data = [
+        ("gross profitability (quality)", 0.30, GREEN, "the one survivor"),
+        ("insider buying (Form 4)", 0.13, AMBER, "unstable — sign flips across sub-periods"),
+        ("momentum (broad market)", -0.01, GREY, "dead once the universe widens"),
+        ("low volatility", -0.11, GREY, "universe-specific, not extrapolable"),
+        ("asset growth", -0.22, RED, "wrong sign vs the literature"),
+    ]
+    data.sort(key=lambda d: d[1])
+    fig, ax = plt.subplots(figsize=(12.5, 4.6))
+    ax.axvspan(-0.05, 0.05, color=GREY, alpha=0.13, zorder=0)
+    ax.text(0.0, len(data) - 0.3, "±0.05 ≈ noise", ha="center", va="bottom",
+            fontsize=8, color=GREY)
+    y = np.arange(len(data))
+    for yi, (_label, icir, c, note) in zip(y, data, strict=True):
+        ax.barh(yi, icir, color=c, height=0.6, zorder=2)
+        side = 1 if icir >= 0 else -1
+        ax.text(icir + 0.007 * side, yi, f"{icir:+.2f}", va="center",
+                ha="left" if side > 0 else "right", fontweight="bold", fontsize=9.5)
+        ax.text(0.40, yi, note, va="center", ha="left", fontsize=8.6, color="#555")
+    ax.axvline(0, color="#333", lw=1.0)
+    ax.set_xlim(-0.34, 1.02)
+    ax.set_ylim(-0.6, len(data) - 0.1)
+    ax.set_yticks(y)
+    ax.set_yticklabels([d[0] for d in data], fontsize=9)
+    ax.set_xlabel("cross-sectional information ratio (ICIR), S&P 500 universe")
+    ax.set_title("Only one selection signal stands up: gross profitability (ICIR +0.30)\n"
+                 "value (earnings yield / book-to-market) went outright negative -- a lost decade",
+                 fontsize=10.5)
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    fig.savefig(OUT / "fig_factor.png", dpi=150)
+    plt.close(fig)
+    print("[ok] fig_factor.png")
+
+
 def fig_scoreboard():
     # counts from docs/18 verdict tables + docs/trial-registry.md (2026-07 state)
     fig, (ax1, ax2) = plt.subplots(
@@ -230,7 +333,8 @@ def fig_ensemble():
 
 if __name__ == "__main__":
     figs = {"scoreboard": fig_scoreboard, "ensemble": fig_ensemble,
-            "combo": fig_combo, "markov": fig_markov_static}
+            "combo": fig_combo, "markov": fig_markov_static, "frontier": fig_frontier,
+            "factor": fig_factor}
     picked = [a for a in sys.argv[1:] if a in figs] or list(figs)
     for name in picked:
         figs[name]()
