@@ -57,6 +57,7 @@
 | TR-08 | ML 混合預測(GBM) | **FAILED** | OOS IC −0.0013、R² −4.8%;Sharpe 0.91 ≈ shuffled 控制 0.88、輸笨動量 1.16 與 EW 1.09;GKX 效應在此宇宙完全衰退;判定校準被稽核員點名為模範 |
 | TR-09 | Black-Scholes | **N/A** | 無 PIT 選擇權資料(預算);假設層由 TR-05 代測 |
 | TR-10 | LLM agent 框架 | **PARTIAL/FAILED** | 驗證者用法有效;alpha 來源無效 |
+| TR-17 | KMZ 複雜度的美德(RFF+ridge 擇時)+ Nagel 控制 | **PARTIAL** | VoC 曲線在本座位嘈雜微弱(SPY P=12k +0.15>P=12 −0.01;QQQ 反而 P=12 最佳);**Nagel 控制決定性獲勝:1/σ² 波動管理 +0.67 支配全部 18 個複雜度變體**(alpha-t 0.48);淨成本+截倉 +0.37<B&H +0.61;不推翻 KMZ 定理(95年×總經預測子的原生棲地不可及),ML FAILED 判定維持;翻案條件=ingest Goyal-Welch 資料集 | 
 | TR-16 | IBS 完整審判(B1 成交敏感度首行) | **FAILED(反轉 TR-11)** | same-close +0.63 → **next-close +0.44 < B&H +0.45 = 靜態控制 +0.45**;四檔指數一致;gap 僅 1999-2007 為正;F9 全歷史 37%;**技術規則章節全數關閉**;B1 敏感度成為快速規則強制關卡 |
 | TR-14 | 有效樣本 n_eff(F4 v2 首行) | **方法 PASSED** | TR-02 的 F4 改判 FAIL(n_eff 2,206<3,000);面板類 PASS(7.5k/7.7k);**zoo 59 變體有效試驗數僅 1.8(ρ=0.54)**=同一場趨勢賭注 |
 | TR-15 | 旗艦全成本+2× 壓力(F2 v2) | **旗艦升級 PASSED** | 補收 TQQQ 翻轉+RP 再平衡成本後 **t=3.38 ≥ HLZ 3.0、2× 壓力 t=3.14**;成本拖累僅 12-72bps;順手修復 FF loader 上游格式 break(attribution 全面恢復) |
