@@ -2,6 +2,7 @@
 
 > /goal(2026-07-07):整理所有嘗試過的策略與機制、fabric 判定、可重跑工具,並規劃情境化短中長期策略。
 > 判定標準見 [docs/17 fabric 規格](17-fabric-acceptance.md)。新機制詳測見 `docs/tests/TR-*.md`。
+> **判定效力範圍=被測座位×棲地**:每個機制的原生棲地/錯置風險/翻案條件見 [docs/19 機制分類學](19-mechanism-taxonomy.md);試驗數會計見 [trial-registry](trial-registry.md)。
 
 ## 1. Fabric 判定總表(全部機制,依判定分組)
 
