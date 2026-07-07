@@ -10,35 +10,36 @@
 
 ### What this is
 
-A personal research project. The naive starting question: *"Of all the trading strategies floating around the internet, papers, and guru books — which ones can still be arbitraged today?"* Using $0/month of free data (yfinance, SEC EDGAR, public archives), across 70+ commits and **~130 mechanisms/strategies tested**, the answer turned out to be more valuable than the question — because it turned *"what do we know, what don't we know, and how do we decide what's feasible"* into reproducible code and documents.
+A personal research project. The naive starting question: *"Of all the trading strategies floating around the internet, papers, and guru books — which ones can still be arbitraged today?"* Using $0/month of free data (yfinance, SEC EDGAR, public archives), across 80+ commits and **~140 mechanisms/strategies tested (17 standardized test reports)**, the answer turned out to be more valuable than the question — because it turned *"what do we know, what don't we know, and how do we decide what's feasible"* into reproducible code and documents.
 
 ### What we built
 
-1. **An acceptance framework ("fabric", [docs/17](docs/17-fabric-acceptance.md))** that codifies every mistake we made into rules: leak-free (F1), net costs (F2), investable benchmarks (F3), effective sample size (F4), multiple-testing (F5), control experiments (F6), sub-period stability with clustered t-stats (F7), calibrated verdicts (F8), **path randomization — assume you don't know the future** (F9), re-test policy on standard changes (F10). The framework itself was then **adversarially reviewed against the literature** (Harvey-Liu-Zhu, Arnott-Harvey-Markowitz protocol, de Prado, AQR/FIM trading costs, Cederburg, Lo, Shumway, Hoffstein) — producing v1.2 amendments that caught two critical flaws in *our own* flagship numbers, all since fixed and re-run.
-2. **Fifteen standardized test reports** ([docs/tests/TR-01..15](docs/tests/)) covering statistical arbitrage, Markov regime-switching, PCA factor models, VaR, GBM Monte Carlo, CAPM, HRP, ML forecasting (GBM & Random Forest), Black-Scholes (N/A: no options data), LLM agent frameworks, bagged backtesting, rebalance-phase luck, delisting bias, effective samples, and cost stress — each with theory, assumptions, charts, PASSED/PARTIAL/FAILED verdict, decay estimate, failure attribution, and a **native-habitat declaration** ([docs/19](docs/19-mechanism-taxonomy.md)) so a FAILED verdict never over-claims beyond the seat it was tested in.
-3. **Working infrastructure**: point-in-time data layer (DuckDB+Parquet; EDGAR aligned to filing dates), order-independent backtest engine (vectorbt), rigor modules (PSR/DSR/PBO/SPA), and daily Telegram monitors (multi-indicator exit votes + a social-signal tracker) on free GitHub Actions cron.
+1. **An acceptance framework ("fabric" v2.0, [docs/17](docs/17-fabric-acceptance.md))** — a single rule table F0–F13 codifying every mistake we made: pre-committed falsifiable claims (F0), leak-free signals + fill-time conventions (F1), spread-scaled costs with mandatory 2× stress (F2), excess-over-T-bill Sharpe (F3), effective sample sizes (F4), campaign-wide trial accounting with a t≥3.0 alpha bar (F5), **the Nagel control triple — which simplest control explains it?** (F6), sub-period + long-history replay (F7), verdicts scoped to seat×habitat (F8), path randomization (F9), re-test cascades (F10), universe legitimacy (F11), rebalance-phase averaging (F12), and delisting rules (F13). Its economic preamble is **Grossman-Stiglitz**: at $0 information cost, equilibrium alpha is $0 — every re-open condition must be priced as an information cost.
+2. **Seventeen standardized test reports** ([docs/tests/TR-01..17](docs/tests/)): statistical arbitrage, Markov regime-switching, PCA factor models, VaR, GBM Monte Carlo, CAPM, HRP, ML forecasting (GBM & Random Forest), Black-Scholes (N/A — no data, refused to fabricate), LLM agent frameworks, bagged backtesting, rebalance-phase luck, delisting bias, effective samples, cost stress, the IBS full trial, and a replication of Kelly-Malamud-Zhou's *Virtue of Complexity* with the Nagel critique as control. The framework itself was **adversarially reviewed against the literature** and audited (every number re-run).
+3. **Working infrastructure**: point-in-time data layer (DuckDB+Parquet; EDGAR aligned to filing dates; 1993+ index history), order-independent backtest engine, rigor modules (PSR/DSR/PBO/SPA), daily Telegram monitors on free GitHub Actions, and a designed **paper-to-TR pipeline** ([docs/21](docs/21-paper-to-tr-pipeline.md)) for continuous paper-driven re-testing.
 
 ### What we now KNOW (reproducible evidence)
 
-- **Selection alpha barely exists in free daily data.** Broad-market momentum is dead (ICIR≈0); value has been lost for a decade; PEAD/insider/operating-fundamental factors all failed; ML forecasters (GBM and RF) score OOS IC≈0 — the shuffled-label control actually beat the real model. The one robust cross-sectional signal: **gross profitability** (ICIR +0.30).
-- **Timing to cash almost always subtracts.** Every cash gate — from the 200-day SMA to a walk-forward Hamilton Markov filter — lost to buy-and-hold, and the Markov gate's celebrated "MDD halving" was **fully reproduced by a constant 57% static exposure with zero model and zero trades** (Cederburg replicated).
-- **The deliverable value is all in risk-shaping.** The 5-sleeve risk-parity combo is the one alpha claim that survived everything: **full-cost Carhart t=3.38 (2015-2026), above the Harvey-Liu-Zhu t≥3.0 bar, and t=3.14 even at 2× costs on every channel**; phase-immune (30bps timing-luck band); 2025 out-of-sample +27.9% with −5.7% MDD vs VOO's −18.7%. Honest caveats stay attached: the t-stat improved because the sample lengthened, and campaign-wide Bonferroni remains unresolved (trial registry lists both endpoints).
-- **Point estimates lie.** Over 300 randomized 3-year windows the zoo's momentum table-topper beat equal-weight only 23% of the time (demoted to FAILED), while IBS mean-reversion survived at 66% (the only robust technical rule). Quarterly momentum's rebalance-phase luck spans **1,753 bps/yr** — the flagship's is 30 bps.
-- **Most "it works" demos on the internet = beta + hindsight lists + ignored costs.** A hand-picked hot-stock list returned +62.8% in 2025 by itself; the overnight effect's gross Sharpe 0.89 became **−0.97** net. Survivorship inflation on our universe is an honest interval: **[+1.26%, +2.02%]/yr** (Shumway-bounded).
+- **Selection alpha barely exists in free daily data.** Broad momentum is dead; value has been lost for a decade; PEAD/insider/operating factors failed; ML forecasters score OOS IC≈0 (the shuffled control beat the real model); even the KMZ complexity recipe is dominated by a simple 1/σ² volatility dial in our seat. The one robust cross-sectional signal: **gross profitability** (ICIR +0.30).
+- **Timing to cash almost always subtracts, and clever risk models rarely beat a constant.** Every cash gate lost to buy-and-hold; the Markov gate's "MDD halving" was fully reproduced by a static 57% exposure; the last surviving technical rule (IBS) died once fills were honest — its edge was trading the very close the signal was computed from.
+- **The deliverable value is all in risk-shaping.** The 5-sleeve risk-parity combo survived everything: **full-cost Carhart t=3.38 (2015–2026), above the Harvey-Liu-Zhu t≥3.0 bar, t=3.14 even at 2× costs**, phase-immune (30bps timing-luck band), 2025 out-of-sample +27.9% with −5.7% MDD vs VOO's −18.7%. Caveats stay attached: the t rose because the sample lengthened; campaign-wide Bonferroni remains open (both endpoints in the trial registry).
+- **Point estimates lie.** Quarterly momentum's rebalance-phase luck spans 1,753 bps/yr; a zoo table-topper beat equal-weight in only 23% of randomized windows; 59 technical variants collapse to ~1.8 effective independent bets.
+- **Most "it works" demos = beta + hindsight lists + ignored costs + generous fills.** Survivorship inflation on our universe: an honest interval of [+1.26%, +2.02%]/yr.
 
 ### What we know we DON'T know
 
-Options (BSM/VRP) and intraday dimensions — no point-in-time free data, refused to fabricate; long-bear/rate-shock regimes (2015-2026 only had V-shaped crashes); unauditable track records (what we *can* test: copying a famous account's calls at next-day close has **no timing edge over random entries into the same names** — the universe intel is the value, not the timing).
+Options and intraday dimensions (no point-in-time free data — TR-09 is an honest N/A); long-bear/rate-shock regimes (2015–2026 only had V-shaped crashes; long-history replays cover some of it); unauditable track records (copying a famous account's calls at next-day close showed **no timing edge over random entries into the same names** — the universe intel is the value).
 
 ### How we decide feasible vs. not
 
-`idea → falsifiable claim first (F0) → the ten fabric rules → standardized TR → verdict into the registry (negative results kept) → any PASSED triggers adversarial multi-agent verification → standard changes trigger re-tests`. This loop caught **30+ genuine illusions** in our own work. See the [strategy registry (docs/18)](docs/18-strategy-registry.md) — PASSED 5 / PARTIAL 11 / FAILED 10 families.
+`idea → pre-committed falsifiable claim (F0) → the fabric rules → standardized TR → verdict into the registry (negative results kept) → any PASSED triggers adversarial multi-agent verification → standard changes trigger re-test cascades`. This loop caught **30+ genuine illusions** in our own work — including reversing our own earlier verdicts twice. Current verdicts live in the [strategy registry (docs/18)](docs/18-strategy-registry.md); each mechanism's native habitat and re-open price in the [taxonomy (docs/19)](docs/19-mechanism-taxonomy.md).
 
-### Directions that remain worth pursuing
+### Directions still worth pursuing
 
-1. **Productize risk-shaping** — the combo + leverage dial + monitors are daily-usable; wire the LLM layer as analyst/auditor (never as signal source).
-2. **Data-dimension expansion** — the only path that could unlock new alpha: intraday, options chains, analyst revisions; any free PIT source re-opens the corresponding TR.
-3. **Annual rituals** — re-run the OOS year-check, trade audit, and goal gates every January so conclusions update with data.
+1. **Productize risk-shaping** — the combo + leverage dial + monitors are daily-usable; LLM layer as analyst/auditor (never as signal source).
+2. **Data-dimension expansion** — the only path to new alpha (Grossman-Stiglitz: pay the information cost): intraday, options chains (start snapshotting today), analyst revisions.
+3. **The paper-to-TR pipeline** — weekly paper scout → triage digest → user-picked deep reads → TRs → registry feedback.
+4. **Annual rituals** — re-run the OOS year-check, trade audit, and gates every January.
 
 ### Quickstart
 
@@ -47,7 +48,7 @@ uv sync --extra dev
 uv run trading-analysis ingest --config configs/mvp.yaml   # ingest daily bars
 uv run python scripts/validate_recommendation.py           # flagship combo, full rigor gates
 uv run python scripts/tests/tr15_combo_cost.py             # cost-stressed flagship (t=3.38/3.14)
-uv run python scripts/tests/tr11_bagged_backtest.py        # path-randomized evaluation demo
+uv run python scripts/tests/tr17_virtue_complexity.py      # Virtue-of-Complexity replication
 ```
 
 Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only public surface) → core (data / models / strategy / backtest / portfolio / regime / factors / ml). Docs entry point: [docs/00-executive-summary.md](docs/00-executive-summary.md).
@@ -62,48 +63,49 @@ Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only pu
 
 ### 這是什麼
 
-一個個人研究專案。起點是一個樸素的問題:「網路上、論文裡、大師書裡那些交易策略,到底哪些今天還真的能持續套利?」我們用 $0/月的免費資料(yfinance、SEC EDGAR、公開檔案庫),在 70+ 次提交、**~130 個機制/策略的系統性測試**之後,答案比問題更有價值——因為它把「什麼是知道的、什麼是不知道的、如何判斷可行與不可行」變成了可重跑的程式與文件。
+一個個人研究的 side project。起點是一個樸素的問題:「網路上、論文裡、大師書裡那些交易策略,到底哪些今天還真的有持續套利的空間?」我們用每月 0 元的免費資料(yfinance、SEC EDGAR、公開檔案庫),歷經 80+ 次 commit、**約 140 個機制/策略的系統性測試(17 份標準化測試報告)**,得到的答案比問題本身更有價值——因為它把「什麼是已知、什麼是未知、如何判斷可不可行」變成了可重跑的程式與文件。
 
 ### 我們做了什麼
 
-1. **建了一套驗收標準(fabric,[docs/17](docs/17-fabric-acceptance.md))**,把每一次踩坑法典化:無洩漏(F1)、淨成本(F2)、可投資基準(F3)、有效樣本量(F4)、多重測試(F5)、控制組(F6)、子期穩定+聚類 t(F7)、校準判定(F8)、**路徑隨機化——假設你不知道未來**(F9)、標準變更即複測(F10)。並用經濟學文獻與量化公司白皮書(Harvey-Liu-Zhu、AHM 回測協定、de Prado、AQR/FIM 交易成本、Cederburg、Lo、Shumway、Hoffstein)**對這套標準本身做對抗性審查**——v1.2 修訂案抓到我們自家旗艦數字的兩個 critical 缺陷,全部已修復並重跑。
-2. **十五份標準化測試報告**([docs/tests/TR-01..15](docs/tests/)):統計套利、Markov 變異變遷、PCA 因子模型、VaR、GBM 蒙地卡羅、CAPM、HRP、機器學習預測(GBM 與隨機森林)、Black-Scholes(N/A:無選擇權資料)、LLM agent 框架、bagged 回測、再平衡相位運氣、下市偏誤、有效樣本、成本壓力——每份含理論、假設、圖表、PASSED/PARTIAL/FAILED 判定、衰退估計、失敗歸因,以及**原生棲地聲明**([docs/19](docs/19-mechanism-taxonomy.md)),讓 FAILED 判定永遠不會越過「被測座位」過度宣稱。
-3. **能運轉的基礎設施**:point-in-time 資料層(DuckDB+Parquet;EDGAR 以揭露日對齊)、order-independent 回測引擎(vectorbt)、嚴謹度模組(PSR/DSR/PBO/SPA)、每日 Telegram 監控(五維出場投票+社群訊號追蹤),跑在免費 GitHub Actions cron 上。
+1. **一套驗收標準(fabric v2.0,[docs/17](docs/17-fabric-acceptance.md))**——單一規則表 F0–F13,把每一次踩過的坑法典化:動工前預先承諾可證偽宣稱(F0)、無洩漏訊號+成交時點慣例(F1)、點差縮放成本+強制 2× 壓力測試(F2)、超額-over-國庫券的 Sharpe(F3)、有效樣本數(F4)、全 campaign 試驗數記帳+alpha 門檻 t≥3.0(F5)、**Nagel 對照三件套——「最簡單的什麼對照組能解釋它?」**(F6)、子期穩定+長歷史重放(F7)、判定效力=座位×棲地(F8)、路徑隨機化(F9)、複測級聯(F10)、宇宙合法性(F11)、再平衡相位平均(F12)、下市規則(F13)。經濟學前提是 **Grossman-Stiglitz**:資訊成本 0 元,均衡下的 alpha 就是 0 元——每個翻案條件都必須標價成一筆資訊成本。
+2. **17 份標準化測試報告**([docs/tests/TR-01..17](docs/tests/)):統計套利、Markov 變異變遷、PCA 因子模型、VaR、GBM 蒙地卡羅、CAPM、HRP、機器學習預測(GBM 與隨機森林)、Black-Scholes(N/A——沒有資料就不編數字)、LLM agent 框架、bagged 回測、再平衡相位運氣、下市偏誤、有效樣本、成本壓力、IBS 完整審判、以及 Kelly-Malamud-Zhou《複雜度的美德》復現(以 Nagel 批評為對照)。框架本身也**用文獻做過對抗式審查**,且每個數字都被稽核員重跑核對過。
+3. **能運轉的基礎設施**:point-in-time 資料層(DuckDB+Parquet;EDGAR 以申報日對齊;指數歷史回溯 1993)、order-independent 回測引擎、嚴謹度模組(PSR/DSR/PBO/SPA)、每日 Telegram 監控(跑在免費的 GitHub Actions 上),以及設計完成的**論文到 TR 管線**([docs/21](docs/21-paper-to-tr-pipeline.md)),讓高品質論文能持續回饋、重測既有機制。
 
 ### 我們現在「知道」的(可重跑的證據)
 
-- **免費日線資料上幾乎不存在選股 alpha。** 廣市場動量已死(ICIR≈0)、價值失落十年、PEAD/內部人/本業因子全滅;ML 預測器(GBM 與 RF)的 OOS IC≈0——shuffled 控制甚至比真模型高。唯一穩健的橫斷訊號:**毛利/資產品質因子**(ICIR +0.30)。
-- **擇時到現金幾乎總是減損。** 從 200 日線到 walk-forward Hamilton Markov 濾波,每一個現金 gate 都輸給買進持有;Markov gate 引以為傲的「MDD 減半」被**一個 57% 恆定曝險(零模型、零交易)完整複製**(Cederburg 重現)。
-- **可交付的價值全在風險塑形。** 5-sleeve 風險平價組合是唯一全部存活的 alpha 宣稱:**全成本 Carhart t=3.38(2015-2026),越過 Harvey-Liu-Zhu 的 t≥3.0 標準;所有通道 2× 成本壓力下仍 t=3.14**;相位免疫(timing-luck 帶寬僅 30bps);2025 樣本外 +27.9%、MDD −5.7%(VOO 同期 −18.7%)。誠實 caveat 保留:t 值提升主因是樣本延長;全 campaign Bonferroni 仍未解(試驗登記簿兩端點皆列)。
-- **點估計會說謊。** 300 個隨機 3 年視窗下,zoo 榜首的動量選股只有 23% 的時間贏等權(降級 FAILED),IBS 均值回歸以 66% 存活(唯一 robust 的技術規則);季度動量的再平衡相位運氣高達 **1,753 bps/年**——旗艦只有 30 bps。
-- **網路上大多數「有效」示範 = beta + 事後清單 + 忽略成本。** 手挑飆股清單 2025 自己就 +62.8%;隔夜效應毛 Sharpe 0.89 → 淨 **−0.97**。倖存者膨脹的誠實區間:**[+1.26%, +2.02%]/年**(Shumway 定界)。
+- **免費日線資料上幾乎不存在選股 alpha。** 廣市場動能已死、價值失落十年、PEAD/內部人/營運面因子全滅;機器學習預測器的樣本外 IC≈0(打亂標籤的對照組甚至贏過真模型);連 KMZ 的複雜度配方,在我們的座位上也被一個簡單的 1/σ² 波動旋鈕支配。唯一站得住的橫斷面訊號:**毛利/資產品質因子**(ICIR +0.30)。
+- **擇時轉現金幾乎一定扣分,聰明的風險模型很少贏過一個常數。** 每一個現金開關都輸給買進抱著;Markov 模型引以為傲的「回撤砍半」,用恆定 57% 部位就能完整複製;最後一條存活的技術規則(IBS)在誠實成交下陣亡——它的優勢來自「用剛算完訊號的那根收盤價成交」的假象。
+- **可交付的價值全在風險塑形。** 五個 sleeve 的風險平價組合通過了所有考驗:**全成本 Carhart t=3.38(2015–2026),越過 Harvey-Liu-Zhu 的 t≥3.0 標準,全通道 2× 成本壓力下仍有 t=3.14**;相位免疫(timing-luck 帶寬僅 30bps);2025 樣本外 +27.9%、最大回撤 −5.7%(同期 VOO −18.7%)。誠實的但書都留著:t 值上升主要因為樣本變長;全 campaign 的 Bonferroni 仍未過關(兩個端點都寫在試驗登記簿裡)。
+- **單點估計會說謊。** 季度動能的再平衡相位運氣高達 1,753 bps/年;zoo 榜首在隨機視窗下只有 23% 的機率贏過等權;59 個技術變體實際上只等於約 1.8 個獨立的賭注。
+- **網路上大多數「有效」的展示 = beta + 事後清單 + 忽略成本 + 過度寬鬆的成交假設。** 我們宇宙的倖存者偏誤膨脹:誠實區間 [+1.26%, +2.02%]/年。
 
 ### 我們「知道自己不知道」的
 
-選擇權(BSM/VRP)與日內維度——無 PIT 免費資料,拒絕編造;長熊/利率衝擊 regime(2015-2026 只有 V 型崩跌);不可稽核的他人績效(我們能測的部分:次日收盤跟單名人喊單,**對同一批股票的隨機進場沒有任何擇時優勢**——宇宙情報才是價值,擇時不是)。
+選擇權與盤中維度(沒有 point-in-time 的免費資料——TR-09 誠實標 N/A);長空頭/利率衝擊的市場情境(2015–2026 只有 V 型崩跌;長歷史重放補了一部分);無法稽核的他人績效(以次日收盤跟單名人喊單,**對同一批股票的隨機進場沒有任何擇時優勢**——有價值的是他的選股宇宙情報,不是時點)。
 
 ### 我們如何判斷「可行 vs 不可行」
 
-`想法 → 先寫可證偽宣稱(F0)→ fabric 十條規則 → 標準化 TR → 判定入註冊表(負結果也保留)→ 任何 PASSED 觸發對抗性多代理驗證 → 標準演進即複測`。這個迴圈在我們自己的工作裡抓出 **30+ 個真幻覺**。見[策略總註冊表(docs/18)](docs/18-strategy-registry.md)——PASSED 5 / PARTIAL 11 / FAILED 10 族。
+`想法 → 預先承諾可證偽宣稱(F0)→ fabric 規則 → 標準化 TR → 判定進註冊表(負面結果也保留)→ 任何 PASSED 觸發對抗式多代理驗證 → 標準演進觸發複測級聯`。這個迴圈在我們自己的工作裡抓出 **30+ 個真幻覺**——包括兩次推翻我們自己先前的判定。現行判定以[策略總註冊表(docs/18)](docs/18-strategy-registry.md)為單一事實來源;各機制的原生棲地與翻案價碼在[機制分類學(docs/19)](docs/19-mechanism-taxonomy.md)。
 
-### 值得繼續前進的方向
+### 值得繼續走的方向
 
-1. **風險塑形產品化**——組合+槓桿刻度+監控已可日常使用;LLM 層當分析員/稽核員接入(絕不當訊號源)。
-2. **資料維度擴張**——唯一可能解鎖新 alpha 的路:日內、選擇權鏈、分析師修正;任一免費 PIT 來源出現即重開對應 TR。
-3. **年度儀式**——每年一月重跑 OOS 年檢、出手審計與目標閘門,讓結論隨資料自動更新。
+1. **風險塑形產品化**——組合+槓桿刻度+監控已可日常使用;LLM 層當分析師/稽核員(絕不當訊號源)。
+2. **資料維度擴張**——唯一可能解鎖新 alpha 的路(G-S 紀律:先付資訊成本):盤中資料、選擇權鏈(今天就該開始存快照)、分析師預估修正。
+3. **論文到 TR 管線**——每週論文偵察 → 分診週報 → 你點名深讀 → TR → 註冊表回饋。
+4. **年度例行檢查**——每年一月重跑樣本外年檢、出手稽核與目標閘門。
 
 ### 快速開始
 
 ```bash
 uv sync --extra dev
-uv run trading-analysis ingest --config configs/mvp.yaml   # 攝取日線
+uv run trading-analysis ingest --config configs/mvp.yaml   # 匯入日線資料
 uv run python scripts/validate_recommendation.py           # 旗艦組合(完整嚴謹閘門)
 uv run python scripts/tests/tr15_combo_cost.py             # 成本壓力後的旗艦(t=3.38/3.14)
-uv run python scripts/tests/tr11_bagged_backtest.py        # 路徑隨機化評估示範
+uv run python scripts/tests/tr17_virtue_complexity.py      # 複雜度的美德復現
 ```
 
-架構:UI(Streamlit)→ CLI(Typer)→ `trading_analysis.api`(唯一公開介面)→ core(data / models / strategy / backtest / portfolio / regime / factors / ml)。文件入口:[docs/00-executive-summary.md](docs/00-executive-summary.md)。
+架構:UI(Streamlit)→ CLI(Typer)→ `trading_analysis.api`(唯一公開介面)→ 核心函式庫(data / models / strategy / backtest / portfolio / regime / factors / ml)。文件入口:[docs/00-executive-summary.md](docs/00-executive-summary.md)。
 
 **授權**:Apache-2.0([LICENSE](LICENSE))。參考 repo(僅設計參考,未複製程式碼):Kronos、TradingAgents、ai-hedge-fund、OpenBB。
 
-> **免責聲明**:僅供研究/教育,非投資建議。所有回測皆有其假設與侷限;本 repo 的一半價值正是把這些侷限寫成白紙黑字。
+> **免責聲明**:僅供研究與教育用途,不構成投資建議。所有回測都有其假設與限制;把這些限制白紙黑字寫下來,正是這個 repo 一半的價值。

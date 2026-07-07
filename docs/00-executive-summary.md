@@ -1,7 +1,7 @@
 # trading-analysis 研究總報告（Executive Summary）
 
-> 更新：2026-06-17。本檔是**單一進入點與總索引**；細節在連結的專文。
-> **兩部分**：第一部分（規劃/盤點，2026-06-14，§0-§8）＋ **第二部分（實證研究結論，2026-06，§E，docs 05-13）**。
+> 更新：2026-07-08。本檔是**單一進入點與總索引**；細節在連結的專文。**現行機制判定以 [docs/18 註冊表](18-strategy-registry.md) 為單一事實來源**。
+> **兩部分**：第一部分（規劃/盤點，2026-06-14，§0-§8）＋ **第二部分（實證研究結論，2026-06~07，§E0-E9，docs 05-21）**。
 > 範圍：量化策略/repo/資料源/整合（第一部分）＋ 真實回測、因子搜尋、另類資料、嚴謹度證偽（第二部分）。
 
 ## 文件地圖
@@ -17,6 +17,16 @@
 | **換資料維度：突破 Grinold 上限的具體項目與優先序** | [11-data-dimensions.md](11-data-dimensions.md) |
 | **量化方法地圖（Kalman/GARCH/HRP/de Prado…）+ 實作示範** | [12-quant-methods-survey.md](12-quant-methods-survey.md) |
 | **Algotrading 策略目錄（Reddit/論壇/論文/評論廣搜）+ 對照已驗證** | [13-strategy-catalog.md](13-strategy-catalog.md) |
+| 六槽位框架+全面復盤+判斷依據（2026-06 快照） | [14-horizon-framework.md](14-horizon-framework.md) |
+| 100+ 策略目錄+混合設計（2026-06 快照） | [15-strategy-catalog-100.md](15-strategy-catalog-100.md) |
+| Serenity 剖析+追蹤機制+跟單回測 | [16-serenity-analysis.md](16-serenity-analysis.md) |
+| **★ Fabric 驗收標準 v2.0（F0-F13 統一規則表）** | [17-fabric-acceptance.md](17-fabric-acceptance.md) |
+| **★ 策略/機制總註冊表（現行判定的單一事實來源）** | [18-strategy-registry.md](18-strategy-registry.md) |
+| 機制分類學（原生棲地×被測座位×翻案條件） | [19-mechanism-taxonomy.md](19-mechanism-taxonomy.md) |
+| 理論再審思（七篇經典對帳；G-S 經濟學地基） | [20-theory-review.md](20-theory-review.md) |
+| Paper-to-TR 管線（持續論文驅動複測） | [21-paper-to-tr-pipeline.md](21-paper-to-tr-pipeline.md) |
+| 標準化測試報告 TR-01~17（各機制含圖表判定） | docs/tests/ |
+| 試驗登記簿（campaign 級，≈226 變體） | [trial-registry.md](trial-registry.md) |
 | ★ **執行依據：Master 實作計畫**（M0-M7、契約、CI、第一個 PR）| [01-implementation-plan.md](01-implementation-plan.md) |
 | 計畫生成輸入 BRIEF | [design-brief.md](design-brief.md) |
 | 策略與投資者量化、USIC 冠軍 | [research-inventory.md](research-inventory.md) |
@@ -44,7 +54,7 @@
 
 ---
 
-# 第二部分：實證研究結論（§E，2026-06，docs 05-13）
+# 第二部分：實證研究結論（§E，2026-06~07，docs 05-21）
 
 > 把第一部分的規劃**真的做出來並嚴格回測**之後的誠實結論。一句話：**沒有穩健的 edge 超過「長部位 + modest 品質傾斜 + 多 sleeve 分散」；50-100% 安全報酬是獨角獸；唯一統計顯著的 alpha 是多 sleeve 風險平價組合（且邊際）。**
 
@@ -98,6 +108,12 @@
 - **§9B 修倖存者偏誤（補 109 個被剔除名）**：CAGR 膨脹 +126bps（下界，~97% 世代稀釋）；動量仍死。**第 4 次對抗式 review（workflow skeptic）抓到 IC t-stat 重疊窗自相關灌水 ~3.7倍**（低波動 naive −5.54 → 非重疊 −1.05，本來就不顯著）。
 - **§9C 可交付 = 回撤預算前緣**（`scripts/defensive_overlay.py`）：選你能承受的 MDD → 讀出配置 → 接受其誠實 CAGR；印今日權重。**交付使用者「不失本金」那半目標**。
 - **鐵律**：docs/11 四槓桿拉三根（②③①）天花板紋風不動 → **「綁定約束是資料維度」三角度證實**；剩 ④日內 ORB 需無/超預算資料。**誠實最佳交付 = 多 sleeve 組合 + 回撤前緣，不是 50% CAGR 策略。**
+
+## E9. Fabric 時代（2026-07）：驗收標準化 + 17 份 TR + 理論地基
+- **fabric v2.0**（docs/17）：F0-F13 統一規則表，經文獻/程式碼雙面向對抗審查（Harvey-Liu/AHM/FIM/Cederburg/Lo/Shumway/Hoffstein 為基點）並以 TR-12~16 逐條執行；**Grossman-Stiglitz 均衡採納為經濟學前提**（$0 資訊成本→$0 alpha；翻案條件必須標價成資訊成本）。
+- **TR-01~17 判定**（docs/18 為單一事實來源）：**旗艦升級**——全成本 Carhart **t=3.38 ≥ HLZ 3.0、2× 成本壓力 t=3.14**；**IBS 反轉 FAILED**（TR-16：成交慣例假象+靜態控制打平——技術規則章節全數關閉）；KMZ 複雜度 PARTIAL（TR-17：1/σ² 控制支配全部 18 變體）；統計套利/GBM-MC/ML 預測 FAILED；Markov/PCA/VaR/CAPM/HRP PARTIAL（工程價值）。
+- **量測修正全面生效**：rf=BIL 超額 Sharpe、相位平均（季動量 timing-luck 1,753bps/yr）、倖存者區間 [+1.26%, +2.02%]/yr、有效樣本 n_eff（zoo 59 變體實為 1.8 個獨立賭注）、成交時點敏感度（持有 <10 bar 必附）。
+- **監控管線 live**：五維出場投票+Serenity 追蹤，GitHub Actions 每日推 Telegram（$0）；Paper-to-TR 管線設計完成（docs/21）。
 
 ---
 
