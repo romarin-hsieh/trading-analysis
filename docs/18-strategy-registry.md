@@ -25,7 +25,6 @@
 | Kalman 濾波(趨勢/動態 beta) | 轉折早 10-25 天真;當 gate whipsaw;動態 beta 是真用途 | docs/12 | `src/.../models/kalman.py` |
 | Minervini/USIC Trend Template | 結構檢查有效;alpha 衰退(Sharpe 1.17→0.64)、無顯著 α | docs/05/07 | `strategy/rules/minervini_trend.py` |
 | Vegas 雙通道 | Sharpe 1.00=趨勢濾網外衣(≈SMA200);TR-11 隨機視窗 P(beat)=44%(F9 PARTIAL) | docs/15 §2、TR-11 | `scripts/strategy_zoo.py` |
-
 | 高波動「減法」規則 | 拿掉日停損+現金擇時:Sharpe 0.48→0.9;贏 B&H 不顯著(t=1.74) | docs/13 §12 | `scripts/highvol_ruleset.py` |
 | Serenity 追蹤(情報源) | 宇宙情報真(placebo +18.7%/季);擇時無 edge | docs/16 | `scripts/notify/serenity_tracker.py` |
 | LLM agent 框架(驗證者用法) | 對抗驗證抓 30+ 真錯;alpha 來源 FAILED | TR-10 | workflow 慣例 |
