@@ -48,7 +48,7 @@
 | TR | 機制 | 判定 | 摘要(稽核員重跑全部 8 支腳本,數字一對一吻合) |
 |---|---|---|---|
 | TR-01 | 共整合 pairs 統計套利 | **FAILED** | OOS +2.0%/yr < 現金(BIL +2.7%);GGR 2006 的 +11% 衰退 >100%;9/10 對集中 AI 半導體、SMCI 醜聞炸出 −29.7% MDD;殘值=|z|>4 當單一股異常警報 |
-| TR-02 | Markov 變異變遷 regime | **PARTIAL** | regime 辨識真(低/高波動 16.9% vs 31.2%)、shuffle null 97-98 pctile;**當現金 gate 輸 B&H**(0.84 vs 0.90)=鐵律在最有理論根據的濾波器上再證;MDD 減半;正確用法=波動預測器/連續縮放 |
+| TR-02 | Markov 變異變遷 regime | **PARTIAL(v1.2 收窄:波動辨識 only)** | regime 辨識真(16.9%/31.2%)、gate 輸 B&H;**TR-02b Cederburg 控制:靜態 57% 恆定曝險同 MDD(−20.7 vs −20.1)、更高 exSharpe(0.79 vs 0.62)、零交易——「MDD 減半」用常數就能複製**,regime 模型對曝險決策零增值 |
 | TR-03 | PCA 統計因子模型 | **PARTIAL** | 5 PC 解釋 65%(PC1 41.8%=一個大 beta);因子共變異 min-var ≈ LW、勝 sample-cov 0.66 vol pt;無 alpha,估計工程價值 |
 | TR-04 | VaR 測量+目標化 | **PARTIAL** | 常態 VaR 99% 違規率 2.9% vs 名目 1%(Kupiec p<1e-14)=RiskMetrics 常態假設全滅;歷史/CF 較誠實;VaR-target ≈ vol-target |
 | TR-05 | GBM Monte Carlo | **FAILED**(作為股票風險模型) | 實現最慘日 −12% = GBM 下 −11.8σ(機率 1e-32);GBM 對尾部/MDD 低估數量級;**block bootstrap 才是誠實的 MC**(P(MDD≤實現)=8.1% vs GBM 誇張樂觀) |

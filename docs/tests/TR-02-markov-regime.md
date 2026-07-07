@@ -60,3 +60,18 @@ Hamilton (1989, Econometrica)「A New Approach to the Economic Analysis of Nonst
 - **當波動預測器,不當現金 gate**:P(高波) 可餵給五維出場的 V(波動)維度(docs/16 / 8c53b17 的 5-dim exit votes),或做**連續 vol-targeting 倉位縮放**(scale ∝ P(低波))取代 0/1 切換——保留 MDD 減半的價值、避免全現金的鐵律稅。
 - **給高 beta sleeve 當風險 overlay**:MDD -35% → -19% 對 AI_semis/space 這類 45%+ 波動 sleeve 的心理可持有性有實值;預期效果是 Calmar 改善、CAGR 讓步。
 - **不建議**:與 SMA200 疊加成雙 gate(兩個滯後濾波器相乘只會更晚進場)。
+
+---
+## 附錄 TR-02b(v1.2-A4 / F6 v2 風險匹配靜態控制;`scripts/tests/tr02b_static_control.py`)
+
+Cederburg 檢驗補跑(全列採 B3 誠實慣例:空手賺 BIL、超額-over-BIL Sharpe;OOS 2017-12..2026-07):
+
+| book | CAGR | exSharpe | MDD | 出手/年 |
+|---|---|---|---|---|
+| QQQ buy&hold | +20.40% | +0.79 | −35.1% | 0 |
+| Markov gate(曝險 57%) | +10.60% | +0.62 | −20.1% | 2.2 |
+| **靜態 57% QQQ/43% BIL(零模型)** | **+13.11%** | **+0.79** | **−20.7%** | **0** |
+| 靜態 vol-matched(0.58×) | +13.28% | +0.79 | −21.1% | 0 |
+
+**判定收窄:Markov 未勝過靜態控制**——同 MDD 下靜態多 +2.5% CAGR、多 +0.17 exSharpe、零交易。「MDD 減半」可由一個常數旋鈕完整複製(Cederburg JFE 2020 的 tempered read 在本資料重現)。**TR-02 的 PARTIAL 自此收窄為「波動辨識 only」**:regime 偵測是真的(低/高波動 16.9%/31.2%),但把它接到任何曝險決策上都不如常數。F6 v2 合規完成。
+
