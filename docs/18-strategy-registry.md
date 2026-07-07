@@ -25,7 +25,7 @@
 | Kalman 濾波(趨勢/動態 beta) | 轉折早 10-25 天真;當 gate whipsaw;動態 beta 是真用途 | docs/12 | `src/.../models/kalman.py` |
 | Minervini/USIC Trend Template | 結構檢查有效;alpha 衰退(Sharpe 1.17→0.64)、無顯著 α | docs/05/07 | `strategy/rules/minervini_trend.py` |
 | Vegas 雙通道 | Sharpe 1.00=趨勢濾網外衣(≈SMA200);TR-11 隨機視窗 P(beat)=44%(F9 PARTIAL) | docs/15 §2、TR-11 | `scripts/strategy_zoo.py` |
-| IBS 均值回歸 | zoo TS 最佳(1.03/−16%);**TR-11 隨機視窗 P(beat)=66% = 唯一 robust-PASS 的 TS 規則**(F9) | docs/15 §2、TR-11 | `scripts/tests/tr11_bagged_backtest.py` |
+
 | 高波動「減法」規則 | 拿掉日停損+現金擇時:Sharpe 0.48→0.9;贏 B&H 不顯著(t=1.74) | docs/13 §12 | `scripts/highvol_ruleset.py` |
 | Serenity 追蹤(情報源) | 宇宙情報真(placebo +18.7%/季);擇時無 edge | docs/16 | `scripts/notify/serenity_tracker.py` |
 | LLM agent 框架(驗證者用法) | 對抗驗證抓 30+ 真錯;alpha 來源 FAILED | TR-10 | workflow 慣例 |
@@ -39,6 +39,7 @@
 | Kalman pairs 統計套利 | 真市場中性(corr+0.01)但賠錢;套利殆盡 | docs/13 §5 |
 | 季節性(TOM/隔夜) | 衰退/成本牆(隔夜毛 0.89→淨 −0.97) | docs/13 §4、15 |
 | 帶狀突破(Keltner/Bollinger breakout) | 日線 whipsaw 稅吃光(Sharpe 0.25) | docs/15 §2 |
+| **IBS 均值回歸**(TR-16 完整審判後**反轉 FAILED**) | TR-11 的 robust-PASS 建立在「2015-26 窗×same-close 成交×無靜態控制」三重偏惠;**next-close 誠實成交 exSR +0.44 < B&H +0.45 ≈ 靜態 38% 曝險 +0.45**;gap 只在 1999-2007 為正(Connors 時代衰退);殘值=進場擇日器(贏隨機 p95) | TR-16 |
 | **XS 動量 top-K「選股增量」**(F9 複測降級) | 隨機 3 年窗 P(beat EW-47)=23%、隨機子集 30%——點估計榜首是路徑錨定假象;動量=beta | TR-11 |
 | 手挑清單回測、事後宇宙 | 純選股偏誤(+62.8% 幻覺) | docs/13 §11 |
 | 50-100% CAGR 低風險、2×VOO 每年、Sharpe>2 持續 | 數學不可達(Calmar 牆/前沿證明) | docs/07/14 |
@@ -57,6 +58,7 @@
 | TR-08 | ML 混合預測(GBM) | **FAILED** | OOS IC −0.0013、R² −4.8%;Sharpe 0.91 ≈ shuffled 控制 0.88、輸笨動量 1.16 與 EW 1.09;GKX 效應在此宇宙完全衰退;判定校準被稽核員點名為模範 |
 | TR-09 | Black-Scholes | **N/A** | 無 PIT 選擇權資料(預算);假設層由 TR-05 代測 |
 | TR-10 | LLM agent 框架 | **PARTIAL/FAILED** | 驗證者用法有效;alpha 來源無效 |
+| TR-16 | IBS 完整審判(B1 成交敏感度首行) | **FAILED(反轉 TR-11)** | same-close +0.63 → **next-close +0.44 < B&H +0.45 = 靜態控制 +0.45**;四檔指數一致;gap 僅 1999-2007 為正;F9 全歷史 37%;**技術規則章節全數關閉**;B1 敏感度成為快速規則強制關卡 |
 | TR-14 | 有效樣本 n_eff(F4 v2 首行) | **方法 PASSED** | TR-02 的 F4 改判 FAIL(n_eff 2,206<3,000);面板類 PASS(7.5k/7.7k);**zoo 59 變體有效試驗數僅 1.8(ρ=0.54)**=同一場趨勢賭注 |
 | TR-15 | 旗艦全成本+2× 壓力(F2 v2) | **旗艦升級 PASSED** | 補收 TQQQ 翻轉+RP 再平衡成本後 **t=3.38 ≥ HLZ 3.0、2× 壓力 t=3.14**;成本拖累僅 12-72bps;順手修復 FF loader 上游格式 break(attribution 全面恢復) |
 | TR-13 | 下市終端報酬(Shumway,B10 首行) | **方法 PASSED;區間化完成** | 9 個窗內下市**全為併購型**(注 −30% 幾乎不動 +1.26→+1.31%);151 個被清除名的合成上界 → **倖存者膨脹誠實區間 [+1.26%, +2.02%]/yr**;凡引 610 union 絕對數字自此標注區間 |
