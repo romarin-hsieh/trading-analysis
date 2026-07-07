@@ -18,6 +18,37 @@ A personal research project. The naive starting question: *"Of all the trading s
 2. **Seventeen standardized test reports** ([docs/tests/TR-01..17](docs/tests/)): statistical arbitrage, Markov regime-switching, PCA factor models, VaR, GBM Monte Carlo, CAPM, HRP, ML forecasting (GBM & Random Forest), Black-Scholes (N/A — no data, refused to fabricate), LLM agent frameworks, bagged backtesting, rebalance-phase luck, delisting bias, effective samples, cost stress, the IBS full trial, and a replication of Kelly-Malamud-Zhou's *Virtue of Complexity* with the Nagel critique as control. The framework itself was **adversarially reviewed against the literature** and audited (every number re-run).
 3. **Working infrastructure**: point-in-time data layer (DuckDB+Parquet; EDGAR aligned to filing dates; 1993+ index history), order-independent backtest engine, rigor modules (PSR/DSR/PBO/SPA), daily Telegram monitors on free GitHub Actions, and a designed **paper-to-TR pipeline** ([docs/21](docs/21-paper-to-tr-pipeline.md)) for continuous paper-driven re-testing.
 
+### Results at a glance
+
+*(Figures regenerate with `uv run python scripts/readme_figures.py`; the IBS chart is TR-16's own exhibit.)*
+
+![Survival funnel: 226 variants, 26 families, 5 PASSED, 1 alpha](docs/img/fig_scoreboard.png)
+
+**The scoreboard.** 226 named variants registered, 26 mechanism families judged, 5 PASSED — and exactly **one** statistically significant alpha. Most of what the internet calls "a working strategy" died in this funnel; keeping the corpses on record is half this repo's value.
+
+![Flagship 5-sleeve combo vs VOO, equity and drawdown](docs/img/fig_combo.png)
+
+**Success #1 — the one survivor.** The 5-sleeve risk-parity combo (tech momentum / defensive rotation / trend-gated TQQQ / gold / bonds) vs VOO: comparable terminal wealth at roughly **half the drawdown** (−19% vs −34%), full-cost Carhart **t = 3.38** — above the Harvey-Liu-Zhu 3.0 bar, still 3.14 at doubled costs (TR-15). Its edge is risk-shaping, not return-maxing: lever it to your drawdown budget (`scripts/defensive_overlay.py`).
+
+| annual return | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026* |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **combo** | +17.1% | +21.1% | **+0.8%** | +15.0% | **+26.4%** | +3.0% | **−16.6%** | +25.4% | +20.2% | **+27.9%** | +15.3% |
+| VOO | +12.2% | +21.8% | −4.5% | +31.4% | +18.3% | +28.8% | −18.2% | +26.3% | +25.0% | +17.8% | +10.0% |
+
+*\*2026 = YTD. 2015 omitted (126-day risk-parity warm-up). Cost drag 12–72 bps/yr (TR-15). Read the table honestly: the combo does **not** beat VOO every year — it wins by losing less (2018, 2020, 2022, 2025) and by never being the book that has to recover from −34%.*
+
+![Ensemble holdout Sharpe and MDD vs the in-sample best rule](docs/img/fig_ensemble.png)
+
+**Success #2 — mixing beats picking.** Pick the best of 52 technical rules on 2015–20 and it collapses out-of-sample (holdout Sharpe **0.63**); let all 52 vote and set exposure to the vote fraction, and it holds (**0.99**, MDD −16% vs B&H −35%). The ensemble's win is selection-robustness and drawdown — by construction, long/flat rules on one asset cannot beat buy-and-hold's CAGR.
+
+![IBS same-close vs next-close fills: the whole edge is the fill convention](docs/tests/img/tr16_ibs.png)
+
+**Most surprising failure — our own verdict, reversed.** IBS mean-reversion was the *only* technical rule out of 59 to survive randomized-window testing… until TR-16 asked one question: *when do you actually get filled?* Filled at the very close the signal is computed from (orange), it beats everything since 1999; filled honestly at the next close (green), the entire edge drops below buy-and-hold — and a static 38% exposure matches it. Every fast-turnover backtest now has to pass this fill-time sensitivity check (fabric F1).
+
+![Markov regime gate vs a constant 57% exposure](docs/img/fig_markov_static.png)
+
+**Most famous failure — the celebrated regime model vs a constant.** A walk-forward Markov regime-switching gate genuinely identifies volatility regimes and halves QQQ's max drawdown — the classic pitch. But a **constant 57% exposure** (no model, zero trades) delivers the same drawdown with a *higher* excess Sharpe (Cederburg control, TR-02b). Every "smart timing" claim in this repo now has to beat its own dumb constant first (fabric F6).
+
 ### What we now KNOW (reproducible evidence)
 
 - **Selection alpha barely exists in free daily data.** Broad momentum is dead; value has been lost for a decade; PEAD/insider/operating factors failed; ML forecasters score OOS IC≈0 (the shuffled control beat the real model); even the KMZ complexity recipe is dominated by a simple 1/σ² volatility dial in our seat. The one robust cross-sectional signal: **gross profitability** (ICIR +0.30).
@@ -32,7 +63,28 @@ Options and intraday dimensions (no point-in-time free data — TR-09 is an hone
 
 ### How we decide feasible vs. not
 
-`idea → pre-committed falsifiable claim (F0) → the fabric rules → standardized TR → verdict into the registry (negative results kept) → any PASSED triggers adversarial multi-agent verification → standard changes trigger re-test cascades`. This loop caught **30+ genuine illusions** in our own work — including reversing our own earlier verdicts twice. Current verdicts live in the [strategy registry (docs/18)](docs/18-strategy-registry.md); each mechanism's native habitat and re-open price in the [taxonomy (docs/19)](docs/19-mechanism-taxonomy.md).
+```mermaid
+flowchart LR
+    A[idea] --> B["F0 pre-commitment:<br/>falsifiable claim +<br/>verdict rules, BEFORE code"]
+    B --> C["fabric F1–F13:<br/>honest fills, 2× costs,<br/>n_eff, controls, sub-periods"]
+    C --> D["standardized test report<br/>(TR-01…17)"]
+    D --> E["registry verdict<br/>(negative results kept)"]
+    E -- "PASSED" --> F["adversarial multi-agent<br/>verification"]
+    F --> E
+    G["standard evolves"] -- "F10 re-test cascade" --> D
+```
+
+This loop caught **30+ genuine illusions** in our own work — including reversing our own earlier verdicts twice. Current verdicts live in the [strategy registry (docs/18)](docs/18-strategy-registry.md); each mechanism's native habitat and re-open price in the [taxonomy (docs/19)](docs/19-mechanism-taxonomy.md).
+
+The formulas we lean on hardest, and what each one caught:
+
+| formula | role | what it caught here |
+|---|---|---|
+| $n_{eff} = \frac{k \cdot n}{1+(k-1)\bar{\rho}}$ | effective samples / trials (F4, F5) | 59 zoo variants ≈ **1.8** independent bets |
+| Sharpe on $r - r_{Tbill}$, Lo (2002) adj. | honest Sharpe when cash pays 4–5% (F3) | every absolute Sharpe was inflated 0.04–0.11 |
+| $t_{\alpha} \geq 3.0$ (Harvey-Liu-Zhu) | the alpha bar after field-wide multiple testing (F5) | the combo earned PASSED only at full-cost t=3.38 |
+| Nagel triple: $w \propto 1/\sigma^2$, static, random-entry | "which dumb control explains it?" (F6) | killed the Markov gate, IBS, and all 18 KMZ variants |
+| $E[\alpha] \leq$ information cost (Grossman-Stiglitz) | the economic prior for a $0 project (F0) | every re-open condition now carries a price tag |
 
 ### Directions still worth pursuing
 
@@ -49,6 +101,7 @@ uv run trading-analysis ingest --config configs/mvp.yaml   # ingest daily bars
 uv run python scripts/validate_recommendation.py           # flagship combo, full rigor gates
 uv run python scripts/tests/tr15_combo_cost.py             # cost-stressed flagship (t=3.38/3.14)
 uv run python scripts/tests/tr17_virtue_complexity.py      # Virtue-of-Complexity replication
+uv run python scripts/readme_figures.py                    # regenerate the README gallery
 ```
 
 Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only public surface) → core (data / models / strategy / backtest / portfolio / regime / factors / ml). Docs entry point: [docs/00-executive-summary.md](docs/00-executive-summary.md).
@@ -71,6 +124,37 @@ Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only pu
 2. **17 份標準化測試報告**([docs/tests/TR-01..17](docs/tests/)):統計套利、Markov 變異變遷、PCA 因子模型、VaR、GBM 蒙地卡羅、CAPM、HRP、機器學習預測(GBM 與隨機森林)、Black-Scholes(N/A——沒有資料就不編數字)、LLM agent 框架、bagged 回測、再平衡相位運氣、下市偏誤、有效樣本、成本壓力、IBS 完整審判、以及 Kelly-Malamud-Zhou《複雜度的美德》復現(以 Nagel 批評為對照)。框架本身也**用文獻做過對抗式審查**,且每個數字都被稽核員重跑核對過。
 3. **能運轉的基礎設施**:point-in-time 資料層(DuckDB+Parquet;EDGAR 以申報日對齊;指數歷史回溯 1993)、order-independent 回測引擎、嚴謹度模組(PSR/DSR/PBO/SPA)、每日 Telegram 監控(跑在免費的 GitHub Actions 上),以及設計完成的**論文到 TR 管線**([docs/21](docs/21-paper-to-tr-pipeline.md)),讓高品質論文能持續回饋、重測既有機制。
 
+### 成果掠影
+
+*(所有圖表可用 `uv run python scripts/readme_figures.py` 重新產生;IBS 那張直接取自 TR-16 的原始證物。)*
+
+![生存漏斗:226 個變體、26 個家族、5 個 PASSED、1 個 alpha](docs/img/fig_scoreboard.png)
+
+**計分板。** 226 個具名變體登記在案、26 個機制家族接受審判、5 個 PASSED——而統計顯著的 alpha 恰好只有 **1 個**。網路上大多數所謂「有效的策略」都死在這個漏斗裡;把屍體留在紀錄上,正是這個 repo 一半的價值。
+
+![旗艦五 sleeve 組合 vs VOO:權益曲線與回撤](docs/img/fig_combo.png)
+
+**成功案例一——唯一的倖存者。** 五個 sleeve 的風險平價組合(科技動能/防禦輪動/趨勢濾網 TQQQ/黃金/債券)對上 VOO:終點財富相近,但**回撤約砍半**(−19% vs −34%);全成本 Carhart **t=3.38**,越過 Harvey-Liu-Zhu 的 3.0 門檻,成本加倍後仍有 3.14(TR-15)。它的優勢是風險塑形而非報酬極大化:依你的回撤預算上槓桿(`scripts/defensive_overlay.py`)。
+
+| 年度報酬 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026* |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **組合** | +17.1% | +21.1% | **+0.8%** | +15.0% | **+26.4%** | +3.0% | **−16.6%** | +25.4% | +20.2% | **+27.9%** | +15.3% |
+| VOO | +12.2% | +21.8% | −4.5% | +31.4% | +18.3% | +28.8% | −18.2% | +26.3% | +25.0% | +17.8% | +10.0% |
+
+*\*2026 為年初至今。2015 略去(風險平價需 126 天暖身)。成本拖累 12–72 bps/年(TR-15)。誠實讀法:組合**不是**每年都贏 VOO——它贏在跌得少(2018、2020、2022、2025),以及永遠不必從 −34% 的坑裡爬出來。*
+
+![混合策略 holdout Sharpe 與回撤 vs 樣本內最佳單規則](docs/img/fig_ensemble.png)
+
+**成功案例二——混合勝過挑選。** 在 2015–20 挑出 52 條技術規則中最好的那條,樣本外直接崩盤(holdout Sharpe **0.63**);讓 52 條全部投票、部位=看多票數比例,則穩住(**0.99**,回撤 −16% vs 買進抱著 −35%)。混合贏的是「選擇穩健性」與回撤——數學上,單一資產的多/空手規則混合不可能贏過買進抱著的年化報酬。
+
+![IBS 當根收盤 vs 次日收盤成交:整個優勢就是成交慣例](docs/tests/img/tr16_ibs.png)
+
+**最意外的失敗——我們自己的判定被自己推翻。** IBS 均值回歸是 59 條技術規則裡*唯一*通過隨機視窗測試的……直到 TR-16 問了一個問題:*你實際上是在哪一根 K 棒成交的?* 用「剛算完訊號的那根收盤價」成交(橘線),它從 1999 年起打遍天下;誠實地用次日收盤成交(綠線),整個優勢掉到買進抱著之下——而且一個恆定 38% 部位就能打平它。從此所有快速換手的回測都必須通過成交時點敏感度檢查(fabric F1)。
+
+![Markov 變異變遷閘門 vs 恆定 57% 部位](docs/img/fig_markov_static.png)
+
+**最知名的失敗——備受推崇的 regime 模型 vs 一個常數。** walk-forward 的 Markov 變異變遷閘門確實辨識得出波動狀態,也確實把 QQQ 的最大回撤砍半——教科書級的賣點。但一個**恆定 57% 部位**(沒有模型、零交易)給出同樣的回撤、*更高*的超額 Sharpe(Cederburg 對照,TR-02b)。從此 repo 裡每一個「聰明擇時」的宣稱,都得先贏過自己的笨常數(fabric F6)。
+
 ### 我們現在「知道」的(可重跑的證據)
 
 - **免費日線資料上幾乎不存在選股 alpha。** 廣市場動能已死、價值失落十年、PEAD/內部人/營運面因子全滅;機器學習預測器的樣本外 IC≈0(打亂標籤的對照組甚至贏過真模型);連 KMZ 的複雜度配方,在我們的座位上也被一個簡單的 1/σ² 波動旋鈕支配。唯一站得住的橫斷面訊號:**毛利/資產品質因子**(ICIR +0.30)。
@@ -85,7 +169,28 @@ Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only pu
 
 ### 我們如何判斷「可行 vs 不可行」
 
-`想法 → 預先承諾可證偽宣稱(F0)→ fabric 規則 → 標準化 TR → 判定進註冊表(負面結果也保留)→ 任何 PASSED 觸發對抗式多代理驗證 → 標準演進觸發複測級聯`。這個迴圈在我們自己的工作裡抓出 **30+ 個真幻覺**——包括兩次推翻我們自己先前的判定。現行判定以[策略總註冊表(docs/18)](docs/18-strategy-registry.md)為單一事實來源;各機制的原生棲地與翻案價碼在[機制分類學(docs/19)](docs/19-mechanism-taxonomy.md)。
+```mermaid
+flowchart LR
+    A[想法] --> B["F0 預先承諾:<br/>可證偽宣稱+判定規則<br/>(動工前寫死)"]
+    B --> C["fabric F1–F13:<br/>誠實成交、2× 成本、<br/>有效樣本、對照組、子期"]
+    C --> D["標準化測試報告<br/>(TR-01…17)"]
+    D --> E["判定進註冊表<br/>(負面結果也保留)"]
+    E -- "PASSED" --> F["對抗式多代理驗證"]
+    F --> E
+    G["標準演進"] -- "F10 複測級聯" --> D
+```
+
+這個迴圈在我們自己的工作裡抓出 **30+ 個真幻覺**——包括兩次推翻我們自己先前的判定。現行判定以[策略總註冊表(docs/18)](docs/18-strategy-registry.md)為單一事實來源;各機制的原生棲地與翻案價碼在[機制分類學(docs/19)](docs/19-mechanism-taxonomy.md)。
+
+我們最倚重的幾條公式,以及它們各自抓到了什麼:
+
+| 公式 | 角色 | 在本專案抓到的東西 |
+|---|---|---|
+| $n_{eff} = \frac{k \cdot n}{1+(k-1)\bar{\rho}}$ | 有效樣本/有效試驗數(F4、F5) | zoo 的 59 個變體 ≈ **1.8** 個獨立賭注 |
+| Sharpe 算在 $r - r_{Tbill}$ 上+Lo(2002)校正 | 現金有 4–5% 利息時的誠實 Sharpe(F3) | 所有絕對 Sharpe 都被高估 0.04–0.11 |
+| $t_{\alpha} \geq 3.0$(Harvey-Liu-Zhu) | 全領域多重測試後的 alpha 門檻(F5) | 旗艦組合到全成本 t=3.38 才拿到 PASSED |
+| Nagel 三件套:$w \propto 1/\sigma^2$、靜態部位、隨機進場 | 「哪個笨對照組就能解釋它?」(F6) | 殺掉 Markov 閘門、IBS、KMZ 全部 18 個變體 |
+| $E[\alpha] \leq$ 資訊成本(Grossman-Stiglitz) | 0 元專案的經濟學先驗(F0) | 每個翻案條件從此都標上價格 |
 
 ### 值得繼續走的方向
 
@@ -102,6 +207,7 @@ uv run trading-analysis ingest --config configs/mvp.yaml   # 匯入日線資料
 uv run python scripts/validate_recommendation.py           # 旗艦組合(完整嚴謹閘門)
 uv run python scripts/tests/tr15_combo_cost.py             # 成本壓力後的旗艦(t=3.38/3.14)
 uv run python scripts/tests/tr17_virtue_complexity.py      # 複雜度的美德復現
+uv run python scripts/readme_figures.py                    # 重新產生 README 成果圖
 ```
 
 架構:UI(Streamlit)→ CLI(Typer)→ `trading_analysis.api`(唯一公開介面)→ 核心函式庫(data / models / strategy / backtest / portfolio / regime / factors / ml)。文件入口:[docs/00-executive-summary.md](docs/00-executive-summary.md)。
