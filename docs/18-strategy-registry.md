@@ -9,7 +9,7 @@
 ### ✅ PASSED(達成原始宣稱且過 F5/F6/F7)
 | 機制 | 判定重點 | 證據 | 可重跑 |
 |---|---|---|---|
-| 多 sleeve 風險平價組合 | 唯一顯著 alpha(Carhart t=2.64);2025 OOS +27.9%/MDD −5.7%。**v1.2 改標 PASSED(borderline):t=2.64 < HLZ t≥3.0,僅在有效試驗數 ≲10 時存活**(docs/17 §5 A1) | docs/08 | `scripts/validate_recommendation.py` |
+| 多 sleeve 風險平價組合 | 唯一顯著 alpha;2025 OOS +27.9%/MDD −5.7%。**TR-15 升級:樣本延至 2015-26 後全成本 Carhart t=3.38 ≥ HLZ 3.0、2× 成本壓力仍 t=3.14(成本拖累僅 12-72bps)→ PASSED(過 HLZ 門檻)**;caveat:t 提升主因樣本延長+2025-26 OOS;全 campaign Bonferroni(需 t≈3.66)仍未過,家族層級舒適通過(trial-registry 兩端點) | docs/08、TR-15 | `scripts/tests/tr15_combo_cost.py` |
 | gross_profitability 品質因子 | ICIR +0.30 跨期同號、regime-universal(bear 最強) | docs/10 | `scripts/fundamental_factors.py` |
 | Ensemble 投票混合(E1) | holdout Sharpe 0.99 vs B&H 0.84、MDD 減半;混合>選一(0.99 vs 0.63) | docs/15 §3 | `scripts/ensemble_mix.py` |
 | 回撤預算/雙向槓桿刻度 | L≥1.5 支配 VOO(終值∧Calmar);風險塑形如設計兌現 OOS | docs/13 §9C/9E | `scripts/defensive_overlay.py` |
@@ -57,6 +57,8 @@
 | TR-08 | ML 混合預測(GBM) | **FAILED** | OOS IC −0.0013、R² −4.8%;Sharpe 0.91 ≈ shuffled 控制 0.88、輸笨動量 1.16 與 EW 1.09;GKX 效應在此宇宙完全衰退;判定校準被稽核員點名為模範 |
 | TR-09 | Black-Scholes | **N/A** | 無 PIT 選擇權資料(預算);假設層由 TR-05 代測 |
 | TR-10 | LLM agent 框架 | **PARTIAL/FAILED** | 驗證者用法有效;alpha 來源無效 |
+| TR-14 | 有效樣本 n_eff(F4 v2 首行) | **方法 PASSED** | TR-02 的 F4 改判 FAIL(n_eff 2,206<3,000);面板類 PASS(7.5k/7.7k);**zoo 59 變體有效試驗數僅 1.8(ρ=0.54)**=同一場趨勢賭注 |
+| TR-15 | 旗艦全成本+2× 壓力(F2 v2) | **旗艦升級 PASSED** | 補收 TQQQ 翻轉+RP 再平衡成本後 **t=3.38 ≥ HLZ 3.0、2× 壓力 t=3.14**;成本拖累僅 12-72bps;順手修復 FF loader 上游格式 break(attribution 全面恢復) |
 | TR-13 | 下市終端報酬(Shumway,B10 首行) | **方法 PASSED;區間化完成** | 9 個窗內下市**全為併購型**(注 −30% 幾乎不動 +1.26→+1.31%);151 個被清除名的合成上界 → **倖存者膨脹誠實區間 [+1.26%, +2.02%]/yr**;凡引 610 union 絕對數字自此標注區間 |
 | TR-12 | 再平衡相位平均(F12 首行)+2×成本壓力 | **方法 PASSED;3 修正生效** | 季動量 timing-luck 帶寬 **1,753bps/yr**(單相位數字自此不足採信)、月動量 746bps(2×成本下只 38% 相位贏 EW);**旗艦 combo 相位免疫(30bps)無需修改**;相位-0 其實偏倒楣(10-14 pctile)=無 cherry-pick 但單相位不可靠,判定改引 tranche(+1.21);實盤動量應 K=4 分批 |
 | TR-11 | RF 理論 bagged 回測(F9 首行)+ RF 預測器 | **方法 PASSED / 預測器 FAILED** | 300 隨機 3 年窗:**XS 動量 P(beat EW)=23% 降級 FAILED、IBS 66% 升級 robust-PASS**、Vegas 44% 降級;RF 預測 IC −0.013、shuffle 控制反而 +0.011;複測改寫 2 個舊判定=F10 存在證明 |

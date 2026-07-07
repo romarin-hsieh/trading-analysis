@@ -43,16 +43,49 @@ def factor_alpha(strategy_returns, factor_returns: pd.DataFrame, rf=0.0, hac_lag
     }
 
 
-def load_ff_factors(start="2015-01-01", end=None, momentum: bool = True) -> pd.DataFrame:
-    """Daily Fama-French 3 factors (+ Carhart momentum UMD) from the Ken French Data Library
-    via pandas_datareader (NETWORK). Returns decimal returns [Mkt-RF, SMB, HML, (UMD), RF].
-    The factors are pre-built — no fundamentals needed locally.
-    """
-    from pandas_datareader import data as pdr
+def _ff_csv_direct(dataset: str) -> pd.DataFrame:
+    """Robust direct download/parse of a Ken French daily CSV zip. pandas_datareader's parser
+    breaks when the library appends footer notes (e.g. "Missing data are indicated by -99.99"),
+    so we parse defensively: keep only rows whose index is a valid YYYYMMDD date."""
+    import io
+    import urllib.request
+    import zipfile
 
-    ff = pdr.DataReader("F-F_Research_Data_Factors_daily", "famafrench", start, end)[0] / 100.0
-    if momentum:
-        mom = pdr.DataReader("F-F_Momentum_Factor_daily", "famafrench", start, end)[0] / 100.0
-        mom.columns = ["UMD"]
-        ff = ff.join(mom)
+    url = f"https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/{dataset}_CSV.zip"
+    raw = urllib.request.urlopen(url, timeout=60).read()
+    with zipfile.ZipFile(io.BytesIO(raw)) as zf:
+        text = zf.read(zf.namelist()[0]).decode("utf-8", errors="ignore")
+    lines = text.splitlines()
+    hdr = next(i for i, ln in enumerate(lines) if ln.strip().startswith(","))
+    df = pd.read_csv(io.StringIO("\n".join(lines[hdr:])), index_col=0)
+    df.index = df.index.astype(str).str.strip()
+    df = df[df.index.str.fullmatch(r"\d{8}")]
+    df.index = pd.to_datetime(df.index, format="%Y%m%d")
+    df = df.apply(pd.to_numeric, errors="coerce").dropna(axis=1, how="all")
+    df.columns = [str(c).strip() for c in df.columns]
+    return df[(df > -99).all(axis=1)]
+
+
+def load_ff_factors(start="2015-01-01", end=None, momentum: bool = True) -> pd.DataFrame:
+    """Daily Fama-French 3 factors (+ Carhart momentum UMD) from the Ken French Data Library.
+    Tries pandas_datareader first; falls back to a defensive direct-CSV parser when the
+    library file format breaks pdr (footer-note rows). Returns decimal [Mkt-RF, SMB, HML, (UMD), RF].
+    """
+    try:
+        from pandas_datareader import data as pdr
+
+        ff = pdr.DataReader("F-F_Research_Data_Factors_daily", "famafrench", start, end)[0] / 100.0
+        if momentum:
+            mom = pdr.DataReader("F-F_Momentum_Factor_daily", "famafrench", start, end)[0] / 100.0
+            mom.columns = ["UMD"]
+            ff = ff.join(mom)
+    except Exception:
+        ff = _ff_csv_direct("F-F_Research_Data_Factors_daily") / 100.0
+        if momentum:
+            mom = _ff_csv_direct("F-F_Momentum_Factor_daily") / 100.0
+            mom.columns = ["UMD"]
+            ff = ff.join(mom)
+    ff = ff.loc[ff.index >= pd.Timestamp(start)]
+    if end is not None:
+        ff = ff.loc[ff.index <= pd.Timestamp(end)]
     return ff
