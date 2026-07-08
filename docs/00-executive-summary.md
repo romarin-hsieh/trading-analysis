@@ -26,6 +26,7 @@
 | 理論再審思（七篇經典對帳；G-S 經濟學地基） | [20-theory-review.md](20-theory-review.md) |
 | Paper-to-TR 管線（持續論文驅動複測） | [21-paper-to-tr-pipeline.md](21-paper-to-tr-pipeline.md) |
 | **★ 論文台帳 + >500 引用深讀計畫（52 篇已參照含重測優先度 + 177 篇前瞻分波、含年份/作者）** | [22-paper-ledger-and-plan.md](22-paper-ledger-and-plan.md) |
+| 內容創作者機制評估（四 reel：特徵向量清理/迭代迴圈/GEX/吸收比率 → 行動） | [23-creator-mechanisms.md](23-creator-mechanisms.md) |
 | 標準化測試報告 TR-01~17（各機制含圖表判定） | docs/tests/ |
 | 試驗登記簿（campaign 級，≈226 變體） | [trial-registry.md](trial-registry.md) |
 | ★ **執行依據：Master 實作計畫**（M0-M7、契約、CI、第一個 PR）| [01-implementation-plan.md](01-implementation-plan.md) |
