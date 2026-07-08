@@ -32,7 +32,7 @@ A personal research project. The naive starting question: *"Of all the trading s
 
 ![Flagship 5-sleeve combo vs VOO, equity and drawdown](docs/img/fig_combo.png)
 
-**Success #1 — the one survivor.** The 5-sleeve risk-parity combo (tech momentum / defensive rotation / trend-gated TQQQ / gold / bonds) vs VOO: comparable terminal wealth at roughly **half the drawdown** (−19% vs −34%), full-cost Carhart **t = 3.38** — above the Harvey-Liu-Zhu 3.0 bar, still 3.14 at doubled costs (TR-15). Its edge is risk-shaping, not return-maxing: lever it to your drawdown budget (`scripts/defensive_overlay.py`).
+**Success #1 — the one survivor.** The 5-sleeve risk-parity combo (tech momentum / defensive rotation / trend-gated TQQQ / gold / bonds) vs VOO: comparable terminal wealth at roughly **half the drawdown** (−19% vs −34%), and a **real, robustly-positive Carhart alpha** (stationary-bootstrap P(α≤0)=0.001). Honest caveat (TR-18): the daily-frequency **t=3.38** headline is a Dimson lagged-beta artifact — at the frequency-appropriate **monthly** clock the alpha is **t=2.64 (OLS) / 2.95 (HAC), below the Harvey-Liu-Zhu 3.0 bar**. So: a genuine alpha, but *borderline* on the strict hurdle, not a clean pass. Its edge is risk-shaping, not return-maxing: lever it to your drawdown budget (`scripts/defensive_overlay.py`).
 
 | annual return | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026* |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -62,7 +62,7 @@ A personal research project. The naive starting question: *"Of all the trading s
 *One green bar stands alone. Of every cross-sectional factor we ran on the broad universe, only gross profitability clears the noise band; value went outright negative. This is why the repo leans on risk-shaping, not stock-picking.*
 
 - **Timing to cash almost always subtracts, and clever risk models rarely beat a constant.** Every cash gate lost to buy-and-hold; the Markov gate's "MDD halving" was fully reproduced by a static 57% exposure; the last surviving technical rule (IBS) died once fills were honest — its edge was trading the very close the signal was computed from.
-- **The deliverable value is all in risk-shaping.** The 5-sleeve risk-parity combo survived everything: **full-cost Carhart t=3.38 (2015–2026), above the Harvey-Liu-Zhu t≥3.0 bar, t=3.14 even at 2× costs**, phase-immune (30bps timing-luck band), 2025 out-of-sample +27.9% with −5.7% MDD vs VOO's −18.7%. Caveats stay attached: the t rose because the sample lengthened; campaign-wide Bonferroni remains open (both endpoints in the trial registry).
+- **The deliverable value is all in risk-shaping.** The 5-sleeve risk-parity combo is the one survivor: a **real, robustly-positive Carhart alpha** (bootstrap P(α≤0)=0.001), phase-immune (30bps timing-luck band), 2025 out-of-sample +27.9% with −5.7% MDD vs VOO's −18.7%. But it's **borderline, not a clean pass**: TR-18 found the daily **t=3.38** was a Dimson lagged-beta artifact; at the frequency-appropriate monthly clock it's **t=2.64 (OLS) / 2.95 (HAC), below the Harvey-Liu-Zhu 3.0 bar** — reverting to the original 2.64. Campaign-wide Bonferroni remains open too. The deliverable is the drawdown-halving, not a factor-model-beating alpha.
 - **Point estimates lie.** Quarterly momentum's rebalance-phase luck spans 1,753 bps/yr; a zoo table-topper beat equal-weight in only 23% of randomized windows; 59 technical variants collapse to ~1.8 effective independent bets.
 - **Most "it works" demos = beta + hindsight lists + ignored costs + generous fills.** Survivorship inflation on our universe: an honest interval of [+1.26%, +2.02%]/yr.
 
@@ -91,7 +91,7 @@ The formulas we lean on hardest, and what each one caught:
 |---|---|---|
 | $n_{eff} = \frac{k \cdot n}{1+(k-1)\bar{\rho}}$ | effective samples / trials (F4, F5) | 59 zoo variants ≈ **1.8** independent bets |
 | Sharpe on $r - r_{Tbill}$, Lo (2002) adj. | honest Sharpe when cash pays 4–5% (F3) | every absolute Sharpe was inflated 0.04–0.11 |
-| $t_{\alpha} \geq 3.0$ (Harvey-Liu-Zhu) | the alpha bar after field-wide multiple testing (F5) | the combo earned PASSED only at full-cost t=3.38 |
+| $t_{\alpha} \geq 3.0$ (Harvey-Liu-Zhu) | the alpha bar after field-wide multiple testing (F5) | the combo's daily t=3.38 was a frequency artifact; monthly t=2.64–2.95 sits *below* the bar (TR-18) |
 | Nagel triple: $w \propto 1/\sigma^2$, static, random-entry | "which dumb control explains it?" (F6) | killed the Markov gate, IBS, and all 18 KMZ variants |
 | $E[\alpha] \leq$ information cost (Grossman-Stiglitz) | the economic prior for a $0 project (F0) | every re-open condition now carries a price tag |
 
@@ -147,7 +147,7 @@ Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only pu
 
 ![旗艦五 sleeve 組合 vs VOO:權益曲線與回撤](docs/img/fig_combo.png)
 
-**成功案例一:唯一的倖存者。** 五個 sleeve 的風險平價組合(科技動能/防禦輪動/趨勢濾網 TQQQ/黃金/債券)對上 VOO:終點財富相近,但**回撤約砍半**(−19% vs −34%);全成本 Carhart **t=3.38**,越過 Harvey-Liu-Zhu 的 3.0 門檻,成本加倍後仍有 3.14(TR-15)。它的優勢是風險塑形而非報酬極大化:依你的回撤預算上槓桿(`scripts/defensive_overlay.py`)。
+**成功案例一:唯一的倖存者。** 五個 sleeve 的風險平價組合(科技動能/防禦輪動/趨勢濾網 TQQQ/黃金/債券)對上 VOO:終點財富相近,但**回撤約砍半**(−19% vs −34%),且有一個**真實、穩健為正的 Carhart alpha**(定態拔靴 P(α≤0)=0.001)。誠實但書(TR-18):日頻的 **t=3.38** 是 Dimson lagged-beta 假象,在頻率對應的**月頻**下 alpha 是 **t=2.64(OLS)/2.95(HAC),低於 Harvey-Liu-Zhu 的 3.0 門檻**。所以:是真 alpha,但對嚴格門檻只是**邊際**,不算乾淨過關。它的優勢是風險塑形而非報酬極大化:依你的回撤預算上槓桿(`scripts/defensive_overlay.py`)。
 
 | 年度報酬 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026* |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -177,7 +177,7 @@ Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only pu
 *只有一根綠柱站得起來。我們在廣標的池上跑過的每個橫斷面因子裡,只有毛利品質越過雜訊帶;價值因子直接翻負。這正是本專案倚重風險塑形、而非選股的原因。*
 
 - **擇時轉現金幾乎一定扣分,聰明的風險模型很少贏過一個常數。** 每一個現金開關都輸給買進持有;Markov 模型引以為傲的「回撤砍半」,用恆定 57% 部位就能完整複製;最後一條存活的技術規則(IBS)在誠實成交假設下就失效了:它的優勢來自「用剛算完訊號的那根收盤價成交」的假象。
-- **可交付的價值全在風險塑形。** 五個 sleeve 的風險平價組合通過了所有考驗:**全成本 Carhart t=3.38(2015–2026),越過 Harvey-Liu-Zhu 的 t≥3.0 標準,即使成本加倍(2×)仍有 t=3.14**;相位免疫(timing-luck 區間僅 30bps);2025 樣本外 +27.9%、最大回撤 −5.7%(同期 VOO −18.7%)。誠實的但書都留著:t 值上升主要因為樣本變長;全 campaign 的 Bonferroni 仍未過關(兩個端點都寫在試驗登記簿裡)。
+- **可交付的價值全在風險塑形。** 五個 sleeve 的風險平價組合是唯一的倖存者:一個**真實、穩健為正的 Carhart alpha**(拔靴 P(α≤0)=0.001)、相位免疫(timing-luck 區間僅 30bps)、2025 樣本外 +27.9%、最大回撤 −5.7%(同期 VOO −18.7%)。但它是**邊際、不是乾淨過關**:TR-18 發現日頻 **t=3.38** 是 Dimson lagged-beta 假象,在頻率對應的月頻下是 **t=2.64(OLS)/2.95(HAC),低於 Harvey-Liu-Zhu 的 3.0 門檻**,退回原始的 2.64;全 campaign 的 Bonferroni 也仍未過關。真正的交付是「回撤砍半」,不是一個打贏因子模型的 alpha。
 - **單點估計靠不住。** 季度動能的再平衡相位運氣高達 1,753 bps/年;zoo 榜首在隨機視窗下只有 23% 的機率贏過等權;59 個技術變體實際上只等於約 1.8 個獨立的賭注。
 - **網路上大多數「有效」的展示 = beta + 事後清單 + 忽略成本 + 過度寬鬆的成交假設。** 我們這個標的池的倖存者偏誤會灌高報酬:誠實區間 [+1.26%, +2.02%]/年。
 
@@ -206,7 +206,7 @@ flowchart LR
 |---|---|---|
 | $n_{eff} = \frac{k \cdot n}{1+(k-1)\bar{\rho}}$ | 有效樣本/有效試驗數(F4、F5) | zoo 的 59 個變體 ≈ **1.8** 個獨立賭注 |
 | Sharpe 算在 $r - r_{Tbill}$ 上+Lo(2002)校正 | 現金有 4–5% 利息時的誠實 Sharpe(F3) | 所有絕對 Sharpe 都被高估 0.04–0.11 |
-| $t_{\alpha} \geq 3.0$(Harvey-Liu-Zhu) | 全領域多重測試後的 alpha 門檻(F5) | 旗艦組合到全成本 t=3.38 才拿到 PASSED |
+| $t_{\alpha} \geq 3.0$(Harvey-Liu-Zhu) | 全領域多重測試後的 alpha 門檻(F5) | 旗艦日頻 t=3.38 是頻率假象;月頻 t=2.64–2.95 其實**低於**門檻(TR-18) |
 | Nagel 三重對照:$w \propto 1/\sigma^2$、靜態部位、隨機進場 | 「哪一個最簡單的對照組就能解釋它?」(F6) | 殺掉 Markov 閘門、IBS、KMZ 全部 18 個變體 |
 | $E[\alpha] \leq$ 資訊成本(Grossman-Stiglitz) | 0 元專案的經濟學先驗(F0) | 每個翻案條件從此都標上價格 |
 

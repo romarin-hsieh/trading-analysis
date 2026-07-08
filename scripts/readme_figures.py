@@ -198,8 +198,9 @@ def fig_combo():
     ax1.plot(eq_rp.index, eq_rp, color=BLUE, lw=1.6, label="5-sleeve risk-parity combo")
     ax1.plot(eq_voo.index, eq_voo, color=GREY, lw=1.4, label="VOO buy & hold")
     ax1.set_yscale("log")
-    ax1.set_title("The one survivor: 5-sleeve risk-parity combo, 2015-2026 "
-                  "(full-cost Carhart t=3.38, still t=3.14 at 2x costs -- TR-15)", fontsize=11)
+    ax1.set_title("The one survivor: 5-sleeve risk-parity combo, 2015-2026\n"
+                  "real alpha (bootstrap P(a<=0)=0.001) but monthly Carhart t=2.64-2.95 < HLZ 3.0 "
+                  "-- daily t=3.38 was a frequency artifact (TR-18)", fontsize=10)
     ax1.legend(loc="upper left", fontsize=9)
     ax1.grid(alpha=0.3)
     ex = rp - bil
