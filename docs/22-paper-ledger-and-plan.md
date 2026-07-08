@@ -651,7 +651,9 @@
 從 8 個子領域挑出 **177 篇** 引用超過 500 的經典(去重後,含 2026-07 由 >2000 放寬後新增的 500-2000 中間帶)。皆與選股/交易相關。
 分波原則見 Part A §A4。引用數為 agent 估計(canonical 地位),數字僅供排序,實際引用以 Google Scholar 為準。
 
-> **已執行(2026-07-08)**:第一波的 **Newey-West (1987) + Politis-Romano (1994)** 已於 **TR-18** 執行——用來壓力測試旗艦唯一的 PASSED alpha,發現 **t=3.38 是日頻假象**(Dimson lagged-beta),月頻 t=2.64/2.95 不過 HLZ,旗艦降級 PASSED-borderline。順帶把 **Dimson (1979) 薄交易 beta** 加入佇列。詳見 [docs/tests/TR-18](tests/TR-18-inference-robustness.md)。
+> **已執行(2026-07-08)**:
+> - **Newey-West (1987) + Politis-Romano (1994) → TR-18**:壓測旗艦唯一的 PASSED alpha,發現 **t=3.38 是日頻假象**(Dimson lagged-beta),月頻 t=2.64/2.95 不過 HLZ,旗艦降級 PASSED-borderline;順帶把 **Dimson (1979) 薄交易 beta** 加入佇列。詳見 [TR-18](tests/TR-18-inference-robustness.md)。
+> - **Fama-French 2015 五因子 → TR-20**:把上面那個邊際 alpha 對 FF5(+RMW+CMA)/FF6 重測,alpha 幾乎不動、RMW/CMA 不顯著=**真殘值 alpha,非未建模因子 beta**(旗艦不變、強化)。詳見 [TR-20](tests/TR-20-ff5-attribution.md)。**Hou-Xue-Zhang q-factor**(ROE+I/A,需 EDGAR 自建)仍佇列為獨立交叉驗證。
 
 ### C.0 候選索引(依波次、引用數排序)
 
