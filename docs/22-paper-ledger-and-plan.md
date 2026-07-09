@@ -658,7 +658,7 @@
 > - **新增 wave-1/2 深讀**:**Bun-Bouchaud-Potters 2017《Cleaning large correlation matrices》**(Physics Reports,~900 引用;RMT 清理 canonical 綜述,含特徵向量端的極限)——支撐 TR-03b 擴充(特徵值+特徵向量雙端清理競技場);實作參照 Bongiorno-Challet k-BAHC(<500 引用,掛此條之下)。
 > - **Lou-Polk-Skouras 2019 → TR-19**(2026-07-09):book 報酬 85-90% 住隔夜(clock 是市場層現象);稽核歸因修正=隔夜超額的主詞是 vol/beta 傾斜非動量(vol 對照複製 +11.2 vs +11.4);詳見 [TR-19](tests/TR-19-overnight-intraday.md)。
 > - **Bailey-LdP PBO → TR-22**(2026-07-09):旗艦家族 F0 PBO=24.5% CREDIBLE;分層(剔稻草人 41.8%)=配置器非 edge、RP/IV/EW 可互換;詳見 [TR-22](tests/TR-22-combo-pbo.md)。
-> - **Student-t ν → TR-04 附錄**(2026-07-09):無條件 ν 2.5-3.0/條件 ν 4.6-6.6;99% 常態低估 ~20-25%;99.9% 數字屬外插已標注。**docs/20 佇列至此僅剩 TR-03b(已擴充特徵向量端)。**
+> - **Student-t ν → TR-04 附錄**(2026-07-09):無條件 ν 2.5-3.0/條件 ν 4.6-6.6;99% 常態低估 ~20-25%;99.9% 數字屬外插已標注。**docs/20 佇列全清(2026-07-09):TR-03b 亦已執行**——MP 譜(47 檔座位預測成立、463 檔 13 個訊號特徵值)、clip≈LW 平手(幽靈股稽核修正後)、BAHC PARTIAL;Marcenko-Pastur 1967 與 BBP-2017 的 vol 通道部分完成,BAHC 均值通道留翻案;見 [TR-03b](tests/TR-03b-covariance-cleaning.md)。
 
 ### C.0 候選索引(依波次、引用數排序)
 

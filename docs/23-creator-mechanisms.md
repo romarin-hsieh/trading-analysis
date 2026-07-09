@@ -9,7 +9,7 @@
 
 | # | Reel 主題 | 主要來源 | 我們已有 | 真缺口? | 行動 |
 |---|---|---|---|---|---|
-| 1 | 特徵向量(方向)清理:LW 只修特徵值,錢其實流向雜訊特徵向量 | Bongiorno-Challet 2021 (k-BAHC);canonical 綜述=Bun-Bouchaud-Potters 2017(~900 引用) | LW 全域強制、TR-03 PCA、TR-03b(MP 譜+clipping)佇列、HRP(TR-07) | **是** — 我們的清理全在特徵值端 | **TR-03b 擴充**:加入「集群塊狀+拔靴」特徵向量清理進競技場(佇列) |
+| 1 | 特徵向量(方向)清理:LW 只修特徵值,錢其實流向雜訊特徵向量 | Bongiorno-Challet 2021 (k-BAHC);canonical 綜述=Bun-Bouchaud-Potters 2017(~900 引用) | LW 全域強制、TR-03 PCA、TR-03b(MP 譜+clipping)佇列、HRP(TR-07) | **是** — 我們的清理全在特徵值端 | **TR-03b 已執行(2026-07-09)**:BAHC PARTIAL——贏 naive 沒贏 LW,特徵向量清理在 vol 通道無增值;LW 慣例確認(見 TR-03b) |
 | 2 | 量化迭代迴圈:生成→回測→ICIR 評分→讀失敗→再生成;訊號衰退檢查;OOS 閘門 | de Prado(CSCV/PBO)、White/Hansen(SPA)、HLZ | **幾乎全部已內建且更嚴**:trial-registry 記帳、DSR 吃真實 N、SPA、PBO、F9、凍結 holdout | 只有一小塊 | **IC 衰退半衰期**納入因子閘門(佇列,見 §2) |
 | 3 | 選擇權流看盤(GEX 熱圖、net gamma、footprint、量/delta profile) | 無單一論文;GEX=從鏈上 OI×gamma 聚合 | TR-09 N/A(無 PIT 選擇權資料)、backlog「快照自建=時間敏感」 | **是** — 資料維度缺口 | **已啟動**:`scripts/collect/options_snapshot.py` + Actions cron(SPY/QQQ 每日,$0) |
 | 4 | 吸收比率:top 特徵值吸收的變異占比=脆弱度,領先大跌 | Kritzman-Li-Page-Rigobon 2010/2011(JPM,>500 引用) | 無 | 可立即測 | **TR-21 已執行 → FAILED(本座位)**,見 §4 |
@@ -24,7 +24,7 @@
 
 **誠實座位註記**:旗艦是 5 sleeve 風險平價(小 N),矩陣反轉的雜訊問題不 binding;這個機制的原生棲地是**大 N(數百檔)最小變異/最大分散組合**。我們的可測座位=47/465 檔股票面板的 min-var。
 
-**行動(佇列,併入 TR-03b 擴充版)**:競技場=sample / LW / MP-clipping / 聚類塊狀+拔靴(k-BAHC 式) / HRP 當參照,465 檔 min-var 座位,walk-forward,判準=**OOS 實現波動**(這是共變異估計器唯一誠實的度量)+對 1/N 的 DGU 檢查。主要來源深讀:**Bun-Bouchaud-Potters 2017**(已加入 docs/22 讀計畫;RMT 清理的 canonical 綜述,含特徵向量重疊的極限)。
+**行動(已執行 → TR-03b,2026-07-09)**:463 檔 min-var 競技場實測——**BAHC-lite PARTIAL**(14.1-15.5%,贏 naive/sample、沒贏 LW 13.2-14.2%;三個 lite 實作嫌疑被稽核反事實排除=真輸,結構原因是塊狀均勻化縮槓桿);clip≈LW 同族平手;**LW 全域慣例確認正確**。翻案=BAHC 的 max-Sharpe/均值通道(其原生 headline)、k>1 完整遞迴、GICS 先驗塊狀。詳見 [TR-03b](tests/TR-03b-covariance-cleaning.md)。
 
 ## §2 Reel 2:迭代迴圈 — 我們已有更嚴版本;唯一可取=IC 衰退半衰期
 
