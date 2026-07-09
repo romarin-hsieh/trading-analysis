@@ -10,7 +10,7 @@
 | 機制 | 判定重點 | 證據 | 可重跑 |
 |---|---|---|---|
 | 多 sleeve 風險平價組合(**HLZ 門檻:PASSED-borderline**) | 唯一穩健為正的 alpha(bootstrap P(α≤0)=0.001);2025 OOS +27.9%/MDD −5.7%、Sharpe~1.2、MDD≈VOO 半。**⚠️ TR-18 修正(F10 級聯):TR-15 的「t=3.38 過 HLZ」是日頻假象**——日頻低估 book 真實市場 beta(Dimson lagged-beta:0.22 日頻 vs 0.35 月頻)把因子報酬誤記為 alpha;在頻率對應的**月頻**(同時吻合月度再平衡與 HLZ 校準頻率)**Carhart t=2.64(OLS)/2.95(HAC)兩者 <3.0 → 不過 HLZ 3.0**,退回 docs/08 原始讀數 t=2.64。**由 PASSED 降為 PASSED-borderline**(仍是唯一存活的風險塑形交付,只是不過嚴格 HLZ);2× 成本 t=3.14 亦為日頻,同受此修正。**TR-20 強化**:月頻 alpha 對 FF5(+RMW+CMA)/FF6 穩健(alpha-t 2.63-2.88 跨 5 模型、RMW/CMA 不顯著)=真殘值 alpha,非未建模因子 beta | docs/08、TR-15、**TR-18/20** | `tr18_inference_robustness.py`、`tr20_ff5_attribution.py` |
-| gross_profitability 品質因子 | ICIR +0.30 跨期同號、regime-universal(bear 最強) | docs/10 | `scripts/fundamental_factors.py` |
+| gross_profitability 品質因子 | ICIR +0.30 跨期同號、regime-universal(bear 最強);TR-24B 再確認 subsumes ROE。**⚠️ WATCH(TR-24 順帶發現):IC 2025-26 轉負(−0.05;2020-24 仍 +0.02)**——樣本僅 ~5 個獨立窗不改判定,2026 全年仍負則啟動 F10 複測 | docs/10、TR-24 | `scripts/fundamental_factors.py` |
 | Ensemble 投票混合(E1) | holdout Sharpe 0.99 vs B&H 0.84、MDD 減半;混合>選一(0.99 vs 0.63) | docs/15 §3 | `scripts/ensemble_mix.py` |
 | 回撤預算/雙向槓桿刻度 | L≥1.5 支配 VOO(終值∧Calmar);風險塑形如設計兌現 OOS | docs/13 §9C/9E | `scripts/defensive_overlay.py` |
 | 嚴謹驗證機制本身 | DSR/PBO/SPA/placebo/零訊號控制:抓 30+ 真幻覺 | docs/05-17 全域 | O1 模組+workflow 慣例 |
@@ -46,7 +46,7 @@
 | **3×VOO 每年∧虧損不超過 VOO(本輪 goal 目標)** | **最佳 4/10 年(12-1 季動量);無策略 10/10**;需持續 Calmar~3+,此資料不存在 | `scripts/gate_3x_voo.py` |
 | **吸收比率(KLPR 2010)診斷+閘門** | TR-21(reel→主要來源→一天判定):465 檔個股座位上**不領先大跌**(PIT 百分位 62,p=0.40;忠實尖峰版 4/10 vs 基準率 39%)、與平均相關 +0.97 同物、閘門(含忠實三態)輸靜態 69% 與隨機安慰劑——**擇時鐵律第三案例**;經雙向對抗稽核(反 AR 偏誤已修、美化閘門已修,FAIL 更穩)。翻案=真產業面板+含 2008 長史;COVID(唯一域內事件)忠實訊號有響=不外推「無用」 | TR-21、docs/23 |
 
-### 🧪 標準化測試報告 TR-01~23 + 03b/04b(詳見 docs/tests/;**docs/20 論文佇列全清**;TR-01~08 由稽核員重跑全部腳本、數字一對一吻合)
+### 🧪 標準化測試報告 TR-01~24 + 03b/04b(詳見 docs/tests/;**docs/20 論文佇列全清**;TR-01~08 由稽核員重跑全部腳本、數字一對一吻合)
 | TR | 機制 | 判定 | 摘要 |
 |---|---|---|---|
 | TR-01 | 共整合 pairs 統計套利 | **FAILED** | OOS +2.0%/yr < 現金(BIL +2.7%);GGR 2006 的 +11% 衰退 >100%;9/10 對集中 AI 半導體、SMCI 醜聞炸出 −29.7% MDD;殘值=|z|>4 當單一股異常警報 |
@@ -70,6 +70,7 @@
 | TR-20 | 旗艦 alpha vs 更嚴因子模型(FF5 +RMW +CMA、FF6;讀計畫 wave-1) | **ROBUST(旗艦不變、強化)** | 加 RMW(獲利)+CMA(投資)後月頻 alpha 幾乎不動(Carhart-4 5.90%→FF6 6.02%,alpha-t 2.63→2.69);RMW/CMA beta 皆小且不顯著(\|t\|≈1)=book 無獲利/投資傾斜、無可吸收;**旗艦邊際 alpha 是真殘值,非未建模因子 beta**。alpha-t 跨 5 模型穩定 2.63-2.88、持續 <HLZ 3.0(與 TR-18 一致)。q-factor(HXZ ROE+I/A,需 EDGAR 自建)仍佇列 |
 | TR-21 | 吸收比率(KLPR 2010;creator-reel 線索→主要來源) | **FAILED(本座位)** | C1 診斷(PIT 百分位 62,p=0.40)與 C1b 忠實尖峰版(4/10 vs 39% 基準)皆 FAIL;C2:與平均相關 +0.97 同物;C3 閘門(含忠實三態)輸靜態 69%(0.40 vs 0.65)與隨機安慰劑 p95;**雙向對抗稽核**修正反 AR 偏誤(全樣本→PIT 排名 44→62)與美化閘門(單門檻→三態,FAIL 更穩)、51 組合維度檢查不改結論;翻案=真 GICS 產業面板+含 2008 長史 |
 | TR-23 | 四經典價量異象批次(AHXZ IVOL/BCW MAX/GH 52wH/FP BAB;讀計畫 wave-1) | **全數 FAIL/FLAT** | 因子閘門(fwd 21d rank-IC、n=95 月):IVOL −0.02/MAX +0.06/52wH −0.04 FAIL、BAB raw −0.14 反向但 **alpha-level(EIV-clean disjoint-beta 對沖)≈0**;稽核零 CONFIRMED-BUG(本系列首見);校準列重現 docs/09;**「唯一倖存=GP」強化**;同輪 `factor_alpha_monthly()` 入庫(TR-18 接線) |
+| TR-24 | q-factor 雙重檢驗(HXZ 已發布因子 + EDGAR 年度 ROE;讀計畫 wave-1) | **A:ROBUST-in-magnitude(TR-20 獨立確認)/ B:GP subsumes ROE** | A:同窗(n=114)q5 alpha +4.13% vs Carhart +4.20%=**縮水僅 +2%**(初版「30%」是混窗 CONFIRMED-BUG,稽核修正);IA beta −0.32(t−3.8)真(TQQQ/防禦的高投資成長曝險)但沒吃掉 alpha;t 1.77=截斷窗 power 非吸收(HAC 2.21>同窗 Carhart 2.17)。B:年度 ROE WEAK(+0.11)、GP 正交增量 −0.10 翻號=**GP subsumes**(Novy-Marx 論點);季頻 ROE 留翻案。**WATCH:GP 的 IC 2025-26 轉負(−0.05)**——若 2026 全年仍負啟動 F10 複測 |
 | TR-19 | LPS 隔夜/日內拆解(診斷型;讀計畫 wave-1) | **診斷完成(無閘門)** | book 報酬 **85-90% 住隔夜**(動量 top-10 隔夜 +31.7%/yr vs 日內 +7.3%;宇宙層現象:SPY 63%/EW-47 72%);**稽核歸因修正:隔夜超額 +11.4%/yr 被無動量的 vol top-10 對照複製(+11.2%)=主詞是 vol/beta 傾斜,非動量選股(與 TR-11 一致)**;2023-26 日內轉正=非「LPS 未衰退」;交付=F1 成交慣例一階性確認+成本牆仍立;21 相位全正(F12) |
 | TR-22 | 旗艦 combo 家族 CSCV/PBO(F5 缺口) | **CREDIBLE(24.5%)/配置器非 edge** | F0 家族(12 configs)PBO=24.5%<30%;**分層**:剔 min-variance 稻草人 41.8%、決賽圈 RP/IV/EW 對 IV 慣例敏感(27%→89%);修兩個 CONFIRMED-BUG(inverse_vol 零波動 fillna 假象值 0.12 Sharpe、稻草人組成);**操作結論:RP/IV/EW-of-sleeves 近乎可互換(DGU),不再報第一名 config;alpha 家族無關**(EW-5s 也有 t=2.92 日頻) |
 | TR-03b | 共變異清理競技場(MP 譜+clipping+特徵向量端 BAHC;docs/20+23) | **clip≈LW 平手;BAHC PARTIAL;LW 慣例確認** | 463 檔 min-var 座位、判準=OOS 實現波動:LW 13.2-14.2%、clip 13.6-14.6%(**同族平手**,docs/20 預測獲支持)、BAHC 14.1-15.5%(贏 naive 沒贏 LW=特徵向量清理在 vol 通道無增值);**稽核抓幽靈資產 bug**(SW 97%/AMCR 45% 平價回填被當免費分散器,美化 LW→已加恰零報酬濾網);「賺回門票」限 vol 通道(淨報酬 inv-variance 全勝);47 檔子面板訊號特徵值中位 4=docs/20 預測在其 N 成立 |

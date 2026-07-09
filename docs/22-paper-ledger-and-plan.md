@@ -653,7 +653,7 @@
 
 > **已執行(2026-07-08)**:
 > - **Newey-West (1987) + Politis-Romano (1994) → TR-18**:壓測旗艦唯一的 PASSED alpha,發現 **t=3.38 是日頻假象**(Dimson lagged-beta),月頻 t=2.64/2.95 不過 HLZ,旗艦降級 PASSED-borderline;順帶把 **Dimson (1979) 薄交易 beta** 加入佇列。詳見 [TR-18](tests/TR-18-inference-robustness.md)。
-> - **Fama-French 2015 五因子 → TR-20**:把上面那個邊際 alpha 對 FF5(+RMW+CMA)/FF6 重測,alpha 幾乎不動、RMW/CMA 不顯著=**真殘值 alpha,非未建模因子 beta**(旗艦不變、強化)。詳見 [TR-20](tests/TR-20-ff5-attribution.md)。**Hou-Xue-Zhang q-factor**(ROE+I/A,需 EDGAR 自建)仍佇列為獨立交叉驗證。
+> - **Fama-French 2015 五因子 → TR-20**:把上面那個邊際 alpha 對 FF5(+RMW+CMA)/FF6 重測,alpha 幾乎不動、RMW/CMA 不顯著=**真殘值 alpha,非未建模因子 beta**(旗艦不變、強化)。詳見 [TR-20](tests/TR-20-ff5-attribution.md)。**Hou-Xue-Zhang q-factor → TR-24 已執行(2026-07-09)**:用已發布 q 因子(global-q.org 免費)同窗歸因——**q 模型未吸收旗艦 alpha(縮水僅 +2%),TR-20 獲獨立確認**;EDGAR 年度 ROE 被 GP subsume;順帶發現 GP 2025-26 IC 轉負(WATCH)。
 > - **Kritzman-Li-Page-Rigobon 2010/2011 吸收比率 → TR-21**(創作者 reel 線索→主要來源→一天內判定):465 檔 S&P 座位上 **FAILED**——AR 不領先大跌(前月百分位中位 44,p=0.75)、與平均相關 +0.97 幾乎同物、閘門輸靜態與隨機安慰劑;棲地但書=原生為產業組合×含 GFC 內生危機。詳見 [TR-21](tests/TR-21-absorption-ratio.md) 與 [docs/23](23-creator-mechanisms.md)。
 > - **新增 wave-1/2 深讀**:**Bun-Bouchaud-Potters 2017《Cleaning large correlation matrices》**(Physics Reports,~900 引用;RMT 清理 canonical 綜述,含特徵向量端的極限)——支撐 TR-03b 擴充(特徵值+特徵向量雙端清理競技場);實作參照 Bongiorno-Challet k-BAHC(<500 引用,掛此條之下)。
 > - **Lou-Polk-Skouras 2019 → TR-19**(2026-07-09):book 報酬 85-90% 住隔夜(clock 是市場層現象);稽核歸因修正=隔夜超額的主詞是 vol/beta 傾斜非動量(vol 對照複製 +11.2 vs +11.4);詳見 [TR-19](tests/TR-19-overnight-intraday.md)。
