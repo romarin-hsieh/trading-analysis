@@ -25,12 +25,38 @@ F0 DECLARATION (pre-committed)
   mis-application risk : LOW (this IS the native habitat; residual differences: GW `ret`
                is S&P-based vs KMZ's CRSP-vw; our T=12/P-grid/seed conventions from TR-17).
 
+POST-RUN AUDIT NOTE (2026-07-11, appended -- F0 above NOT edited)
+  The first run (voc_curve reused verbatim from TR-17) printed NO-VoC-SHAPE (all P/z
+  Sharpe -0.25..+0.10, flat). Adversarial audit ruled this a CONSTRUCTION-INDUCED FALSE
+  NEGATIVE, exactly the risk the !R1 branch pre-flagged:
+    - CONFIRMED #1 (the shape-killer): TR-17's 12-obs in-window z-scoring of predictors
+      makes the RFF Gaussian kernel numerically the identity (off-diag ~3e-3), so high-P
+      forecasts are ~0 by construction. Single-toggle ablation reproduces the flat curve.
+    - CONFIRMED #2: KMZ's target and traded return are vol-standardized (ex_{t+1}/sigma_t,
+      uncentered trailing 12m std; JF p.491) -- the economic core of the Nagel story --
+      and alphas are vs a STATIC position in the vol-standardized market.
+    - Fidelity fixes per audit + zivmi/voc_reproduction + KMZ fn.38-39: predictors scaled
+      by EXPANDING-window std (min_periods=36, levels kept); RFF sin/cos pairs, gamma=2,
+      no 1/sqrt(P); features scaled by training-window std; ridge penalty z*T on the raw
+      feature Gram, log10(z) in {-3..3}; multi-seed averaging (KMZ use 1000 draws; low-P
+      estimates are noisy at a single seed).
+  This file is the corrected KMZ-faithful run OF RECORD (P-grid thinned to 5 points to
+  afford multi-seed). The pre-committed R1/R2/R3 checks and verdict tiers are UNCHANGED;
+  R2 additionally REPORTS (not gates) alpha vs the vol-std static market (KMZ's own
+  benchmark) and vs Nagel's vol-timed momentum control, per audit recommendation.
+  Audited outcome: R1 TRUE (VoC shape replicates at home) but R2 FAILS -> the
+  pre-committed 'R1 & !R2' branch: REPLICATED-BUT-EXPLAINED, Nagel confirmed at source.
+  gamma-sensitivity caveat: faithful high-P SR falls +0.33 -> +0.21 -> +0.15 across
+  gamma 2 -> 1 -> 0.5 (shape survives; magnitude does not).
+
 Run: uv run python scripts/tests/tr17b_kmz_native.py   (~2-5 min)
 """
 
 from __future__ import annotations
 
 import sys
+import time
+from pathlib import Path
 
 import matplotlib
 
@@ -41,91 +67,185 @@ import pandas as pd
 from loguru import logger
 
 logger.remove()
-sys.path.insert(0, "scripts")
-sys.path.insert(0, "scripts/tests")
-
-from tr17_virtue_complexity import COST, P_GRID, Z_GRID, sharpe_m, voc_curve  # noqa: E402
 
 GW_XLSX = "data/gw_predictors.xlsx"   # exported from Amit Goyal's site (sheet id in docs/24)
+
+T_WIN = 12
+P_GRID = [2, 12, 100, 1200, 12000]
+Z_KMZ = [10.0 ** k for k in range(-3, 4)]            # KMZ grid, penalty = z*T on raw feats
+SEEDS_BY_P = {2: 20, 12: 20, 100: 10, 1200: 5, 12000: 3}
+Z_LO, Z_HI = 1e-3, 1e3                                # "ridgeless~" / "heavy" ends for R1
+COST = 0.0005
 
 
 def gw_panel():
     df = pd.read_excel(GW_XLSX, sheet_name="Monthly")
     df.index = pd.PeriodIndex(df["yyyymm"].astype(int).astype(str), freq="M").to_timestamp("M")
     rf = df["Rfree"].astype(float)
-    ret = df["ret"].astype(float)                      # S&P total return (with dividends)
-    ex_next = (ret - rf).shift(-1)                     # target: NEXT-month excess return
-    sig = pd.DataFrame({
+    ret = df["ret"].astype(float)                     # S&P total return (CRSP calc, w/ divs)
+    ex = ret - rf                                     # excess return of month t (at index t)
+    raw = pd.DataFrame({
         "dp": df["d/p"], "dy": df["d/y"], "ep": df["e/p"], "de": df["d/e"],
         "svar": df["svar"], "bm": df["b/m"], "ntis": df["ntis"], "tbl": df["tbl"],
         "lty": df["lty"], "ltr": df["ltr"], "tms": df["tms"], "dfy": df["dfy"],
-        "dfr": df["dfr"], "infl": df["infl"].shift(1),   # publication lag (GW convention)
-        "lag_ex": (ret - rf),                            # lagged excess return (known at t)
+        "dfr": df["dfr"], "infl": df["infl"].shift(1),  # publication lag (GW convention)
+        "lag_ex": ex,                                   # lagged excess return (known at t)
     }, index=df.index).astype(float)
-    # KMZ seat starts 1926; require all 15 predictors present
-    sig = sig.loc["1926-01-31":]
-    ex_next = ex_next.loc[sig.index]
-    svar = df["svar"].astype(float).loc[sig.index]
-    return sig, ex_next, svar
+    sig12 = np.sqrt((ex ** 2).rolling(12).mean())     # trailing 12m vol, UNCENTERED, known at t
+    return raw, ex.shift(-1), sig12, df["svar"].astype(float)
+
+
+def sharpe_m(x):
+    x = pd.Series(x).dropna()
+    return float(x.mean() / x.std() * np.sqrt(12)) if len(x) > 24 and x.std() > 0 else np.nan
+
+
+def make_rff_kmz(G, P, gamma, seed):
+    """KMZ RFF (eq.20 + fn.38): sin/cos pairs, omega ~ N(0, I_d), no 1/sqrt(P)."""
+    rs = np.random.RandomState(seed)
+    om = rs.normal(0, 1, size=(G.shape[1], P // 2))
+    A = gamma * (G @ om)
+    S = np.empty((G.shape[0], 2 * (P // 2)))
+    S[:, 0::2] = np.sin(A)
+    S[:, 1::2] = np.cos(A)
+    return S
+
+
+def rolling_forecasts_kmz(S, Y, z_list):
+    """Rolling T=12 kernel-ridge per KMZ fn.39: features scaled by in-window std,
+    penalty z*T on the raw feature Gram. Returns dict z -> forecast array (n,)."""
+    n = S.shape[0]
+    out = {z: np.full(n, np.nan) for z in z_list}
+    eyeT = np.eye(T_WIN)
+    for t in range(T_WIN, n):
+        Xw = S[t - T_WIN:t]
+        xt = S[t]
+        sd = Xw.std(axis=0, ddof=1) + 1e-12
+        Xw = Xw / sd
+        xt = xt / sd
+        K = Xw @ Xw.T
+        kt = Xw @ xt
+        Yw = Y[t - T_WIN:t]
+        for z in z_list:
+            try:
+                alpha = np.linalg.solve(K + z * T_WIN * eyeT, Yw)
+            except np.linalg.LinAlgError:
+                continue
+            out[z][t] = float(kt @ alpha)
+    return out
+
+
+def alpha_t(y_s: pd.Series, ctrls: list[pd.Series]):
+    """Exact-OLS intercept t of y_s on [const + ctrls], all unit-std scaled."""
+    df = pd.DataFrame({"s": y_s})
+    for i, c in enumerate(ctrls):
+        df[f"c{i}"] = c
+    df = df.dropna()
+    ys = df["s"] / df["s"].std()
+    X = np.column_stack([np.ones(len(df))] + [df[f"c{i}"] / df[f"c{i}"].std()
+                                              for i in range(len(ctrls))])
+    beta, *_ = np.linalg.lstsq(X, ys, rcond=None)
+    resid = ys - X @ beta
+    s2 = float(resid @ resid) / (len(df) - X.shape[1])
+    covb = s2 * np.linalg.inv(X.T @ X)
+    return float(beta[0] / np.sqrt(covb[0, 0]))
 
 
 def main():
-    sig, y, svar = gw_panel()
-    ok = sig.dropna().index.intersection(y.dropna().index)
+    t0 = time.time()
+    raw, ex_next, sig12, svar = gw_panel()
+
+    # KMZ-faithful predictor standardization: EXPANDING-window std, levels kept
+    G_std = raw / raw.expanding(min_periods=36).std()
+    ok = (G_std.dropna().index
+          .intersection(ex_next.dropna().index)
+          .intersection(sig12.dropna().index))
+    G = G_std.loc[ok].to_numpy()
+    y_raw = ex_next.loc[ok].to_numpy()                # ex_{t+1}
+    s12 = sig12.loc[ok].to_numpy()                    # sigma_t (known at t)
+    y_vs = y_raw / s12                                # vol-standardized target & traded ret
+    sv = svar.loc[ok].to_numpy()
+    n = len(ok)
+
     print("=" * 108)
-    print(f"TR-17b  KMZ ON ITS NATIVE SEAT -- 15 GW predictors, US market monthly, "
-          f"{ok[0].date()}..{ok[-1].date()} (n={len(ok)} months)")
+    print(f"TR-17b  KMZ ON ITS NATIVE SEAT (KMZ-faithful construction, post-audit run of record)")
+    print(f"        15 GW predictors, US market monthly, {ok[0].date()}..{ok[-1].date()} (n={n})")
     print("=" * 108)
 
-    fc, y_al = voc_curve(sig, y)                       # identical machinery to TR-17
-    ex = y_al
-    bh = sharpe_m(ex)
-    # Moreira-Muir control on the native seat: pos = c / svar_t (lagged by construction)
-    volm_pos = (1.0 / svar.reindex(ex.index)).replace([np.inf, -np.inf], np.nan)
-    mm = (volm_pos * ex).dropna()
-    mm_sh = sharpe_m(mm)
+    bh = sharpe_m(y_raw)
+    vs_sr = sharpe_m(y_vs)                            # CONST position in vol-std market
+    mm = pd.Series((1.0 / sv) * y_raw, index=ok)      # Moreira-Muir 1/svar control
+    mm_sr = sharpe_m(mm)
+    # Nagel vol-timed momentum (BFI WP 2025-104 eq.14): linear-decay 12m of past R~
+    w = np.arange(12, 0, -1).astype(float)
+    w /= w.sum()
+    vtm_pos = np.full(n, np.nan)
+    for t in range(12, n):
+        vtm_pos[t] = float((w * y_vs[t - 12:t][::-1]).sum())
+    vtm = pd.Series(vtm_pos * y_vs, index=ok)
+    print(f"CONTROLS: B&H excess SR {bh:+.2f} | vol-std mkt (const pos) {vs_sr:+.2f} | "
+          f"1/svar MM {mm_sr:+.2f} | vol-timed momentum {sharpe_m(vtm):+.2f}")
 
-    print(f"B&H excess Sharpe {bh:+.2f} | Moreira-Muir 1/svar control {mm_sh:+.2f}")
-    print(f"  {'P':>7s} | " + " | ".join(f"{zn:>10s}" for zn in Z_GRID))
+    # ---- VoC curve: mean SR across seeds; keep ensemble positions at P=12000 ----
     curves = {}
-    for (P, zn), f in fc.items():
-        curves[(P, zn)] = sharpe_m((f * ex).dropna())
+    ens_hi = {Z_LO: np.zeros(n), Z_HI: np.zeros(n)}
     for P in P_GRID:
-        print(f"  {P:>7d} | " + " | ".join(f"{curves[(P, zn)]:>+10.2f}" for zn in Z_GRID))
+        sr_seed = {z: [] for z in Z_KMZ}
+        for sd_ in range(SEEDS_BY_P[P]):
+            S = make_rff_kmz(G, P, 2.0, seed=1000 + sd_)
+            fc = rolling_forecasts_kmz(S, y_vs, Z_KMZ)
+            for z in Z_KMZ:
+                sr_seed[z].append(sharpe_m(fc[z] * y_vs))
+                if P == 12000 and z in ens_hi:
+                    pos = fc[z]
+                    okm = ~np.isnan(pos)
+                    ens_hi[z][okm] += pos[okm] / SEEDS_BY_P[P]
+        for z in Z_KMZ:
+            curves[(P, z)] = float(np.nanmean(sr_seed[z]))
+        print(f"  [P={P:>5d} done, {SEEDS_BY_P[P]} seeds, t={time.time()-t0:.0f}s]")
 
-    # ---- pre-committed checks ----
-    r1 = all(curves[(12000, zn)] > curves[(12, zn)] for zn in Z_GRID)
-    f_hi = fc[(12000, "heavy")]
-    strat = (f_hi * ex).dropna()
-    mm_r = (volm_pos * ex).reindex(strat.index).dropna()
-    both = pd.concat([strat, mm_r], axis=1, keys=["s", "m"]).dropna()
-    X = np.column_stack([np.ones(len(both)), both["m"] / both["m"].std()])
-    beta, *_ = np.linalg.lstsq(X, both["s"] / both["s"].std(), rcond=None)
-    resid = both["s"] / both["s"].std() - X @ beta
-    se = np.sqrt(np.sum(resid**2) / (len(both) - 2) / len(both))
-    t_alpha = float(beta[0] / se)
-    corr_mm = float(both["s"].corr(both["m"]))
-    r2 = (sharpe_m(strat) > mm_sh) and (t_alpha >= 2)
-    posn = (f_hi / f_hi.rolling(36).std()).clip(0, 2)
-    net = (posn * ex - posn.diff().abs().fillna(0) * COST).dropna()
+    print(f"  {'P':>7s} | " + " | ".join(f"z=1e{int(np.log10(z)):+d}" for z in Z_KMZ))
+    for P in P_GRID:
+        print(f"  {P:>7d} | " + " | ".join(f"{curves[(P, z)]:>+6.2f}" for z in Z_KMZ))
+
+    # ---- pre-committed checks (unchanged) ----
+    r1 = all(curves[(12000, z)] > curves[(12, z)] for z in (Z_LO, Z_HI))
+    strat = pd.Series(ens_hi[Z_HI] * y_vs, index=ok).iloc[T_WIN:]   # heavy-end ensemble
+    s_sr = sharpe_m(strat)
+    t_mm = alpha_t(strat, [mm])
+    r2 = (s_sr > mm_sr) and (t_mm >= 2)
+    # supplementary (REPORTED, not gated): KMZ's own benchmark + Nagel VTM
+    vs_ser = pd.Series(y_vs, index=ok)
+    t_vs = alpha_t(strat, [vs_ser])
+    t_vs_vtm = alpha_t(strat, [vs_ser, vtm])
+    corr_vtm = float(pd.Series(ens_hi[Z_HI], index=ok).corr(pd.Series(vtm_pos, index=ok)))
+    # R3 fabric-reality: raw-market position = f/sigma, vol-normalized, clipped, 5bps
+    pos_raw = pd.Series(ens_hi[Z_HI] / s12, index=ok)
+    posn = (pos_raw / pos_raw.rolling(36).std()).clip(0, 2)
+    net = (posn * pd.Series(y_raw, index=ok) - posn.diff().abs().fillna(0) * COST).dropna()
     r3 = sharpe_m(net) > bh
+
     print("-" * 108)
-    print(f"R1 VoC shape (P=12000 > P=12, both z): {r1}")
-    print(f"R2 Nagel: hi-P Sharpe {sharpe_m(strat):+.2f} vs MM {mm_sh:+.2f}; "
-          f"alpha-t vs MM = {t_alpha:+.2f} (corr {corr_mm:+.2f}) -> {r2}")
-    print(f"R3 fabric-reality (clip[0,2], vol-norm, 5bps): net {sharpe_m(net):+.2f} vs B&H {bh:+.2f} -> {r3}")
+    print(f"R1 VoC shape (P=12000 > P=12, z=1e-3 & 1e+3): {r1}")
+    print(f"R2 Nagel (pre-committed gate): hi-P ensemble SR {s_sr:+.2f} vs MM {mm_sr:+.2f}; "
+          f"alpha-t vs MM = {t_mm:+.2f} -> {r2}")
+    print(f"   supplementary: alpha-t vs vol-std mkt {t_vs:+.2f} "
+          f"(KMZ published 2.6-2.9); vs [vol-std mkt + VTM] {t_vs_vtm:+.2f} "
+          f"(pos-corr with VTM {corr_vtm:+.2f})")
+    print(f"R3 fabric-reality (clip[0,2], vol-norm, 5bps): net {sharpe_m(net):+.2f} "
+          f"vs B&H {bh:+.2f} -> {r3}")
     if r1 and r2 and r3:
         v = ("REOPEN -- complexity survives its native seat AND the Nagel control AND costs: "
              "the ML/complexity chapter re-opens (major F10 cascade).")
     elif r1 and not r2:
         v = ("REPLICATED-BUT-EXPLAINED -- the VoC shape is real on the native 95-year seat, "
-             "but the strategy is spanned by the 1/svar vol-timing control: Nagel's critique "
-             "confirmed AT THE SOURCE. ML chapter stays closed; TR-17 PARTIAL stands, upgraded "
-             "with native-seat evidence.")
+             "but the strategy is spanned by vol-timing (+ vol-timed momentum): Nagel's "
+             "critique confirmed AT THE SOURCE. ML chapter stays closed; TR-17 PARTIAL "
+             "stands, upgraded with native-seat evidence.")
     elif not r1:
         v = ("NO-VoC-SHAPE on the native seat under our construction -- do NOT over-claim a "
-             "refutation of a published t~3 result; report construction differences (S&P vs "
-             "CRSP-vw target, T/P/seed conventions) and flag for audit.")
+             "refutation of a published t~3 result; report construction differences and "
+             "flag for audit.")
     else:
         v = "MIXED (VoC + beats MM but fails net-of-costs) -- complexity real, un-investable at retail."
     print(f"VERDICT: {v}")
@@ -133,24 +253,24 @@ def main():
 
     # chart: VoC curves + controls
     fig, ax = plt.subplots(figsize=(11, 5))
-    for zn, c in (("ridgeless~", "#1565c0"), ("heavy", "#f9a825")):
-        ax.plot(P_GRID, [curves[(P, zn)] for P in P_GRID], "o-", color=c, label=f"z={zn}")
+    for z, c, lab in ((Z_LO, "#1565c0", "z=1e-3 (ridgeless~)"), (Z_HI, "#f9a825", "z=1e+3 (heavy)")):
+        ax.plot(P_GRID, [curves[(P, z)] for P in P_GRID], "o-", color=c, label=lab)
     ax.axhline(bh, color="#757575", ls="--", lw=1.2, label=f"B&H {bh:+.2f}")
-    ax.axhline(mm_sh, color="#c62828", ls=":", lw=1.6, label=f"1/svar vol-managed {mm_sh:+.2f}")
+    ax.axhline(vs_sr, color="#2e7d32", ls="-.", lw=1.4, label=f"vol-std mkt (const pos) {vs_sr:+.2f}")
+    ax.axhline(mm_sr, color="#c62828", ls=":", lw=1.6, label=f"1/svar vol-managed {mm_sr:+.2f}")
     ax.set_xscale("log")
     ax.set_xlabel("P (random Fourier features)")
-    ax.set_ylabel("OOS Sharpe (monthly, ann.)")
-    ax.set_title("TR-17b: Virtue of Complexity on its NATIVE seat (15 GW predictors, 1926-2024)\n"
-                 "does the VoC curve clear the Nagel 1/svar control where it was born?",
+    ax.set_ylabel("OOS Sharpe (monthly, ann., mean across seeds)")
+    ax.set_title("TR-17b: Virtue of Complexity on its NATIVE seat -- KMZ-faithful construction\n"
+                 "the VoC shape replicates at home, but never clears the vol-timing controls",
                  fontsize=10.5)
     ax.legend(fontsize=9)
     ax.grid(alpha=0.3)
     fig.tight_layout()
-    from pathlib import Path
     outp = Path("docs/tests/img/tr17b_native.png")
     fig.savefig(outp, dpi=150)
     plt.close(fig)
-    print(f"[chart] {outp}")
+    print(f"[chart] {outp}  [total t={time.time()-t0:.0f}s]")
 
 
 if __name__ == "__main__":

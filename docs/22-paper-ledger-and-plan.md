@@ -64,16 +64,16 @@
 | 🟡 中 | Bailey-Borwein-Lopez de Prado (PBO/CSCV) | Bailey, Borwein, López d | 2016 | adopted-as-convention(已用於 Minervini);旗 | 對旗艦 combo 家族(8 配置)跑 CSCV-PBO 並在 F5 加門檻註記 → 資訊成本≈$0(既有回測,小算力)。 |
 | 🟡 中 | Bollerslev 1986 | Bollerslev | 1986 | not-yet-tested (建議採納方向但從未實作、從未跑;現行以 tr | 當波動預測品質成為 binding(vol-target sizing 或 Kelly 部位在 regime 轉折被打臉,或要正式比較 forecast-σ v… |
 | 🟡 中 | Brown-Goetzmann-Ibbotson-Ross 1992 | Brown, Goetzmann, Ibbots | 1992 | adopted-as-convention(倖存者紀律已採納;經 TR-13 | ingest 點對點指數成分史(Wikipedia 版本史=免費但髒 / iShares-SPDR 歷史持股 / CRSP=付費學術)+ 下市報酬 → 資訊成本… |
-| 🟡 中 | Campbell-Thompson 2005 | Campbell & Thompson | 2005 | adopted-as-convention(擇時層約束)——但 C-T 的符 | ingest Goyal-Welch 總經預測子資料集(與 TR-17/KMZ 翻案條件共享的資訊成本)→ 在其原生單資產擇時座位跑符號約束股權溢酬迴歸。 |
+| 🟡 中 | Campbell-Thompson 2005 | Campbell & Thompson | 2005 | adopted-as-convention(擇時層約束)——但 C-T 的符 | **資訊成本已付**(GW 已 ingest,TR-17b 同座位)→ 原生座位符號約束溢酬迴歸現為 S 級工程,佇列中;對照組沿用 TR-17b 的 vol-std/MM/VTM 三件套。 |
 | 🟡 中 | Fama-French 1992 | Fama & French | 1992 | 混合:value 因子 FAILED(docs/09/10 失落十年、價值死 | 取得中小型股 + 國際 PIT 宇宙(資訊成本:全市場/國際下市-aware 資料),或延長歷史回 1990s 涵蓋價值友善年代 → 在價值原生棲地重測 BE/… |
 | 🟡 中 | GISW (Sharpe manipulation) | Goetzmann, Ingersoll, Sp | 2007 | not-yet-tested(全專案未引用;為候選採納項) | 當任一策略具選擇權式/負偏態 payoff(現有 L≥1.5 槓桿 combo、防禦 overlay,或未來 covered-call/short-vol sl… |
 | 🟡 中 | Gatev-Goetzmann-Rouwenhorst 2006 | Gatev, Goetzmann & Rouwe | 2006 | FAILED (OOS +1.96%/yr < 現金 BIL +2.70%; | (a) 便宜且該先做:用 GGR 原生 distance 選對(而非共整合)+更廣宇宙(跨 ETF/ADR/全市場)以現有日線重測——資訊成本=工程;(b) 真… |
 | 🟡 中 | Gu-Kelly-Xiu 2020 | Gu, Kelly & Xiu | 2020 | FAILED(TR-08/11)——但 docs/19 標錯置風險=高:FA | 610 檔倖存者-aware 宇宙 + 基本面/另類資料特徵(資訊成本=ingest 94 式豐富特徵面板 × 數千檔)。注:部分已做——docs/10 廣宇宙… |
-| 🟡 中 | KMZ 2024 (Virtue of Complexity) | Kelly, Malamud & Zhou | 2024 | PARTIAL | Ingest 公開的 Goyal-Welch 月度總經預測子資料集 (1926-present),在 95 年長樣本 × 15 個總經序列的原生棲地上完整復現並… |
+| 🟡 中 | KMZ 2024 (Virtue of Complexity) | Kelly, Malamud & Zhou | 2024 | **REPLICATED-BUT-EXPLAINED(TR-17b 原生座位已執行 2026-07-11)** | ✅ 已執行:GW ingest → TR-17b。VoC 形狀在原生棲地複現(P=12k SR +0.33~+0.41)但被 vol-timing+VTM 張成(alpha-t +2.41→+0.89)。再翻案=出現過雙控制的複雜度變體。**T1 教訓存檔:第一次重測用非忠實機器差點錯殺**(視窗內 z-score 使核退化)——「機器忠實度檢查」自此為 T1 重測前置步驟 |
 | 🟡 中 | Kelly 1956 | Kelly, J. L. | 1956 | adopted/implemented(half-Kelly 已實作)並作為 | 任何 sleeve 產出穩健 OOS edge (p,b) 時,Kelly-by-probability 座位重開——但那 gated on 先突破 alpha… |
 | 🟡 中 | Lopez de Prado HRP | López de Prado | 2016 | PARTIAL(TR-07:機制如設計降波動 −3.9pp,permuted | 取得 50+ 檔真異質多資產宇宙(跨股/債/商品/國際/另類)即重測 HRP 於其原生棲地。資訊成本=多資產 PIT 資料 ingest(收斂回 docs/11… |
 | 🟡 中 | Moreira-Muir 2017 (Volatility-Managed Portfolios) | Moreira & Muir | 2017 | PARTIAL | 把 1/σ² 波動管理升級為 F6 v2 正式 sleeve 時,需加:(a) 交易成本 (換手高);(b) Cederburg 靜態恆定曝險二階控制;(c) … |
-| 🟡 中 | Nagel 2025 / Buncic 2025 (VoC critique) | Nagel | 2025 | PARTIAL | 同 KMZ 條:取得 Goyal-Welch 長歷史總經資料集後,在原生棲地上重跑,才能檢驗 Nagel 批評是否在 KMZ 自己的座位也成立 (而非只在我們的… |
+| 🟡 中 | Nagel 2025 / Buncic 2025 (VoC critique) | Nagel | 2025 | **CONFIRMED-AT-SOURCE(TR-17b,2026-07-11)** | ✅ 已執行:Nagel 批評在 KMZ 自己的座位成立——vol-std 市場+VTM 對照把發表級 alpha-t +2.41 吸到 +0.89(RFF 部位與 VTM 相關 +0.49)。VTM(線性衰減 12m)自此入擇時類 TR 標準對照組 |
 | 🟡 中 | Sharpe 1964 (CAPM) | Sharpe | 1964 | PARTIAL(TR-06)——作為定價模型在本宇宙被拒(SML 反轉),作 | 廣/全市場 PIT 宇宙(610 檔倖存者-aware + 含非科技產業 + 跨多年代/regime)重測 SML 斜率——資訊成本=擴宇宙+更長歷史。 |
 | 🟡 中 | Shumway 1997 (delisting) | Shumway | 1997 | PASSED(方法;TR-13 區間化完成) | ingest CRSP 型下市代碼面板(WRDS 學術付費)→ 把 [+1.26%,+2.02%] 區間收成點估計;資訊成本=付費 CRSP/WRDS。 |
 | 🟡 中低 | Lakonishok-Lee (Insider) | Lakonishok & Lee | 2001 | FAILED | 擴充 insider 宇宙到小型股 PIT (Form 4 電子申報始於 ~2003,無法回補更早年代,唯一可及擴充=小型股廣度 + cluster-buy/高… |
@@ -654,7 +654,8 @@
 > **已執行(2026-07-08)**:
 > - **Newey-West (1987) + Politis-Romano (1994) → TR-18**:壓測旗艦唯一的 PASSED alpha,發現 **t=3.38 是日頻假象**(Dimson lagged-beta),月頻 t=2.64/2.95 不過 HLZ,旗艦降級 PASSED-borderline;順帶把 **Dimson (1979) 薄交易 beta** 加入佇列。詳見 [TR-18](tests/TR-18-inference-robustness.md)。
 > - **Fama-French 2015 五因子 → TR-20**:把上面那個邊際 alpha 對 FF5(+RMW+CMA)/FF6 重測,alpha 幾乎不動、RMW/CMA 不顯著=**真殘值 alpha,非未建模因子 beta**(旗艦不變、強化)。詳見 [TR-20](tests/TR-20-ff5-attribution.md)。**Hou-Xue-Zhang q-factor → TR-24 已執行(2026-07-09)**:用已發布 q 因子(global-q.org 免費)同窗歸因——**q 模型未吸收旗艦 alpha(縮水僅 +2%),TR-20 獲獨立確認**;EDGAR 年度 ROE 被 GP subsume;順帶發現 GP 2025-26 IC 轉負(WATCH)。
-> - **Kritzman-Li-Page-Rigobon 2010/2011 吸收比率 → TR-21**(創作者 reel 線索→主要來源→一天內判定):465 檔 S&P 座位上 **FAILED**——AR 不領先大跌(前月百分位中位 44,p=0.75)、與平均相關 +0.97 幾乎同物、閘門輸靜態與隨機安慰劑;棲地但書=原生為產業組合×含 GFC 內生危機。詳見 [TR-21](tests/TR-21-absorption-ratio.md) 與 [docs/23](23-creator-mechanisms.md)。
+> - **Kritzman-Li-Page-Rigobon 2010/2011 吸收比率 → TR-21**(創作者 reel 線索→主要來源→一天內判定):465 檔 S&P 座位上 **FAILED**——AR 不領先大跌(前月百分位中位 44,p=0.75)、與平均相關 +0.97 幾乎同物、閘門輸靜態與隨機安慰劑;棲地但書=原生為產業組合×含 GFC 內生危機。詳見 [TR-21](tests/TR-21-absorption-ratio.md) 與 [docs/23](23-creator-mechanisms.md)。**→ TR-21b 原生座位重測(2026-07-11,KF49 產業 1970-2026)**:稽核分裂判定——水位宣稱**反轉**(中位 37)、dAR>1 尖峰**弱複製**(7/10 vs 33%,suggestive p=0.02-0.034,AR-特異)、**閘門第 5 次死亡**(0.28 vs 0.46,躲過 4.5/10 最差月仍輸);詳見 [TR-21b](tests/TR-21b-absorption-native.md)。
+> - **KMZ 2024 + Nagel 2025 → TR-17b 原生座位重測(2026-07-11,GW 15 預測子 1929-2024)**:第一次運行為建構假陰性(稽核逆轉);忠實建構後 **VoC 形狀複現(P=12k +0.33~+0.41)但被 vol-timing+VTM 張成(alpha-t +2.41→+0.89)= REPLICATED-BUT-EXPLAINED,Nagel 在源頭確認**;ML 章節維持關閉。詳見 [TR-17b](tests/TR-17b-kmz-native.md)。
 > - **新增 wave-1/2 深讀**:**Bun-Bouchaud-Potters 2017《Cleaning large correlation matrices》**(Physics Reports,~900 引用;RMT 清理 canonical 綜述,含特徵向量端的極限)——支撐 TR-03b 擴充(特徵值+特徵向量雙端清理競技場);實作參照 Bongiorno-Challet k-BAHC(<500 引用,掛此條之下)。
 > - **Lou-Polk-Skouras 2019 → TR-19**(2026-07-09):book 報酬 85-90% 住隔夜(clock 是市場層現象);稽核歸因修正=隔夜超額的主詞是 vol/beta 傾斜非動量(vol 對照複製 +11.2 vs +11.4);詳見 [TR-19](tests/TR-19-overnight-intraday.md)。
 > - **Bailey-LdP PBO → TR-22**(2026-07-09):旗艦家族 F0 PBO=24.5% CREDIBLE;分層(剔稻草人 41.8%)=配置器非 edge、RP/IV/EW 可互換;詳見 [TR-22](tests/TR-22-combo-pbo.md)。

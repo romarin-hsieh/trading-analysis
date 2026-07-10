@@ -21,8 +21,8 @@
 | ORB(Zarattini)、LPS 精確版、日內 AR | 分鐘級歷史 | **解鎖(2016+)**:Alpaca 免費層 SIP 分鐘 bar;pre-2016 只有 QuantConnect 雲端(平台內,不可匯出) |
 | 盤中 footprint/orderflow、Obizhaeva-Wang LOB 韌性 | tick/LOB | 仍鎖($0 不可達);Databento $125 credits 可做一次性 tick 抽查 |
 | TSMOM/HOP 期貨原生棲地(docs/22 重測最高優先) | 20+ 品種 × 20+ 年連續合約 | **半解鎖**:Databento(2010-06+,$125 credits+月上限=硬上限)+ AQR TSMOM 因子序列(1985+,免費基準);完整長史唯一近預算解=**Pinnacle CLC $99 一次性買斷**(1969+,98 品種)→ 需使用者特批 |
-| TR-17 KMZ 的 Goyal-Welch 95 年座位 | GW 總經預測子集 | **✅ 完全解鎖,$0**:Amit Goyal 官網免費,**更新到 2025**(今日站上逐字確認)——翻案條件直接滿足 |
-| TR-21 吸收比率的產業面板+含 2008 長史 | ~50 產業組合日報酬 | **✅ 完全解鎖,$0**:Ken French 49 產業組合(日頻 1969+,CRSP 建構無倖存者偏誤,2026-07-01 剛更新)——零工程 |
+| TR-17 KMZ 的 Goyal-Welch 95 年座位 | GW 總經預測子集 | **✅ 已執行(TR-17b,2026-07-11)**:Amit Goyal 官網免費;結果=REPLICATED-BUT-EXPLAINED(Nagel 源頭確認) |
+| TR-21 吸收比率的產業面板+含 2008 長史 | ~50 產業組合日報酬 | **✅ 已執行(TR-21b,2026-07-11)**:KF 49 產業日頻;結果=水位反轉/尖峰弱複製/閘門第 5 死(分裂判定) |
 | IBES 級分析師修正「歷史」 | 修正序列史 | **此路不通**($0-5 無合法途徑;Zacks ZEEH/IBES 數千美元/年)→ 見 Part C 的三件替代拼圖 |
 | 噪音交易者 CEF 折價、A-C 機構規模、BLB 1897 原座位 | 各自特殊資料 | 仍鎖(影響低,誠實維持 N/A) |
 
@@ -106,8 +106,8 @@
 
 | # | 行動 | 解鎖 | 成本/模式 |
 |---|---|---|---|
-| 1 | **ingest Goyal-Welch** → 重跑 TR-17 KMZ 95 年座位 | KMZ 翻案(明碼條件已滿足)、Campbell-Thompson 原生座位 | $0,S 工程 |
-| 2 | **ingest KF 49 產業日報酬** → TR-21 產業版 + M-G 產業動量 + TR-03b GICS 塊 | 三個翻案一次 | $0,S 工程 |
+| 1 | ~~**ingest Goyal-Welch** → 重跑 TR-17 KMZ 95 年座位~~ **✅ 完成(2026-07-11,TR-17b)**:VoC 複現但被 vol-timing+VTM 張成=REPLICATED-BUT-EXPLAINED;Campbell-Thompson 原生座位成 S 級佇列項 | KMZ 翻案(已執行)、C-T 解鎖 | $0,S 工程 |
+| 2 | ~~**ingest KF 49 產業日報酬** → TR-21 產業版~~ **✅ 完成(2026-07-11,TR-21b)**:水位反轉/尖峰弱複製/閘門第 5 死;M-G 產業動量 + TR-03b GICS 塊仍佇列(面板已接線) | 三個翻案(1 done,2 解鎖) | $0,S 工程 |
 | 3 | **ThetaData 免費層 + OptionsDX + DoltHub** → GEX(2023-06+)/VRP/TR-09 | 選擇權維度提前 3-16 年 | $0,M 工程(Theta Terminal 本地跑) |
 | 4 | **yfinance 分析師預估每週快照 collect-forward——立即啟動(時間敏感)** | docs/11 頭號 alt-data 因子(12-18 個月後可測) | $0,S(仿 options 快照) |
 | 5 | **AV EARNINGS 慢爬**(25/day)→ 共識版 SUE | PEAD 精緻版 | $0,寫一次讓它滴灌 |

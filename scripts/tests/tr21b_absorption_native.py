@@ -25,6 +25,29 @@ F0 DECLARATION (pre-committed)
   mis-application risk : LOW (this IS the native habitat; residual: 49 vs 51 industries,
                equal treatment of the 2010+ era KLPR never saw).
 
+POST-RUN AUDIT NOTE (2026-07-11, appended -- F0 above NOT edited, code NOT changed)
+  Run outcome: C1 FAIL (median pre-event PIT percentile 37, p=0.746 -- KLPR's LEVEL claim
+  is directionally INVERTED at home), C1b PASS (dAR>1 spike 7/10 vs 33% base, iid p=0.020),
+  C3 FAIL (gate exSR 0.28 vs static-70.8% 0.46; random-gate p95 0.55).
+  The pre-committed verdict tree keyed only on C1/C3 and had NO branch for the
+  C1-fail + C1b-pass combination, so the script printed "does not replicate even at home"
+  -- audit ruled this a MIS-KILL (contradicted by its own C1b PASS, and C1b IS the KLPR
+  2011 signature exhibit). Per TR-18 lesson the tree is not edited post-hoc; the verdict
+  OF RECORD is the audited three-way split:
+    "gate FAILED (timing iron law, 5th confirmation) / diagnostic WEAK-PARTIAL --
+     KLPR level claim inverted; the dAR>1 spike weakly replicates (7/10 vs 33%,
+     iid p=0.020, cluster-fair circular-shift null p=0.034, passes only at the
+     pre-committed K=10; lead is ~one quarter wide, 3/7 hits partly coincident);
+     but AR-SPECIFIC -- same-mechanism placebos: 21d realized vol 3/10 (p=0.54),
+     avg pairwise corr 5/10 (p=0.26), despite corr(AR, avg-corr) = +0.92."
+  Robustness caveats bound to C1b: worst-K sensitivity (K=5 p=0.056 / K=15 p=0.106 /
+  K=20 p=0.064 under the fair null); Bonferroni x2 over {C1, C1b}: iid 0.040, fair null
+  0.068. Report as SUGGESTIVE, never as a clean p=0.02 point.
+  C3 audit extras (no bug found): gate sits at the 7th percentile of 1000 run-length-
+  preserving random gates; zero-cost exSR still 0.28; faithful 3-state MDD -25.7% but
+  exSR 0.26 vs any-static 0.46 (leverage invariance) -- the gate dodged 4.5/10 of the
+  worst months and STILL lost: cleanest "diagnostic true, timing dead" demo to date.
+
 Run: uv run python scripts/tests/tr21b_absorption_native.py   (~2-4 min)
 """
 
