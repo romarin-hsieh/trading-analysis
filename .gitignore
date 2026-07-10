@@ -46,3 +46,7 @@ logs/
 
 # Notebooks checkpoints
 .ipynb_checkpoints/
+
+# stray data downloads (session artifacts, never commit)
+st.zip
+supported_tickers.csv
