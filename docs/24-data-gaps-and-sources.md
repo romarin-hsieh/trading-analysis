@@ -121,6 +121,8 @@
 真 GICS ticker-level 歷史、歷史 Russell 成分、美股即時(<15 分鐘)資料。每項的翻案條件維持
 在 docs/19/22,價格標籤已更新(例:修正史=數千美元/年=機構級)。
 
+**工具選型補篇(2026-07-11)**:Dataroma/13F 取得路徑、開源 API wrapper(edgartools/alpaca-py/fredapi-ALFRED/simfin/tiingo/gdeltdoc 六個 adopt)、反爬蟲工具階梯(curl_cffi 為 Tier-1 首選;GHA datacenter-IP 對 Cloudflare 類牆無 $0 解的誠實警告)→ 見 [refs/scraping-and-apis.md](refs/scraping-and-apis.md)。
+
 *2026-07-10。工作流:8 agents、70 sources、258 tool calls;信心等級 verified-on-site 為主。
 G-S 註腳:這次調查本身就是「用工程時間換資訊成本」——多數缺口的市價其實是 $0+工程,真正的
 稀缺品(修正史、tick、pre-2023 OI)才有正的美元價格。*

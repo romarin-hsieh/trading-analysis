@@ -84,3 +84,8 @@ markers = [
     "integration: integration tests (may need network or filesystem)",
     "slow: slow tests (model loading, full backtest)",
 ]
+
+[dependency-groups]
+dev = [
+    "openpyxl>=3.1.5",
+]

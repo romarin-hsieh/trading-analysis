@@ -5,6 +5,8 @@
 
 ---
 
+> **資料源盤點(2026-07 補)**:本檔是「策略/repo」的情報盤點;**資料源**的完整盡職調查(70 源×7 類:日內/選擇權/下市股/新聞情緒/基本面/總經期貨/產業國際,含免費/<$5 判定與 PIT 品質)在 [refs/data-sources.md](refs/data-sources.md),決策版在 [docs/24](24-data-gaps-and-sources.md)。
+
 ## 摘要（最重要的三個發現）
 
 1. **驚人的收斂訊號**：三條獨立的線索——「最可機械複現的策略」、「US Investing Championship 真實對帳冠軍實際用的方法」、「GitHub 上現有的開源篩選器」——**全部指向同一處**：**Minervini Trend Template（8 條規則）＋ O'Neil CAN SLIM 動能成長股**。這是強烈的「先做這個」訊號。
