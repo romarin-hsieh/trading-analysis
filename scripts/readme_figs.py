@@ -33,6 +33,7 @@ GROUPS = [
         ("TR-11", "隨機森林+隨機視窗", "Random forest + random windows", "M"),
         ("TR-23", "四個經典異象", "Four classic anomalies", "F"),
         ("TR-24", "q-factor 雙重檢驗", "q-factor double check", "P"),
+        ("TR-26", "GP 因子深度網格", "GP factor depth grid", "P"),
     ]),
     ("組合建構與風險模型", "Portfolio construction & risk models", [
         ("TR-03", "PCA 統計因子", "PCA statistical factors", "M"),
