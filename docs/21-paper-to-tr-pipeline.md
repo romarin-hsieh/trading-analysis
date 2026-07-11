@@ -17,7 +17,13 @@
 ```
 
 ### 階段 0 — 發現(全自動,$0)
-- **來源**:SSRN FEN 熱門下載、arXiv q-fin(每日 RSS)、NBER 新 working papers、JF/JFE/RFS 期刊目錄 RSS、AQR/Man Institute/Research Affiliates 白皮書頁、Alpha Architect/Quantpedia 新條目。
+
+> **假設修正(2026-07-11,使用者質疑「新論文一週內可取得」後查證)**:原稿把所有來源當成同一種東西,這個假設有兩個問題。
+> **問題一:「取得」要分層。**(a) **全文即時**:arXiv q-fin——官方 API+RSS,發布當天全文免費,唯一可以完全自動化抓全文的源;(b) **摘要即時、全文半自動**:NBER 有官方 RSS(`nber.org/papers.rss`)與 API(`/api/v1/working_page_listing/`),摘要免費、全文每篇 $5(作者個人頁常有免費版,人工補);SSRN 有 RSS(作者/期刊/排行 feeds)但無官方 API,全文下載要帳號且站有 Cloudflare——**摘要偵測可自動,全文取得半自動**;(c) **滯後索引**:JF/JFE/RFS 期刊目錄 RSS 抓到的「新論文」其實是 2-4 年前 working paper 的正式版——它的用途不是發現新研究,而是「讀計畫裡的 WP 出了正式版(數字可能修訂)」的提醒。
+> **問題二:新論文讓引用數濾網失效。**我們的品質門檻(>500 引用)對一週新的論文永遠是 0。週頻偵察的分診訊號必須換成:**是否挑戰 docs/18 既有判定(最重要)、作者過往紀錄與 WP 系列(NBER/頂校=同儕審查前的可信度代理)、棲地可及性**。引用數門檻照舊,但只用在年度回顧(撈過去一年累積起引用的),不進週頻流程。
+> 附帶修正預期:McLean-Pontiff(2016)說發表後報酬平均衰減 58%——搶先讀 WP 的目的**不是搶 alpha**(未經審查的 WP 假陽性率最高,HLZ t≥3.0 正是為此),而是及早看到「挑戰我們既有判定的證據」與新的控制組/測量方法。
+
+- **來源(分層後)**:第一層 arXiv q-fin API(日頻,全文);第二層 NBER RSS/API + SSRN journal RSS(週頻,摘要;全文人工按需);第三層 JF/JFE/RFS 目錄 RSS(月頻,「正式版出版」提醒)+ AQR/Alpha Architect/Quantpedia 頁面(週頻,無 feed 用 seen-list diff)。
 - **機制**:GitHub Actions 週頻 cron(復用 `monitor.yml` 模式);去重用 seen-list state 檔(復用 `serenity_tracker` 模式);輸出候選清單 JSON。
 
 ### 階段 1 — 分診(廉價 LLM,~$1-2/月)

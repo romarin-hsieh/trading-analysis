@@ -12,6 +12,16 @@
 
 A personal research project. It started with a finding we couldn't ignore: **McLean & Pontiff (2016, *Journal of Finance*)** re-tested 97 published return predictors and found their returns average **26% lower out-of-sample and 58% lower after publication** — the market eats published edges. So the question became: *of everything floating around the internet, papers, and guru books, how much survives an honest test run today?* Using $0/month of free data (yfinance, SEC EDGAR, public archives), across 100+ commits and **~150 mechanisms/strategies tested (28 standardized test reports, every one adversarially audited)**, the answer turned out to be more valuable than the question — because it turned *"what do we know, what don't we know, and how do we decide what's feasible"* into reproducible code and documents.
 
+### The bottom line (as of 2026-07)
+
+| the question | the answer |
+|---|---|
+| Any strategy that prints money? | **No.** The 50%-CAGR-at-low-drawdown target zone is structurally empty — everything we tested sits on the same Calmar ≈ 0.6 ray. |
+| Any real alpha at all? | **One, borderline.** The 5-sleeve risk-parity book: monthly Carhart t=2.64, below the strict 3.0 bar. Its real deliverable is half of VOO's drawdown, levered to your budget. |
+| Any stock-picking signal? | **One.** Gross profitability (ICIR +0.30). Momentum, value, PEAD, insider, ML forecasters, and four classic anomalies all failed — and this last survivor's IC turned negative in 2025-26 (on watch). |
+| Does market timing work? | **No — five separate confirmations.** A dumb constant exposure matched or beat every gate we tested (Markov, IBS, absorption ratio on two seats, KMZ complexity). |
+| Then what's the asset here? | **The method and the data moat.** 28 adversarially audited test reports, a registry where negative results are first-class, five documented self-corrections, and a $0 data stack with two collect-forward pipelines recording what money can't buy retroactively. |
+
 ### What we built
 
 1. **An acceptance framework ("fabric" v2.0, [docs/17](docs/17-fabric-acceptance.md))** — a single rule table F0–F13 codifying every mistake we made: pre-committed falsifiable claims (F0), leak-free signals + fill-time conventions (F1), spread-scaled costs with mandatory 2× stress (F2), excess-over-T-bill Sharpe (F3), effective sample sizes (F4), campaign-wide trial accounting with a t≥3.0 alpha bar (F5), **the Nagel control triple — which simplest control explains it?** (F6), sub-period + long-history replay (F7), verdicts scoped to seat×habitat (F8), path randomization (F9), re-test cascades (F10), universe legitimacy (F11), rebalance-phase averaging (F12), and delisting rules (F13). Its economic preamble is **Grossman-Stiglitz**: at $0 information cost, equilibrium alpha is $0 — every re-open condition must be priced as an information cost.
@@ -158,6 +168,16 @@ Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only pu
 ### 專案概述
 
 一個個人研究的 side project。起點是一篇沒辦法當作沒看到的論文：**McLean 與 Pontiff(2016，《Journal of Finance》)**重測了 97 個已發表的報酬預測訊號，發現這些訊號的報酬平均在**樣本外低了 26%、論文發表之後低了 58%**——公開發表的優勢，會被市場逐步吃掉。所以真正的問題變成：「網路上、論文裡、大師書裡的那些策略，經過誠實的測試、放到今天，還剩下多少？」我們用每月 0 元的免費資料(yfinance、SEC EDGAR、公開檔案庫)，歷經 100 多次 commit、**約 150 個機制/策略的系統性測試(28 份標準化測試報告，每一份都經過對抗式稽核)**，得到的答案比問題本身更有價值，因為它把「什麼是已知、什麼是未知、如何判斷可不可行」變成了可重現的程式與文件。
+
+### 結果總結(截至 2026-07)
+
+| 問題 | 答案 |
+|---|---|
+| 有會印鈔的策略嗎？ | **沒有。**「50% CAGR＋低回撤」的目標區在結構上就是空的——我們測過的所有東西都落在同一條 Calmar ≈ 0.6 的射線上。 |
+| 有真的 alpha 嗎？ | **有一個，而且只是邊際。**五 sleeve 風險平價組合：月頻 Carhart t=2.64，低於嚴格門檻 3.0。它真正的價值是回撤只有 VOO 的一半，可依回撤預算加槓桿。 |
+| 有選股訊號嗎？ | **有一個。**毛利/資產品質因子(ICIR +0.30)。動能、價值、PEAD、內部人、機器學習預測、四大經典異象全數陣亡——而這個唯一的倖存者，2025–26 的 IC 也轉負了(列入觀察)。 |
+| 擇時有用嗎？ | **沒有——五次獨立確認。**一個恆定部位就能追平或打敗我們測過的每一個閘門(Markov、IBS、吸收比率兩個座位、KMZ 複雜度)。 |
+| 那這個專案的資產是什麼？ | **方法本身，加上資料護城河。**28 份經對抗式稽核的測試報告、一份把負面結果當一等公民的註冊表、五次白紙黑字的自我修正，以及 $0 的資料堆疊與兩條「現在不錄、以後買不到」的前向收集管線。 |
 
 ### 建置內容
 
