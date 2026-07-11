@@ -56,6 +56,7 @@
 | (b) AAII 403 | 先試 Tier 1 curl_cffi(多數是純 TLS 指紋擋);不行才 Tier 2 |
 | (c) marketaux/FMP Cloudflare | curl_cffi 先試(很多 CF edge 403 是純 JA3);cloudscraper 無效 |
 | (d) Yahoo/yfinance | **已在堆疊內解決**(yfinance 內建 curl_cffi)——紀律=鎖版本、讓 yfinance 自管 session、盯 issue tracker |
+| (e) **NBER RSS**(2026-07-11 實戰驗證) | 純 TLS 指紋牆的教科書案例:plain urllib/requests 帶瀏覽器 UA 仍 403,**curl_cffi impersonate chrome 直接 200**——Tier-1 首選的第一個實戰戰果(`paper_scout.py`);另注意正確路徑是 `/rss/new.xml`,搜尋結果流傳的 `/papers.rss` 是 404 |
 
 **⚠️ 關鍵警告(經驗證)**:GitHub Actions runner 是 **datacenter IP**,Cloudflare 類系統對其信任分天生低——**凡是靠 IP 信譽擋的牆,任何 $0 客戶端工具都不可靠**;誠實出路=官方免費 API 層/資料鏡像/手動下載,不是更重的爬蟲(下一級是住宅代理=超出 $0 且不做)。
 
