@@ -1,0 +1,32 @@
+name: weekly-collect
+# Collect-forward pipelines that only need weekly cadence (docs/24 action #4):
+# analyst estimate snapshots (eps_trend/eps_revisions/estimates/targets/recommendations)
+# for the S&P 500 universe. ~15-25 min, ~200-400 KB/week committed.
+
+on:
+  schedule:
+    - cron: "0 13 * * 6"   # Sat 13:00 UTC = after Friday US close (21:00 TW)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet yfinance pandas
+      - name: analyst estimate snapshot (S&P 500, time-sensitive collect-forward)
+        run: python scripts/collect/analyst_snapshot.py || true
+      - name: persist snapshots
+        run: |
+          git config user.name "monitor-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase || true
+          git add collected/analyst || true
+          git diff --cached --quiet || git commit -m "chore: weekly analyst snapshot [skip ci]"
+          git push || true

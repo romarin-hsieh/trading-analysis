@@ -109,7 +109,7 @@
 | 1 | ~~**ingest Goyal-Welch** → 重跑 TR-17 KMZ 95 年座位~~ **✅ 完成(2026-07-11,TR-17b)**:VoC 複現但被 vol-timing+VTM 張成=REPLICATED-BUT-EXPLAINED;Campbell-Thompson 原生座位成 S 級佇列項 | KMZ 翻案(已執行)、C-T 解鎖 | $0,S 工程 |
 | 2 | ~~**ingest KF 49 產業日報酬** → TR-21 產業版~~ **✅ 完成(2026-07-11,TR-21b)**:水位反轉/尖峰弱複製/閘門第 5 死;M-G 產業動量 + TR-03b GICS 塊仍佇列(面板已接線) | 三個翻案(1 done,2 解鎖) | $0,S 工程 |
 | 3 | **ThetaData 免費層 + OptionsDX + DoltHub** → GEX(2023-06+)/VRP/TR-09 | 選擇權維度提前 3-16 年 | $0,M 工程(Theta Terminal 本地跑) |
-| 4 | **yfinance 分析師預估每週快照 collect-forward——立即啟動(時間敏感)** | docs/11 頭號 alt-data 因子(12-18 個月後可測) | $0,S(仿 options 快照) |
+| 4 | ~~**yfinance 分析師預估每週快照 collect-forward**~~ **✅ 已啟動(2026-07-11)**:`scripts/collect/analyst_snapshot.py` + `.github/workflows/weekly-collect.yml`(每週六);6 表(eps_trend/eps_revisions/earnings+revenue_estimate/price_targets/recommendations)× S&P 500,首次快照 502 檔已入庫 `collected/analyst/` | docs/11 頭號 alt-data 因子(12-18 個月後可測) | $0,~90KB/週 |
 | 5 | **AV EARNINGS 慢爬**(25/day)→ 共識版 SUE | PEAD 精緻版 | $0,寫一次讓它滴灌 |
 | 6 | **Alpaca 分鐘回填 2016+**(一次 4-6 小時) | ORB/LPS 精確版/日內 AR | $0,S-M |
 | 7 | **Tiingo 下市股輪換回填 + fja05680 PIT 成分** | 倖存者區間收斂、F11、長史 | $0,M(數月輪換) |

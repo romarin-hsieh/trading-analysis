@@ -7,7 +7,7 @@
 |---|---|---|
 | [repos.md](repos.md) | GitHub repos | 已 clone 研讀的開源 repo（含 git SHA 版本） |
 | [articles.md](articles.md) | 文章/網頁/論文/文件 | 研究引用的網路來源（含存取日期） |
-| [data-sources.md](data-sources.md) | 資料源目錄 | **70 個資料源 × 7 類的盡職調查全文**(2026-07 站上驗證;免費/<$5 判定、PIT 品質、解鎖對照)——docs/24 的完整附錄 |
+| [data-sources.md](data-sources.md) | 資料源目錄 | **70 個資料源 × 7 類的盡職調查全文**(2026-07 站上驗證;免費/<$5 判定、PIT 品質、解鎖對照)——docs/24 的完整附錄;**§0 總覽表=40 採用(角色)/30 不採用(原因+費用推估)一覽** |
 | [scraping-and-apis.md](scraping-and-apis.md) | 工具選型 | **Dataroma/13F 路徑判定(EDGAR 直取+edgartools)、6 個 adopt 的 API wrapper、反爬蟲工具階梯(curl_cffi→patchright→nodriver)+ GHA datacenter-IP 警告** |
 | [videos.md](videos.md) | 影片/逐字稿 | YouTube 影片摘要、財經創作者逐字稿萃取（未來 pipeline 落點） |
 

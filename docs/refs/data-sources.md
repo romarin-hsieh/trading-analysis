@@ -4,6 +4,88 @@
 > 預算判定:🟢 免費 / 🟡 <$5 月硬上限 / 🔴 超預算。信心:✅=今日站上驗證定價與額度、◐=部分、⚠️=僅記憶(用前需人工確認)。
 > **地雷警告:GDELT 絕不可走 BigQuery(pay-per-TB 無上限);推薦組合中無任何 pay-per-use 無上限方案。**
 
+## 0. 總覽(採用/不採用一覽;編號=本檔由上而下的條目順序,詳細評估見各分類)
+
+### 已採用(40 項)
+
+| 編號 | 我們採用了哪些內容 | 取用資料的分類 | 提供內容 | 備註 |
+|---|---|---|---|---|
+| 1 | **Alpaca Market Data Basic**:主引擎:2016+ SIP 分鐘 bar 一次回填(4-6 小時)+每日增量;含歷史 tick trades/quotes | 美股日內/分鐘級歷史 | 美股 SIP 品質分鐘/日 bar(2016+)、tick trades/quotes、企業行動 | 查不到最近 15 分鐘;下市標的分鐘覆蓋不保證,需抽查 |
+| 2 | **Massive(前 Polygon)免費層**:交叉驗證:對 Alpaca 分鐘 bar 逐 bar 校驗+近 2 年 ORB/LPS 樣本外驗證 | 美股日內/分鐘級歷史 | 美股 SIP 聚合分鐘/日 bar、trades、quotes(免費層約 2 年) | 5 calls/min、EOD 延遲;2 年深度為記憶,未能官網確認 |
+| 3 | **Databento**:一次性抽查:$125 credits 內做 tick 微結構研究+對 Alpaca bar 權威校驗,不當常態源 | 美股日內/分鐘級歷史 | 交易所原生 MBO/MBP/trades/OHLCV,含下市股,PIT 黃金標準 | 務必先設帳戶月用量上限+get_cost 報價,否則有爆費風險 |
+| 5 | **FirstRate Data 免費樣本**:QA 校驗:SPY/QQQ 等 1 年 1-min 對 Alpaca 逐 bar 校驗+Zarattini QQQ ORB 近 1 年重現 | 美股日內/分鐘級歷史 | 10 檔大票+指數各 1 年 1-min CSV;任何 ticker 2 週樣本 | 免費樣本全為存活大票;付費 bundle ~$100+ 超月預算另議 |
+| 6 | **QuantConnect 免費雲端(LEAN)**:pre-2016 補位:1998+ 無倖存者偏誤分鐘資料;2008 重放一次性驗證(docs/24 行動#10) | 美股日內/分鐘級歷史 | 雲端回測:1998+ 分鐘資料、PIT universe、無限回測 | 資料不可匯出,策略須移植進 LEAN(估 1-3 天/策略) |
+| 12 | **DoltHub post-no-pref/options**:主引擎:~2000 檔 EOD 鏈 2019-02~至今,git 版本化=可稽核 PIT,銜接 OptionsDX 2023 斷點 | 選擇權歷史 | 美股選擇權 EOD 鏈(bid/ask/IV/greeks)+HV/IV 史;無 OI/成交量 | 無 OI;vendor greeks 應自報價重算;repo 未載明資料授權 |
+| 13 | **OptionsDX**:主引擎:SPY/SPX/QQQ 等 10 檔免費 EOD 鏈 2010-2023,供 TR-09 BSM/VRP/IV-skew | 選擇權歷史 | 10 檔標的歷史選擇權鏈月度 CSV(IV+greeks+量;EOD 至 1 分) | 無 OI;季度更新=回測檔案庫非即時 feed;IV/greeks 應重算 |
+| 14 | **ThetaData FREE 層**:主引擎(GEX):唯一免費歷史 OI(2023-06 起)+EOD 報價,IV/greeks 自算,免綁卡 | 選擇權歷史 | US 選擇權歷史 EOD OHLC+開放利益+鏈,2023-06 起,30 req/min | 官方 Python wrapper 已封存→自寫薄 REST client;1 日延遲 |
+| 15 | **yfinance 自建快照**:已運轉管線:前向收集當日鏈快照(含 OI),降級為 ThetaData 交叉驗證+近即時補充 | 選擇權歷史 | 當日選擇權鏈快照(bid/ask/量/OI/Yahoo IV),無歷史回填 | Yahoo IV 品質低需重算;非官方爬取有限流/斷裂風險 |
+| 21 | **Alpha Vantage LISTING_STATUS**:主引擎:下市日期真值+date參數重建2010+任意時點上市宇宙(TR-13/F11) | 下市股/PIT 成分/長歷史 | 全美股下市清單CSV(ipoDate/delistingDate)+as-of歷史宇宙快照 | 25 req/day 硬上限(此用途僅需數個呼叫);無下市股價格 |
+| 22 | **Tiingo 免費層(下市股 EOD)**:主引擎:下市股價格序列輪換回填(500 symbols/月,數月完成;行動#7) | 下市股/PIT 成分/長歷史 | 30+年EOD調整價;14,760檔下市股序列、9,635檔pre-2001長史 | LEH/BSC/舊GM缺=2008破產股洞;WB重用需(ticker,日期區間)鍵 |
+| 23 | **fja05680/sp500(GitHub)**:主引擎:PIT S&P 500 成分 1996+ 日精度(F11 宇宙/TR-13 成分面) | 下市股/PIT 成分/長歷史 | S&P 500 歷史成分 CSV 時間序列 1996-現在,MIT、持續維護 | 1996 起始僅 487 檔;信任前抽查 2008-09 變動對 S&P 公告 |
+| 24 | **Wikipedia S&P 500 變動表**:QA/上游驗證層:交叉驗證 fja05680 並外延 1996 前成分變動紀錄 | 下市股/PIT 成分/長歷史 | 成分增刪表(1980+ 日精度生效日,含移除原因欄位) | 早年自標 Selected 不完整;約 2000+ 才視為完整;群眾編修 |
+| 25 | **QuantConnect 免費層(平台內)**:一次性驗證:雲端 LEAN 重放 2008 定界 Tiingo 破產股偏誤(行動#10) | 下市股/PIT 成分/長歷史 | 27,500 檔美股 1998+ 無倖存者偏誤,含下市股(僅限雲端) | 圍牆花園:資料不可匯出;需 LEAN 移植=L 級工程 |
+| 29 | **Stooq bulk 資料庫**:手動備援:瀏覽器手動下載 bulk zip 做長史價格交叉驗證 | 下市股/PIT 成分/長歷史 | 免費 bulk 日線 ASCII(d_us_txt.zip ~333MB),部分 30+ 年 | 全站 SHA-256 PoW 反爬牆,程式化抓取死;無下市欄位非 PIT |
+| 31 | **GDELT (Events/GKG/DOC 2.0)**:情緒骨幹:免費全量新聞+tone,支撐注意力/新聞量異象與 docs/11 LLM 情緒層文本源 | 新聞/情緒 | 全球新聞事件庫:Events 1979+、GKG 每15分鐘更新(2015+)、DOC API 全文檢索+tone | 鐵律:只走 raw CSV/DOC API,絕不走 BigQuery(按TB計費無上限) |
+| 32 | **SEC EDGAR 8-K 事件流**:事件研究黃金標準:PIT 完美事件時戳(到秒、1994+),沿用既有 EDGAR 管線邊際成本極低 | 新聞/情緒 | 全美股 8-K 重大事件申報(按 item code 分類)、每日索引、全文檢索 2001+ | 免費 10 req/s、無 key 只需自報 User-Agent;超速僅暫封 IP 不產生帳單 |
+| 33 | **Baker-Wurgler 情緒指數**:直接解鎖 B-W 情緒因子複現;兼任 LLM 情緒層的長史 ground-truth 對照基準 | 新聞/情緒 | 月頻投資人情緒指數 1965-07~2023-12,含正交化版與 6 個成分代理變數 | 全樣本 PCA 構建非 PIT,僅適合因子研究;更新停在 2023-12 需自行重建後續 |
+| 34 | **AAII 散戶情緒週頻調查**:情緒層補充:39 年週頻散戶 bull/bear,當 B-W 因子週頻成分+反向情緒研究 | 新聞/情緒 | 1987+ 週頻散戶 bull/neutral/bear 調查;歷史檔 sentiment.xls+每週四新值 | 站方擋爬蟲(403),需手動或帶 session 半自動每週更新;僅市場級非 ticker 級 |
+| 35 | **Alpha Vantage NEWS_SENTIMENT**:LLM 情緒層現成 benchmark+2022+ ticker 級新聞事件研究(25 req/day 硬上限慢爬) | 新聞/情緒 | ticker 級新聞情緒分數(relevance+sentiment),~2022-03 起,1000 篇/請求 | 情緒分數模型版本未凍結,回測須當 as-of-today 標註;歷史僅 ~4 年 |
+| 36 | **Finnhub 免費層 company-news**:近期 headline 文本源:每日 collect-forward 落地累積,並與 Alpha Vantage 交叉驗證 | 新聞/情緒 | 北美公司新聞 headline+摘要(滾動 1 年史)、市場新聞流,60 calls/min 硬上限 | /news-sentiment 為 Premium-only,情緒需自跑 LLM;滾動窗必須落地存檔 |
+| 41 | **SimFin (Free plan)**:QA/交叉驗證:bulk PIT 三表對 EDGAR 近5年核驗+q-factor ROE(行動#8) | 基本面擴充/分析師預估 | 5,000檔美股標準化三表+比率,bulk CSV,REPORT/PUBLISH/RESTATED_DATE 真PIT | 免費層僅5年史;現存宇宙傾向,免費切片有倖存者偏誤 |
+| 42 | **yfinance 分析師資料(非官方)**:主拼圖:每週快照 collect-forward 自建 PIT 修正檔案庫(行動#4)+評級變動事件研究即用 | 基本面擴充/分析師預估 | 分析師共識/eps_trend/eps_revisions/目標價快照+有日期多年評級變動史 | 快照僅7/30/60/90天回看;評級史限現存票=倖存者偏誤;易被擋 |
+| 43 | **Alpha Vantage EARNINGS**:共識版 SUE 輸入:25/day 慢爬每季公告時點 estimatedEPS/surprise(行動#5) | 基本面擴充/分析師預估 | 每季 reportedEPS/estimatedEPS/surprise+reportedDate 深多年史 | 25 req/day 硬上限,500檔全刷約20天;無公告間修正路徑 |
+| 44 | **Finnhub(免費層)**:評級面代理:免費 recommendation trends 月頻多年史,補位至 yfinance 快照庫成熟 | 基本面擴充/分析師預估 | 月頻買/持/賣評級計數多年史+美股報價/新聞/基本指標/內部人交易 | 是評級計數非EPS預估;預估/目標價端點免費key 403;無下市股 |
+| 49 | **Goyal-Welch 預測子集**:主引擎:總經預測子長史;TR-17b 已 ingest 完成,Campbell-Thompson 原生座位 | 總經長史/期貨連續合約 | 股權溢酬預測子(dp/ep/tbl 等)1871 起,月/季/年頻,更新至 2025 | full-sample 修訂序列非 vintage PIT;2022 起 lty 來源切換 |
+| 50 | **Shiller 長史資料**:交叉驗證:GW 1871-1926 段上游對表+CAPE/TR-17 150 年 sanity-check | 總經長史/期貨連續合約 | 月頻 S&P 價/股利/盈餘、CPI、利率、CAPE 1871 起+房價 1890 起 | 月頻盈餘內插、回溯重建非 vintage;官網已遷 shillerdata.com |
+| 51 | **FRED + ALFRED API**:主引擎:ALFRED vintage=全 stack 唯一真 PIT 總經;fredapi wrapper 已採用 | 總經長史/期貨連續合約 | 80 萬+美國總經序列;ALFRED 逐 vintage 重建當時已知值 | FRED 本體為最新修訂值非 PIT,兩者要分清;免費 120 req/min |
+| 52 | **Databento GLBX.MDP3**:主引擎:CME 期貨 2010-06+ 逐合約+官方連續 symbology;$125 credits+月上限=硬上限 | 總經長史/期貨連續合約 | CME 全品種逐合約 OHLCV-1d~MBO+三種 roll 規則連續合約 | 歷史僅回溯 2010-06;需自行拼接 roll 報酬;credits 6 個月到期 |
+| 53 | **Yahoo/yfinance 期貨 =F**:僅 prototype:HOP/MOP 快速原型+2000 後 sanity check,不入正式檢定面板 | 總經長史/期貨連續合約 | 免費前月連續期貨日線,數十品種,多數 2000 年起 | 未調整拼接,roll 跳空污染報酬且不可審計;非官方 API |
+| 56 | **AQR TSMOM 因子(月頻)**:外部基準:自建 TSMOM(Databento/Pinnacle)與 AQR 官方序列對表,1985+ 40 年錨點 | 總經長史/期貨連續合約 | MOP TSMOM 因子月報酬,58 個期貨/遠期標的,1985-01 起月更 | 廠商計算策略層報酬,不可分解 roll/宇宙,不能替代原始面板 |
+| 59 | **Ken French Data Library**:主引擎:49產業日報酬(TR-21b已接線)+size組合+國際3+5因子+SIC定義檔 | 產業分類/小型股/國際/台股 | 5-49產業組合報酬(日+月)、size十分位/雙排序、國際3+5因子、SIC定義檔 | vintage不凍結,歷史值隨CRSP修訂微幅重述;CSV含多子表需切段 |
+| 60 | **SEC EDGAR submissions/SIC**:主引擎:ticker→SIC產業指派(TR-03b先驗塊)+小型股全宇宙建構;既有管線 | 產業分類/小型股/國際/台股 | 全美股申報公司SIC代碼、CIK/ticker對照、全部歷史申報索引原文 | submissions SIC為現行版;PIT需解析歷史filing headers(工作量中) |
+| 61 | **FinMind**:主引擎:台股V2主資料源(價量+籌碼+財報),免費註冊600 req/hr日更足夠 | 產業分類/小型股/國際/台股 | 50+台股資料集:還原日價、財報三表、法人買賣超、融資券、tick(2019+) | 財報須用公告日對齊;下市股覆蓋不完整需抽查;產業分類僅現行 |
+| 62 | **TWSE 官方端點(OpenAPI+舊制)**:QA/校驗源:對FinMind交叉驗證台股價格(實測回溯2010);產業面板輔助 | 產業分類/小型股/國際/台股 | 上市歷史日K(2010+)、OpenAPI每日快照/財報按產業、含產業別證券清單 | 無文件化限速,高頻會封IP(約3 req/5s);僅上市,上櫃需TPEx |
+| 63 | **Fugle 富果行情 API**:即時端候選:台股V2準即時報價/監控(免費層60 calls/min+WS 5訂閱) | 產業分類/小型股/國際/台股 | 台股即時WebSocket行情、盤中intraday API、歷史K線 | 回測仍靠FinMind+TWSE;Developer NT$1,499/月超預算不升級 |
+| 64 | **yfinance sector/industry**:輔助:現行宇宙快速產業標註,與EDGAR SIC交叉驗證;台股現行分類補充(已在用) | 產業分類/小型股/國際/台股 | 任意ticker現行sector/industry(美股+台股,粒度近似GICS) | 僅現行分類非PIT,套歷史=前視偏誤;易碎源不可當關鍵路徑 |
+| 67 | **Tiingo(免費層)**:輔助:小型股子樣本深驗+下市股輪換回填(行動#7)+yfinance品質校驗 | 產業分類/小型股/國際/台股 | 美股+部分國際EOD 30+年、基本面5年、IEX即時;含微型股/下市股 | 500 unique symbols/月硬瓶頸,全宇宙輪換需數月;非PIT宇宙 |
+| 69 | **Stooq**:手動備援:國際指數長史db/h整包瀏覽器下載;不作自動化管線依賴 | 產業分類/小型股/國際/台股 | 美/波/德/日/英/港指數個股+外匯+加密,日/時/5分線歷史CSV | PoW反爬擋程式化抓取(2026-07實測);變load-bearing時再議 |
+| 70 | **Damodaran Data(NYU Stern)**:輔助:TR-03b產業先驗特徵(產業beta/槓桿等年度vintage史) | 產業分類/小型股/國際/台股 | 產業層級聚合:beta/margins/multiples/資本成本,美/全球/區域,年更 | 無公司→產業明細,無法建ticker面板;Excel逐年格式不一致 |
+
+### 未採用(30 項)
+
+| 編號 | 內容 | 取用資料的分類 | 提供內容 | 不採用原因 | 費用推估 | 備註 |
+|---|---|---|---|---|---|---|
+| 4 | Tiingo 免費層(IEX 盤中)(Tiingo /iex 歷史盤中端點(IEX TOPS 頂簿)) | 美股日內/分鐘級歷史 | IEX 盤中價可 resample 1/5min;EOD 反而含下市股是強項 | IEX-only 頂簿價偏離、volume 不全;1GB/月回填不可行 | $0 | 同供應商 EOD 下市股序列於倖存者/PIT 類另條採用 |
+| 7 | Alpha Vantage(intraday)(TIME_SERIES_INTRADAY 美股分鐘史 20+ 年) | 美股日內/分鐘級歷史 | 1-60min 月切片可回溯 20+ 年,consolidated 價格 | 免費層僅 25 req/day,500 檔回填需數年,實務不可用 | $49.99/mo 起 | 不含下市股;LISTING_STATUS/EARNINGS 於他類另有採用 |
+| 8 | Finnhub /stock/candle(歷史+盤中 OHLCV candle API) | 美股日內/分鐘級歷史 | quote/基本面/新聞免費;candle 端點已移出免費層 | 免費 key 打 /stock/candle 回 403,端點已鎖,剔除 | 數十至百餘 $/mo(未驗證) | 免費 recommendation trends 於分析師類另作評級代理 |
+| 9 | IBKR TWS API(券商 API 歷史 bar(1-min 起),需開戶) | 美股日內/分鐘級歷史 | 1-min 起多年歷史 bar(IB 自建聚合,非原始 SIP) | API 歷史資料強制 L1 訂閱+60 req/10min,回填需數週 | $10/mo(月佣金滿 $30 可豁免) | 有倖存者偏誤;僅未來需下單執行時才值得開戶 |
+| 10 | Stooq 盤中資料庫(免 key bulk ASCII:美股小時/5-min 壓縮包) | 美股日內/分鐘級歷史 | (僅記憶)全球日線+美股小時/5-min 每日更新壓縮包 | 今日無法驗證+PoW 反爬牆;盤中深度不足撐多年回測 | $0 | 日線 bulk 於長歷史類降級為手動備援(docs/24 B3) |
+| 11 | yfinance(分鐘 bar)(非官方 Yahoo 介面,1-min 僅近 ~30 天) | 美股日內/分鐘級歷史 | 1m 約 30 天、5m/15m 約 60 天、1h 約 730 天 | 30 天窗無法回溯,被 Alpaca 完全支配,僅臨時 fallback | $0 | 選擇權/分析師預估快照管線於他類採用中 |
+| 16 | CBOE DataShop(Option EOD)(OPRA 官方 EOD 選擇權摘要(含 OI,2012 起)) | 選擇權歷史 | 每日兩次快照:NBBO/OHLC/量/VWAP/OI;greeks 為付費加購 | 按單計價不公開,實用歷史遠超預算;pre-2023 OI 維持鎖死 | 一次性按單,約數十至數百美元 | PIT 黃金標準;至多偶發 <$5 單月抽查 QA |
+| 17 | marketdata.app(OPRA 選擇權鏈 REST API(免費層 100 credits/日)) | 選擇權歷史 | 鏈之履約價/到期/價格/IV/greeks/OI;免費層限 1 年史 | 免費層每合約扣 1 credit,一條全鏈即耗盡日配額 | $12/mo 起(年繳;月繳 $30) | 硬上限無爆量風險,但系統性回測不可行 |
+| 18 | Massive.com(前 Polygon.io)(機構級 OPRA 選擇權 API(trades/quotes/鏈)) | 選擇權歷史 | 選擇權 trades/quotes/aggregates/鏈快照含 greeks/IV | 選擇權端點實質需付費方案,免費層不可用 | 約 $29/mo 起(站上未能確認) | 定價頁 JS 殼抓不到內容=僅部分驗證 |
+| 19 | DeltaNeutral(2002 起全美股選擇權 EOD 檔案庫(含 OI)) | 選擇權歷史 | 5,840 標的報價/量/OI;L2 加 greeks/IV,L3 加 IV surface | 年費 $585 起,約為預算 10 倍 | $585-865/yr 或一次性 $615+ | 24 年含下市標的;社群品質評價分歧,若購入需 QA |
+| 20 | Alpha Query / VolVue(網頁研究平台:IV/put-call 比/OI 統計圖表) | 選擇權歷史 | 免費網頁圖表看單一標的;歷史下載僅付費 VolVue | 無免費批量下載,僅衍生指標非完整鏈;剔除候選 | $19.95/mo 起(VolVue 未公布) | 方法學不透明,不適作 PIT 主源;至多目測水位 |
+| 26 | EODHD(All World)(含下市股 EOD 價格的付費資料商) | 下市股/PIT 成分/長歷史 | 26,000+ 檔美股下市股 EOD 價,約 2000 起含 2008 破產股 | $19.99/mo=4×預算;待 QC 重放證明偏誤 material 再議 | $19.99/mo 起($199/yr) | 免費層 20 calls/day 僅 1 年史,對 2008 工作無用 |
+| 27 | Norgate Data US Stocks Platinum(零售金標準:下市股+歷史指數成分資料商) | 下市股/PIT 成分/長歷史 | 1990+ 美股日價含下市股+S&P/Russell 歷史成分,日精度 | ~$52.5/mo=10×預算,需 $315-630 預付,無月繳選項 | US$346.50/6mo(~$52.50/mo) | 本類基準:ticker 命名空間化無 WB 碰撞;Python API |
+| 28 | Sharadar SEP(Nasdaq Data Link)(機構級 PIT 美股價格+下市資料庫) | 下市股/PIT 成分/長歷史 | 21,000+ 檔美股含下市 1998+;bundle 含 1957+ S&P 成分 | 約 10×預算且年約;價格 login-gated 今日無法驗證 | 約 $499-599/yr(記憶值,未驗證) | 下市原因+ticker 變更表解決重用,CRSP 相鄰品質 |
+| 30 | Financial Modeling Prep(FMP)(付費金融 API(下市清單+成分史端點)) | 下市股/PIT 成分/長歷史 | 下市公司清單 API+S&P 500 歷史成分 API;下市價格未明 | 端點疑鎖 Premium $59/mo,僅重複 AV+fja05680 免費堆疊 | $59/mo 起(Premium) | 文件 403 無法直驗;社群回報成分資料品質有缺 |
+| 37 | Reddit Data API (WSB)(subreddit 貼文流:散戶注意力/meme 情緒素材) | 新聞/情緒 | 貼文/留言(標題、score、created_utc),非商用免費 100 QPM | Pushshift 已死無歷史回溯,僅能前向收集且未列入行動計畫 | $0 | 貼文可編輯/刪除,嚴格 PIT 只能即時收集落地;不解鎖任何歷史回測 |
+| 38 | marketaux 免費層(entity 級情緒分數的金融新聞 API) | 新聞/情緒 | 全球金融新聞+entity 情緒(200k+ entities、5000+ 來源、80+ 市場) | 免費層 100 req/day×3 篇=300 篇/日,研究級回填不可行 | $24/mo 起(年繳) | 至多當 AV 備援情緒源交叉檢查;情緒模型黑箱、官網對 fetcher 回 403 |
+| 39 | NewsAPI.org(通用新聞 API(非金融、無情緒分數)) | 新聞/情緒 | 通用新聞;免費層 100 req/day、延遲 24h、僅 1 個月史、禁 production | 被 GDELT 全面支配;付費層為 overage 自動計費模式 | $449/mo | 對照組,列入僅為排除;免費層無法做任何回測 |
+| 40 | StockTwits API(散戶 ticker 級留言流+自標多空情緒) | 新聞/情緒 | bullish/bearish 自標情緒訊息流(理論上最乾淨的散戶情緒源) | 官方不接受新註冊,實際拿不到 key(目前死路) | 企業/partner 級,價格不公開 | 未文件化公開 endpoint 屬 ToS 灰色;若重開免費註冊值得重評 |
+| 45 | Financial Modeling Prep (FMP)(美股基本面+分析師預估/目標價/評級 API) | 基本面擴充/分析師預估 | 付費層有註明日期的目標價/評級史;免費層僅 EOD sandbox 250 calls/day | 分析師資料集已移出免費層,所需方案超預算 | $22-29/mo 起(Starter) | 免費key值得10分鐘實測但勿依賴;基本面重述無vintage |
+| 46 | EODHD(全球股票 EOD 價格+基本面資料饋送 API) | 基本面擴充/分析師預估 | EOD 價格+基本面 JSON(內含分析師評級/目標價欄位) | 免費層20 calls/day僅demo基本面;分析師欄位無修正史 | $59.99/mo 起(基本面饋送) | 基本面為現值重述、預估僅當前快照;非估值便宜後門 |
+| 47 | Zacks ZEEH/ZSEE(Nasdaq DL)(1979 起真修正史的 IBES 級估值資料庫) | 基本面擴充/分析師預估 | 1979起逐修正vintage共識史,含下市股、無倖存者偏誤,2,600+分析師 | 機構級授權、估值庫無免費層;抓 zacks.com 違反 ToS | 數千美元/年(未公開,機構級) | 預算成長~100倍才可解鎖docs/11修正因子完整回測 |
+| 48 | IBES (WRDS) / Estimize(正典 IBES 預估史+Estimize 群眾預估) | 基本面擴充/分析師預估 | IBES 逐修正PIT無倖存者史(學術參考標準);Estimize 群眾EPS/營收預估 | 皆機構級數千美元/年;WRDS 無個人層=正式判此路不通 | 數千美元/年(機構級) | 若日後取得大學隸屬,WRDS/IBES 是 docs/11 最高價值解鎖 |
+| 54 | Stooq 連續期貨 (.f)(免費連續期貨日線,部分品種 20+ 年長史) | 總經長史/期貨連續合約 | 數十品種連續期貨日線+大宗歷史 zip,含歐亞品種 | PoW 反爬擋程式化抓取;roll 完全不可審計 | $0 | 手動瀏覽器下載仍可行;僅堪當第二意見/交叉驗證 |
+| 55 | Pinnacle Data CLC(98 品種期貨連結連續序列,最深 1969 起) | 總經長史/期貨連續合約 | OHLC+量+未平倉,三種明確連結法(含未調整版可審計) | 超 $5/月預算框架;列一次性特批項,待使用者決定 | 一次性 $99 | docs/22 HOP/MOP 完整棲地唯一 ≤$99 路徑;買斷免訂更新 |
+| 57 | Nasdaq Data Link CHRIS(已死的免費連續期貨資料集(除名)) | 總經長史/期貨連續合約 | (過去)99 個 ratio-adjusted 連續期貨;現已停更 | 官方 deprecated 停更,教科書範例已確認失效 | $0 | 列出僅為正式關閉此候選線索,避免再浪費時間 |
+| 58 | CSI Data (Unfair Advantage)(學術界常用期貨長史商業源) | 總經長史/期貨連續合約 | 逐合約+連續期貨,部分品種 1949 起,含已下市合約 | 遠超預算;價目不公開需洽銷售 | 記憶中個人版 $40+/mo 量級 | PIT 品質優;僅存檔,預算放寬時重訪;現價未驗證(僅記憶) |
+| 65 | GitHub GICS 結構對照(gist)(GICS層級結構樹+NAICS/SIC對照表(無ticker指派)) | 產業分類/小型股/國際/台股 | GICS sector→sub-industry結構樹(2023-03版)、py-gics、crosswalk表 | 文件自判:先驗塊直用FF49/SIC定義即可;且未逐檔驗證 | $0 | 真GICS ticker指派=MSCI/S&P機構授權,免費世界不存在 |
+| 66 | iShares IWM holdings CSV(Russell 2000現行成分近似(每日持股CSV)) | 產業分類/小型股/國際/台股 | IWM ~1,900檔持股:ticker/sector/權重/市值,每日更新 | bot防護擋自動化;僅現行快照=倖存者偏誤;docs/24採EDGAR/Tiingo路線 | $0 | 歷史Russell成分=FTSE授權品;可自今起逐月存檔自建PIT |
+| 68 | EODHD(全球60+交易所EOD+基本面一站式商用API) | 產業分類/小型股/國際/台股 | 60+交易所EOD(含台股/國際小型股)、30+年史、基本面 | 免費層20 calls/day僅夠demo;最低付費層即超預算4倍 | $19.99/mo 起 | docs/24:若2008破產股偏誤證明material才再考慮 |
+
 ## 1. 美股日內/分鐘級歷史
 
 **類別判定**:可以在 $0 關閉這個缺口,而且不需要動用預算:主引擎 = Alpaca Market Data Basic(免費、硬上限型):SIP 全市場品質的分鐘 bar 自 2016 年起、200 calls/min、每 request 最多 10k bars,500 檔 × ~9.5 年一次性回填約 4-6 小時可完成,之後每日增量僅需 ~1-2 分鐘 API 時間——完全符合「一次回填+每日增量」的 $0 模式;唯一限制是查不到最近 15 分鐘(對隔夜/日內研究無礙,對即時執行有礙)。交叉驗證源 = Massive(前 Polygon)免費層(5 calls/min、約 2 年深度、EOD 延遲)與 FirstRate 免費樣本(10 檔大票 1 年 1-min)。tick 級微結構抽查 = Databento $125 一次性 credits + 帳戶級用量上限(超限即擋 request,非放任計費)。仍被封鎖的部分:(1) 2016 年之前的分鐘資料在 $0 無法取得原始檔——唯一免費路徑是 QuantConnect 雲端(1998 年起、無倖存者偏誤,但資料不可匯出、研究須搬進 LEAN);(2) 即時/近 15 分鐘資料所有免費層都沒有(研究不受影響,live 日內交易訊號受影響);(3) 含下市股票的完整 PIT 分鐘 universe:Alpaca 對 inactive 標的的分鐘資料覆蓋不保證,嚴格版需 FirstRate 一次性付費 bundle(>$100,超月預算)或 Databento。解鎖清單:ORB Zarattini(QQQ 版與 stocks-in-play 版 2016+)、LPS 隔夜/日內、日內 AR、微結構(Alpaca 免費層連歷史 trades/quotes tick 都有,受同樣 15 分鐘規則)。避開:Alpha Vantage(25 req/day 無法回填,premium $49.99 超budget)、Finnhub(免費 key 打 /stock/candle 回 403)、IBKR API(歷史資料強制要 L1 訂閱 + 60 req/10min pacing,回填 500 檔要數週,且有倖存者偏誤)。
