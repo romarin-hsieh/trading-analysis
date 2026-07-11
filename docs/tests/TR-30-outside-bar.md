@@ -1,5 +1,11 @@
 # TR-30 — Larry Williams 外包線反轉(創作者影片線索 → 主要文獻)
 
+> ⚠️ **機器忠實度失效(2026-07-12,使用者稽核)**:本報告的引擎對來源不忠實,共四處——
+> 2× 實體過濾宣告了但沒實作、無止損、FPO 誤作單次隔天收盤檢查、安慰劑未共用出場引擎。
+> **本報告的判定由 [TR-30b](TR-30b-outside-bar-faithful.md) 取代**(忠實引擎、同類結論
+> NO-ENTRY-EDGE)。保留本文件供流程考古:不忠實的機器碰巧得到對的答案,仍然是失敗的流程。
+> 原文以下未改動。
+
 > 來源路徑:YouTube「10 個實盤交易員」合輯(`data/transcripts/T1CawPmNG-0.txt` 第 8 位)
 > → Larry Williams《Long-Term Secrets to Short-Term Trading》第 7 章。影片線索,進 fabric
 > 檢驗(docs/23 紀律)。腳本:`scripts/tests/tr30_outside_bar.py` · 圖:`docs/tests/img/tr30_outside_bar.png`

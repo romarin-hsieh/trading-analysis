@@ -66,6 +66,7 @@ GROUPS = [
         ("TR-01", "配對交易統計套利", "Pairs stat-arb", "F"),
         ("TR-10", "LLM agent 框架", "LLM agent frameworks", "M"),
         ("TR-30", "外包線反轉", "Outside-bar reversal", "F"),
+        ("TR-30b", "外包線忠實引擎", "Outside bar, faithful", "F"),
     ]),
 ]
 COLORS = {"P": "#2e7d32", "M": "#f9a825", "F": "#c62828", "X": "#90a4ae"}
@@ -76,9 +77,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "35 份標準化測試,依機制類型分組\n"
+    "zh": "36 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 35 standardized tests, grouped by mechanism type\n"
+    "en": "All 36 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 
