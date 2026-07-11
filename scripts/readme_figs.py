@@ -41,6 +41,7 @@ GROUPS = [
         ("TR-04b", "Student-t 厚尾", "Student-t fat tails", "M"),
         ("TR-07", "HRP 階層風險平價", "HRP", "M"),
         ("TR-22", "組合家族 PBO", "Combo-family PBO", "P"),
+        ("TR-25", "穩健度網格", "Robustness grid", "P"),
     ]),
     ("定價模型與模擬", "Pricing models & simulation", [
         ("TR-05", "GBM 蒙地卡羅", "GBM Monte Carlo", "F"),
@@ -69,9 +70,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "28 份標準化測試,依機制類型分組:綠色全部是「方法與風險塑形」\n"
+    "zh": "29 份標準化測試,依機制類型分組:綠色全部是「方法與風險塑形」\n"
           "(每一份都經過對抗式稽核;沒有任何一個擇時或選股訊號存活)",
-    "en": "All 28 standardized tests, grouped by mechanism type — everything green is method or risk-shaping\n"
+    "en": "All 29 standardized tests, grouped by mechanism type — everything green is method or risk-shaping\n"
           "(every report adversarially audited; not one timing or stock-picking signal survived)",
 }
 
