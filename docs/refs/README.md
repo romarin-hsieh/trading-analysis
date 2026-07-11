@@ -38,4 +38,4 @@
 - 參考 repo clone 於專案外：`C:\Users\Romarin\Documents\Software Projects\_ref_repos\`（**20 個**，shallow，不在 git 內，研究完可刪）。新增 4 個 Tier-S：QuantResearch、Technical_Analysis_and_Feature_Engineering、ML_Finance_Codes、quant-trading。
 - 各 repo 的**深度 code-level 評估**在 [../repo-evaluation.md](../repo-evaluation.md)；策略/投資者面在 [../research-inventory.md](../research-inventory.md)；資料源在 [../data-and-backtest-rigor.md](../data-and-backtest-rigor.md)、[../sentiment-and-market-analysis.md](../sentiment-and-market-analysis.md)；總報告在 [../00-executive-summary.md](../00-executive-summary.md)。
 
-_最後更新：2026-06-14_
+_最後更新：2026-07-11（data-sources 加 §0 採用/不採用總覽表；新增 scraping-and-apis 工具選型）_

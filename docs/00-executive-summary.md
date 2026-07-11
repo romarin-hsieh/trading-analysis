@@ -28,7 +28,7 @@
 | **★ 論文台帳 + >500 引用深讀計畫（52 篇已參照含重測優先度 + 177 篇前瞻分波、含年份/作者）** | [22-paper-ledger-and-plan.md](22-paper-ledger-and-plan.md) |
 | 內容創作者機制評估（四 reel：特徵向量清理/迭代迴圈/GEX/吸收比率 → 行動） | [23-creator-mechanisms.md](23-creator-mechanisms.md) |
 | **★ 資料缺口盤點 × 免費/<$5 資料源盡職調查（45 缺口×70 源,站上驗證;GW/KF49/ThetaData 三大解鎖）** | [24-data-gaps-and-sources.md](24-data-gaps-and-sources.md) |
-| 標準化測試報告 TR-01~17（各機制含圖表判定） | docs/tests/ |
+| 標準化測試報告 TR-01~24 + 03b/04b/17b/21b（各機制含圖表判定;活判定表=docs/18） | docs/tests/ |
 | 試驗登記簿（campaign 級，≈226 變體） | [trial-registry.md](trial-registry.md) |
 | ★ **執行依據：Master 實作計畫**（M0-M7、契約、CI、第一個 PR）| [01-implementation-plan.md](01-implementation-plan.md) |
 | 計畫生成輸入 BRIEF | [design-brief.md](design-brief.md) |
@@ -114,7 +114,7 @@
 
 ## E9. Fabric 時代（2026-07）：驗收標準化 + 18 份 TR + 理論地基
 - **fabric v2.0**（docs/17）：F0-F13 統一規則表，經文獻/程式碼雙面向對抗審查（Harvey-Liu/AHM/FIM/Cederburg/Lo/Shumway/Hoffstein 為基點）並以 TR-12~16 逐條執行；**Grossman-Stiglitz 均衡採納為經濟學前提**（$0 資訊成本→$0 alpha；翻案條件必須標價成資訊成本）。
-- **TR-01~18 判定**（docs/18 為單一事實來源）：**⚠️ 旗艦降級（TR-18，F10 級聯）——TR-15 的「t=3.38 過 HLZ」是日頻假象**（Dimson lagged-beta：日頻低估市場 beta 0.22 vs 月頻 0.35，把因子報酬誤記為 alpha）；**月頻(頻率對應)Carhart t=2.64 OLS/2.95 HAC 兩者 <3.0 → 不過 HLZ**，退回 docs/08 原始 t=2.64，改標 **PASSED-borderline**（alpha 仍穩健為正 P(α≤0)=0.001，只是不過嚴格門檻）。**IBS 反轉 FAILED**（TR-16：成交慣例假象+靜態控制打平——技術規則章節全數關閉）；KMZ 複雜度 PARTIAL（TR-17：1/σ² 控制支配全部 18 變體）；統計套利/GBM-MC/ML 預測 FAILED；Markov/PCA/VaR/CAPM/HRP PARTIAL（工程價值）。
+- **TR-01~24+b 系列判定**（docs/18 為單一事實來源;2026-07-11 後新增:TR-20/24 旗艦殘值 alpha 獲 FF6 與 q-factor 雙重確認、TR-23 四經典異象全滅=GP 唯一倖存(2025-26 IC 轉負 WATCH)、TR-17b KMZ 原生座位 REPLICATED-BUT-EXPLAINED=Nagel 源頭確認、TR-21b AR 分裂判定=擇時鐵律第 5 次、資料層新增 options/analyst 前向快照與 PIT 成分面板）：**⚠️ 旗艦降級（TR-18，F10 級聯）——TR-15 的「t=3.38 過 HLZ」是日頻假象**（Dimson lagged-beta：日頻低估市場 beta 0.22 vs 月頻 0.35，把因子報酬誤記為 alpha）；**月頻(頻率對應)Carhart t=2.64 OLS/2.95 HAC 兩者 <3.0 → 不過 HLZ**，退回 docs/08 原始 t=2.64，改標 **PASSED-borderline**（alpha 仍穩健為正 P(α≤0)=0.001，只是不過嚴格門檻）。**IBS 反轉 FAILED**（TR-16：成交慣例假象+靜態控制打平——技術規則章節全數關閉）；KMZ 複雜度 PARTIAL（TR-17：1/σ² 控制支配全部 18 變體）；統計套利/GBM-MC/ML 預測 FAILED；Markov/PCA/VaR/CAPM/HRP PARTIAL（工程價值）。
 - **量測修正全面生效**：rf=BIL 超額 Sharpe、相位平均（季動量 timing-luck 1,753bps/yr）、倖存者區間 [+1.26%, +2.02%]/yr、有效樣本 n_eff（zoo 59 變體實為 1.8 個獨立賭注）、成交時點敏感度（持有 <10 bar 必附）。
 - **監控管線 live**：五維出場投票+Serenity 追蹤，GitHub Actions 每日推 Telegram（$0）；Paper-to-TR 管線設計完成（docs/21）。
 

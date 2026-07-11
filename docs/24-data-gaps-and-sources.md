@@ -112,7 +112,7 @@
 | 4 | ~~**yfinance 分析師預估每週快照 collect-forward**~~ **✅ 已啟動(2026-07-11)**:`scripts/collect/analyst_snapshot.py` + `.github/workflows/weekly-collect.yml`(每週六);6 表(eps_trend/eps_revisions/earnings+revenue_estimate/price_targets/recommendations)× S&P 500,首次快照 502 檔已入庫 `collected/analyst/` | docs/11 頭號 alt-data 因子(12-18 個月後可測) | $0,~90KB/週 |
 | 5 | **AV EARNINGS 慢爬**(25/day)→ 共識版 SUE | PEAD 精緻版 | $0,寫一次讓它滴灌 |
 | 6 | **Alpaca 分鐘回填 2016+**(一次 4-6 小時) | ORB/LPS 精確版/日內 AR | $0,S-M |
-| 7 | **Tiingo 下市股輪換回填 + fja05680 PIT 成分** | 倖存者區間收斂、F11、長史 | $0,M(數月輪換) |
+| 7 | **Tiingo 下市股輪換回填**(待 API key)+ ~~fja05680 PIT 成分~~ **✅ 成分已接線(2026-07-11)**:`scripts/collect/sp500_constituents.py`,1996-2026 面板 2712 快照,12/12 自測過(2008 移除名單逐一驗證)。**注意:代碼為回溯性 OTC 符號(LEHMQ/FNMA/FMCC/MTLQQ),與價格源 join 需轉換表** | 倖存者區間收斂、F11、長史 | $0,M(數月輪換) |
 | 8 | SimFin bulk + EDGAR 交叉驗證;GDELT/8-K/B-W/AAII 情緒層 | 基本面品質保險+情緒因子 | $0,S-M |
 | 9 | **[特批項] Pinnacle CLC $99 一次性** | HOP/MOP TSMOM 完整棲地(1969+)——docs/22 重測最高優先項的唯一近預算解 | 一次性 $99(超月費框架,**待使用者決定**;不批做 Databento 2010+ 縮短版) |
 | 10 | QuantConnect 一次性 2008 重放(驗證 Tiingo 面板的破產股偏誤界) | 旗艦長史重放的誠實性 | $0,L(LEAN 移植) |
