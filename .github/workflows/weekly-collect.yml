@@ -19,14 +19,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install --quiet yfinance pandas
+      - run: pip install --quiet yfinance pandas requests curl_cffi
       - name: analyst estimate snapshot (S&P 500, time-sensitive collect-forward)
         run: python scripts/collect/analyst_snapshot.py || true
-      - name: persist snapshots
+      - name: paper scout (arXiv q-fin + NBER, docs/21 stage 0)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/notify/paper_scout.py 7 || true
+      - name: persist snapshots + scout state
         run: |
           git config user.name "monitor-bot"
           git config user.email "actions@users.noreply.github.com"
           git pull --rebase || true
           git add collected/analyst || true
-          git diff --cached --quiet || git commit -m "chore: weekly analyst snapshot [skip ci]"
+          git add -f data/_papers_seen.txt || true
+          git diff --cached --quiet || git commit -m "chore: weekly analyst snapshot + paper scout [skip ci]"
           git push || true

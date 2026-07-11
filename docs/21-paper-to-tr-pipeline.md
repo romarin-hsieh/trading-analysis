@@ -61,8 +61,8 @@
 
 | Phase | 內容 | 成本 | 狀態 |
 |---|---|---|---|
-| 1 | 發現 cron + seen-list + Telegram 週報(`scripts/notify/paper_scout.py` + monitor.yml 加一步) | $0 | 待建(小) |
-| 2 | 分診 LLM(Haiku batch;需 API key 決策——或先人工從週報分診) | ~$1-2/月 | 待決 |
+| 1 | 發現 cron + seen-list + Telegram 週報(`scripts/notify/paper_scout.py`,掛在 weekly-collect.yml) | $0 | **✅ 已建(2026-07-11)**:arXiv q-fin API(全文層)+ NBER `/rss/new.xml`(摘要層,經 curl_cffi 過 TLS 牆——實測 plain requests 403);關鍵字分診按 challenge-map 加權(挑戰 docs/18 判定的詞最高分);首跑 7 天窗=66 篇、14 篇過門檻 |
+| 2 | 分診 LLM(Haiku batch;需 API key 決策——或先人工從週報分診;現行關鍵字分診已可頂用) | ~$1-2/月 | 待決 |
 | 3-4 | 深讀→TR→反饋 | 本地算力 | **已存在**(本 session 即證明) |
 
 ---
