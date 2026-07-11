@@ -27,12 +27,16 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scripts/notify/paper_scout.py 7 || true
+      - name: 8-K event stream (EDGAR daily indexes, docs/24 action 8)
+        run: python scripts/collect/events_8k.py || true
+      - name: GDELT tone/volume snapshot (DOC API only, never BigQuery)
+        run: python scripts/collect/gdelt_news.py 7 || true
       - name: persist snapshots + scout state
         run: |
           git config user.name "monitor-bot"
           git config user.email "actions@users.noreply.github.com"
           git pull --rebase || true
-          git add collected/analyst || true
+          git add collected/analyst collected/events8k collected/gdelt || true
           git add -f data/_papers_seen.txt || true
-          git diff --cached --quiet || git commit -m "chore: weekly analyst snapshot + paper scout [skip ci]"
+          git diff --cached --quiet || git commit -m "chore: weekly snapshots (analyst + 8-K + GDELT) + paper scout [skip ci]"
           git push || true
