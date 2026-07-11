@@ -64,7 +64,7 @@
 | 🟡 中 | Bailey-Borwein-Lopez de Prado (PBO/CSCV) | Bailey, Borwein, López d | 2016 | adopted-as-convention(已用於 Minervini);旗 | 對旗艦 combo 家族(8 配置)跑 CSCV-PBO 並在 F5 加門檻註記 → 資訊成本≈$0(既有回測,小算力)。 |
 | 🟡 中 | Bollerslev 1986 | Bollerslev | 1986 | not-yet-tested (建議採納方向但從未實作、從未跑;現行以 tr | 當波動預測品質成為 binding(vol-target sizing 或 Kelly 部位在 regime 轉折被打臉,或要正式比較 forecast-σ v… |
 | 🟡 中 | Brown-Goetzmann-Ibbotson-Ross 1992 | Brown, Goetzmann, Ibbots | 1992 | adopted-as-convention(倖存者紀律已採納;經 TR-13 | ingest 點對點指數成分史(Wikipedia 版本史=免費但髒 / iShares-SPDR 歷史持股 / CRSP=付費學術)+ 下市報酬 → 資訊成本… |
-| 🟡 中 | Campbell-Thompson 2005 | Campbell & Thompson | 2005 | adopted-as-convention(擇時層約束)——但 C-T 的符 | **資訊成本已付**(GW 已 ingest,TR-17b 同座位)→ 原生座位符號約束溢酬迴歸現為 S 級工程,佇列中;對照組沿用 TR-17b 的 vol-std/MM/VTM 三件套。 |
+| 🟡 中 | Campbell-Thompson 2005/2008 | Campbell & Thompson | 2008 | **已執行(TR-31,2026-07-12)**:符號約束方向複製(6/15 R²_OS 轉正)但經濟為零(最佳 +0.48%)、且被波動擇時張成(C3:打平 vol-std 市場/輸 MM,alpha-t 1.99)=TR-17b 同款 Nagel 在源頭確認 | ✅ 已執行 → [TR-31](tests/TR-31-campbell-thompson.md)。GW 資料兩大用途(KMZ/TR-17b、CT/TR-31)皆完成;多變量組合(sum-of-parts/kitchen-sink)留翻案,工程小。 |
 | 🟡 中 | Fama-French 1992 | Fama & French | 1992 | 混合:value 因子 FAILED(docs/09/10 失落十年、價值死 | 取得中小型股 + 國際 PIT 宇宙(資訊成本:全市場/國際下市-aware 資料),或延長歷史回 1990s 涵蓋價值友善年代 → 在價值原生棲地重測 BE/… |
 | 🟡 中 | GISW (Sharpe manipulation) | Goetzmann, Ingersoll, Sp | 2007 | not-yet-tested(全專案未引用;為候選採納項) | 當任一策略具選擇權式/負偏態 payoff(現有 L≥1.5 槓桿 combo、防禦 overlay,或未來 covered-call/short-vol sl… |
 | 🟡 中 | Gatev-Goetzmann-Rouwenhorst 2006 | Gatev, Goetzmann & Rouwe | 2006 | FAILED (OOS +1.96%/yr < 現金 BIL +2.70%; | (a) 便宜且該先做:用 GGR 原生 distance 選對(而非共整合)+更廣宇宙(跨 ETF/ADR/全市場)以現有日線重測——資訊成本=工程;(b) 真… |

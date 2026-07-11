@@ -25,6 +25,7 @@ GROUPS = [
         ("TR-16", "IBS 均值回歸", "IBS mean-reversion", "F"),
         ("TR-17", "KMZ 複雜度(本座位)", "KMZ complexity (our seat)", "M"),
         ("TR-17b", "KMZ 原生座位", "KMZ native seat", "F"),
+        ("TR-31", "Campbell-Thompson", "Campbell-Thompson", "F"),
         ("TR-21", "吸收比率(個股)", "Absorption ratio (stocks)", "F"),
         ("TR-21b", "吸收比率(產業)", "Absorption ratio (industries)", "M"),
     ]),
@@ -75,9 +76,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "34 份標準化測試,依機制類型分組\n"
+    "zh": "35 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 34 standardized tests, grouped by mechanism type\n"
+    "en": "All 35 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 
