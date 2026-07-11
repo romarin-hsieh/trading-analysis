@@ -71,10 +71,10 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "29 份標準化測試,依機制類型分組:綠色全部是「方法與風險塑形」\n"
-          "(每一份都經過對抗式稽核;沒有任何一個擇時或選股訊號存活)",
-    "en": "All 29 standardized tests, grouped by mechanism type — everything green is method or risk-shaping\n"
-          "(every report adversarially audited; not one timing or stock-picking signal survived)",
+    "zh": "30 份標準化測試,依機制類型分組\n"
+          "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
+    "en": "All 30 standardized tests, grouped by mechanism type\n"
+          "(every report adversarially audited; the timing row has no green at all)",
 }
 
 
