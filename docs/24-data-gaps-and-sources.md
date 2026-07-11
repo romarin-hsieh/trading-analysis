@@ -16,7 +16,7 @@
 | 項目 | 缺什麼 | 本輪調查後的新狀態 |
 |---|---|---|
 | TR-09 BSM 定價、covered-call/CSP 收益 sleeve、VIX 期限結構 | PIT 歷史選擇權鏈 | **大幅解鎖**:OptionsDX 免費 2010-2023(SPY/SPX/QQQ+權值股)+ DoltHub 2019-至今(~2000 檔) |
-| GEX(dealer gamma)回測 | 歷史 OI | **部分解鎖**:ThetaData 免費層有 **2023-06 起的 OI 歷史**——比自建快照(2026-07 起)多 3 年;pre-2023 OI 仍鎖(CBOE/DeltaNeutral 超預算) |
+| GEX(dealer gamma)回測 | 歷史 OI | **⚠️ 2026-07-12 更正(裝好 Theta Terminal 實測):ThetaData 免費層的 OI 已改為付費(`open_interest` 端點回 471 Invalid permissions);免費層只剩 EOD 報價/OHLC(股票+選擇權,2023-06 起)。GEX 需要的歷史 OI 現在唯一免費來源=我方 yfinance 每日快照(2026-07 起)**——所以 GEX 回測的長度由自建快照累積決定,無 3 年 head start;pre-2023 OI 仍鎖 |
 | 選擇權隱含預測子(Xing smirk、Cremers-Weinbaum、AABC ΔIV)、BKM/Carr-Wu 個股 VRP | 個股鏈 IV 橫斷面 | **部分解鎖**(同上兩源;個股覆蓋 2019+);指數層 VRP 可用 VIX²(免費 1990-)先測 |
 | ORB(Zarattini)、LPS 精確版、日內 AR | 分鐘級歷史 | **解鎖(2016+)**:Alpaca 免費層 SIP 分鐘 bar;pre-2016 只有 QuantConnect 雲端(平台內,不可匯出) |
 | 盤中 footprint/orderflow、Obizhaeva-Wang LOB 韌性 | tick/LOB | 仍鎖($0 不可達);Databento $125 credits 可做一次性 tick 抽查 |
@@ -63,7 +63,7 @@
 ### B2. 選擇權歷史 → **$0 可大幅關閉**
 - **OptionsDX(免費,站上驗證)**:SPY/SPX/QQQ/TSLA/AAPL/NVDA 等 10 檔 EOD 鏈 **2010-2023**(含 IV/greeks),月度 CSV,免結帳資訊。
 - **DoltHub post-no-preference/options(免費,今日 SQL 實測)**:~2000 檔 EOD 鏈 **2019-02 至 2026-07-08**(兩天前still updating!),git 版本化=可稽核 PIT;無 OI。
-- **ThetaData FREE 層(站上驗證,本類 sleeper hit)**:EOD + **歷史 OI 自 2023-06-01**、30 req/min、免綁卡——**唯一免費 OI 歷史,GEX 回測直接多 3 年**。
+- **ThetaData FREE 層(2026-07-12 裝好本地 Theta Terminal 實測更正)**:免費 bundle=STOCK.FREE/OPTION.FREE/INDEX.FREE;**通的**=股票 EOD、選擇權 EOD(含 NBBO bid/ask)、bulk 選擇權 EOD(整個到期日一次,202 列/exp-date,效率佳),2023-06 起;**已改付費(471)**=選擇權盤中 OHLC、**open_interest**。→ 免費層真正價值=選擇權 EOD 報價供 VRP/IV-skew/TR-09 BSM 驗證,**不是 GEX/OI**。連接器 `scripts/collect/thetadata_eod.py`,啟動器 `scripts/collect/theta_launch.ps1`。
 - 自建 yfinance 快照(已運轉)降級為前向交叉驗證。**pre-2023 OI 誠實維持鎖死**(CBOE DataShop/DeltaNeutral $585+/yr 超預算)。
 - 注意:免費源的 vendor IV/greeks 應從報價重算(順便就是 TR-09 的驗證)。
 
@@ -108,7 +108,7 @@
 |---|---|---|---|
 | 1 | ~~**ingest Goyal-Welch** → 重跑 TR-17 KMZ 95 年座位~~ **✅ 完成(2026-07-11,TR-17b)**:VoC 複現但被 vol-timing+VTM 張成=REPLICATED-BUT-EXPLAINED;Campbell-Thompson 原生座位成 S 級佇列項 | KMZ 翻案(已執行)、C-T 解鎖 | $0,S 工程 |
 | 2 | ~~**ingest KF 49 產業日報酬** → TR-21 產業版~~ **✅ 完成(2026-07-11,TR-21b)**:水位反轉/尖峰弱複製/閘門第 5 死;M-G 產業動量 + TR-03b GICS 塊仍佇列(面板已接線) | 三個翻案(1 done,2 解鎖) | $0,S 工程 |
-| 3 | **ThetaData 免費層 + OptionsDX + DoltHub** → GEX(2023-06+)/VRP/TR-09 | 選擇權維度提前 3-16 年 | $0,M 工程(Theta Terminal 本地跑) |
+| 3 | **ThetaData 免費層(EOD 報價,非 OI)+ OptionsDX + DoltHub** → VRP/IV-skew/TR-09(**GEX 改靠自建快照**,見上方更正) | 選擇權報價維度 | ✅ 已裝(Theta Terminal 2026-07-12);DoltHub 連接器已上線 |
 | 4 | ~~**yfinance 分析師預估每週快照 collect-forward**~~ **✅ 已啟動(2026-07-11)**:`scripts/collect/analyst_snapshot.py` + `.github/workflows/weekly-collect.yml`(每週六);6 表(eps_trend/eps_revisions/earnings+revenue_estimate/price_targets/recommendations)× S&P 500,首次快照 502 檔已入庫 `collected/analyst/` | docs/11 頭號 alt-data 因子(12-18 個月後可測) | $0,~90KB/週 |
 | 5 | **AV EARNINGS 慢爬**(25/day)→ 共識版 SUE | PEAD 精緻版 | $0,寫一次讓它滴灌 |
 | 6 | **Alpaca 分鐘回填 2016+**(一次 4-6 小時) | ORB/LPS 精確版/日內 AR | $0,S-M |
