@@ -34,6 +34,7 @@ GROUPS = [
         ("TR-23", "四個經典異象", "Four classic anomalies", "F"),
         ("TR-24", "q-factor 雙重檢驗", "q-factor double check", "P"),
         ("TR-26", "GP 因子深度網格", "GP factor depth grid", "P"),
+        ("TR-27", "GP 成員資格×市值", "GP membership x size", "M"),
     ]),
     ("組合建構與風險模型", "Portfolio construction & risk models", [
         ("TR-03", "PCA 統計因子", "PCA statistical factors", "M"),
@@ -71,9 +72,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "30 份標準化測試,依機制類型分組\n"
+    "zh": "31 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 30 standardized tests, grouped by mechanism type\n"
+    "en": "All 31 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 
