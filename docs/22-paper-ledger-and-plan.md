@@ -745,7 +745,7 @@
 | ② | da_engelberg_gao_2011_search_attention | Da, Engelberg & Gao | 2011 | 3200 | Behavioral finance & | YES/PARTIAL. Google Trends SVI is free ( |
 | ② | hong_lim_stein_2000_bad_news_slow | Hong, Lim & Stein | 2000 | 3000 | Momentum: informatio | partial. Size is free (price x shares);  |
 | ② | daniel-titman-1997-characteristics-vs-covariances | Daniel & Titman | 1997 | 2900 | Cross-sectional fact | partial — 需個股報酬(有)+ FF 因子(有)+ 特徵(B/M 由 E |
-| ② | moskowitz_grinblatt_1999_industry | Moskowitz & Grinblatt | 1999 | 2800 | Industry momentum | partial-yes。報酬=免費日線。產業分類:EDGAR filer met |
+| ② | moskowitz_grinblatt_1999_industry | Moskowitz & Grinblatt | 1999 | 2800 | Industry momentum | **✅ 已執行(TR-32,2026-07-13,KF49 月頻座位)**:樣本內複製(+0.516% vs 錨 +0.43%)、發表後僅衰退 2%(罕見),**但 FF5+UMD 張成後 alpha 全窗歸零(t=0.40/1.06/1.34)+指紋反轉(跳月反而更強)=穿產業外衣的 UMD**,REPLICATED-BUT-SPANNED → [TR-32](tests/TR-32-industry-momentum.md) |
 | ② | fama_french_2008_dissecting_anomalies | Fama & French | 2008 | 2600 | Fundamentals / cross | partial — needs EDGAR PIT fundamentals ( |
 | ② | btz09_vrp | Bollerslev, Tauchen &  | 2009 | 2600 | Return predictabilit | partial→大致 yes — VIX(CBOE 免費,1990-;VXO 至 |
 | ② | richardson-sloan-soliman-tuna-2005 | Richardson, Sloan, Sol | 2005 | 2600 | accruals anomaly (re | yes — 廣義應計需 EDGAR 完整資產負債表(營運/金融資產負債分類)，工 |
