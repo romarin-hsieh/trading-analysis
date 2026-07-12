@@ -48,6 +48,7 @@ GROUPS = [
         ("TR-22", "組合家族 PBO", "Combo-family PBO", "P"),
         ("TR-25", "穩健度網格", "Robustness grid", "P"),
         ("TR-29", "持有期×換手曲線", "Holding x turnover", "P"),
+        ("TR-33", "組合×GP 疊加", "Combo x GP stacking", "F"),
     ]),
     ("定價模型與模擬", "Pricing models & simulation", [
         ("TR-05", "GBM 蒙地卡羅", "GBM Monte Carlo", "F"),
@@ -78,9 +79,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "37 份標準化測試,依機制類型分組\n"
+    "zh": "38 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 37 standardized tests, grouped by mechanism type\n"
+    "en": "All 38 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 
