@@ -99,6 +99,14 @@
 - 國際:KF developed/EM 3+5 因子(日+月)免費。
 - 小型股:組合層級 KF size 排序免費;**股票層級=唯一部分受阻**(歷史 Russell 成分=FTSE 授權品;務實路線=EDGAR 全宇宙+市值過濾自建,或 Tiingo 輪換)。
 - 台股 V2:FinMind 免費 600 req/hr + TWSE OpenAPI(2010+ 實測)+ Fugle 免費層。
+  **→ 收集器已上線(2026-07-19,`scripts/collect/finmind_tw.py`,docs/25 B4)**:per-stock 模式
+  免 token 可用且**單檔一次呼叫回傳 2014→今全歷史**(2330 實測:價格 3,058 列+PER/PBR/殖利率
+  3,061 列);宇宙=TaiwanStockInfo 1,220 檔上市 4 碼普通股;預算 2 呼叫/檔×1,220≈2,440 次
+  (無 token ~285/hr、免費 token ~550/hr,`FINMIND_TOKEN` 已加 .env.example)。
+  **兩個誠實註記**:(a) all-stocks-per-date 快照模式=付費 sponsor 層(資訊成本,不用);
+  (b) TaiwanStockInfo 只列**現存上市**——宇宙有倖存者偏誤,TR-39 的 F0 必須帶 F13 但書,
+  v2 補丁=TWSE 終止上市名單。**本地滴灌 only**(市場資料不入公開 repo);TR-39(台股 FM
+  面板,重用 TR-34 機器)於覆蓋完成後點火。
 
 ---
 

@@ -232,7 +232,7 @@ TR-23/TR-01/TR-16。
 | B1 | Tiingo ~300 檔 | GP 去倖存終判+regime-vs-crowding 驗屍(攻擊 8) |
 | B2 | AV EARNINGS 全 | PEAD 共識 SUE 重測 |
 | B3 | ~~自建鏈+Theta 滿 6 個月~~ **TR-36 後降為低優先** | ~~VRP 可實作性~~ 僅在「純 delta-對沖 VRP」問題上重啟,且需先建選擇權成本模型(Muravyev) |
-| B4 | FinMind 配額確認 | 台股 FM 因子面板(TR-34 機器重用;PIT 成員近似法誠實註記) |
+| B4 | 🚚 **收集器已上線滴灌中(2026-07-19)**:`finmind_tw.py` per-stock 免 token 全歷史(2,440 呼叫預算;FINMIND_TOKEN 可倍速);date-mode=付費層(不用);宇宙=現存上市 1,220 檔(**倖存者偏誤→TR-39 F0 帶 F13 但書,v2=TWSE 終止上市名單補丁**) | 台股 FM 因子面板 TR-39(TR-34 機器重用)於覆蓋完成後點火 |
 
 ### Phase C —— 架構演進(A 期結論後)
 | 項 | 內容 |
