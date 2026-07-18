@@ -33,7 +33,7 @@
 | 機制 | 失敗模式 | 證據 |
 |---|---|---|
 | 廣市場動量/價值/低波動因子 | 動量死(ICIR≈0)、價值失落十年、低波動=t 灌水假象 | docs/09、倖存者修正 |
-| **IVOL/MAX/52wH/BAB 四經典異象(TR-23,wave-1 批次)** | 463 檔座位全數未過閘門:IVOL −0.02、MAX +0.06、52wH −0.04(6/12月期限也 ~0)全 FAIL;BAB raw 反向 −0.14 但 **EIV-clean alpha-level ≈0**(反向=beta×牛市機械補償,非 FP 反證);校準列獨立重現 docs/09(mom≈0、-vol −0.13);n=95 CI 蓋 ±0.20=「偵測不到」非「證偽」;**GP 品質(+0.30)仍是唯一倖存橫斷面訊號**;翻案=小型股/國際宇宙+熊市長史 | TR-23 |
+| **IVOL/MAX/52wH/BAB 四經典異象(TR-23,wave-1 批次)** | 463 檔座位全數未過閘門:IVOL −0.02、MAX +0.06、52wH −0.04(6/12月期限也 ~0)全 FAIL;BAB raw 反向 −0.14 但 **EIV-clean alpha-level ≈0**(反向=beta×牛市機械補償,非 FP 反證);校準列獨立重現 docs/09(mom≈0、-vol −0.13);n=95 CI 蓋 ±0.20=「偵測不到」非「證偽」;**GP 品質(+0.30)仍是唯一倖存橫斷面訊號**;翻案=小型股/國際宇宙+熊市長史。**T1 回掃(2026-07-18):MAX 實為 MAX(5) 變體、BAB 為 FP-lite 訊號層(504d corr、無收縮/秩權重/槓桿至 β=1;FP 組合宣稱未測,由 TR-06 SML 反轉獨立封死)、評估 EW rank-IC 非 VW 組合——皆註記,無判定翻轉** | TR-23、[T1 回掃](tests/T1-audit-sweep-202607.md) |
 | PEAD-SUE、insider、7 個本業營運因子 | 無漂移/不穩/全 WEAK;無一超越 GP | docs/10、13 §10 |
 | regime-rotation、gate 到現金、regime-switch 選股 | in-sample 雜訊(13 agent 證偽);擇時減損鐵律 | docs/09/10 |
 | Kalman pairs 統計套利 | 真市場中性(corr+0.01)但賠錢;套利殆盡 | docs/13 §5 |
@@ -49,7 +49,7 @@
 ### 🧪 標準化測試報告 TR-01~38 + 03b/04b/17b/21b/30b(詳見 docs/tests/;**docs/20 論文佇列全清**;TR-01~08 由稽核員重跑全部腳本、數字一對一吻合)
 | TR | 機制 | 判定 | 摘要 |
 |---|---|---|---|
-| TR-01 | 共整合 pairs 統計套利 | **FAILED** | OOS +2.0%/yr < 現金(BIL +2.7%);GGR 2006 的 +11% 衰退 >100%;9/10 對集中 AI 半導體、SMCI 醜聞炸出 −29.7% MDD;殘值=|z|>4 當單一股異常警報 |
+| TR-01 | 共整合 pairs 統計套利 | **FAILED** | OOS +2.0%/yr < 現金(BIL +2.7%);文獻錨(GGR 2006 距離法 +11%)為脈絡非重現對象——本 TR 測 EG 共整合建構(T1 回掃 2026-07-18 註記:來源-機器錯配已修語言;兩套獨立建構 EG+docs/13 Kalman 同座位皆虧+Do-Faff 已載距離法衰退);9/10 對集中 AI 半導體、SMCI 醜聞炸出 −29.7% MDD;殘值=|z|>4 當單一股異常警報 |
 | TR-02 | Markov 變異變遷 regime | **PARTIAL(v1.2 收窄:波動辨識 only)** | regime 辨識真(16.9%/31.2%)、gate 輸 B&H;**TR-02b Cederburg 控制:靜態 57% 恆定曝險同 MDD(−20.7 vs −20.1)、更高 exSharpe(0.79 vs 0.62)、零交易——「MDD 減半」用常數就能複製**,regime 模型對曝險決策零增值 |
 | TR-03 | PCA 統計因子模型 | **PARTIAL** | 5 PC 解釋 65%(PC1 41.8%=一個大 beta);因子共變異 min-var ≈ LW、勝 sample-cov 0.66 vol pt;無 alpha,估計工程價值 |
 | TR-04 | VaR 測量+目標化 | **PARTIAL** | 常態 VaR 99% 違規率 2.9% vs 名目 1%(Kupiec p<1e-14)=RiskMetrics 常態假設全滅;歷史/CF 較誠實;VaR-target ≈ vol-target |
