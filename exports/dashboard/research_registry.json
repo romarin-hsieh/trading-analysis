@@ -1,0 +1,339 @@
+{
+ "meta": {
+  "source": "trading-analysis",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-18T09:37:58Z",
+  "legend": {
+   "zh": {
+    "P": "通過/方法確立",
+    "M": "部分成立(僅診斷或工程價值)",
+    "F": "失敗/被對照組解釋",
+    "X": "無資料"
+   },
+   "en": {
+    "P": "passed / method established",
+    "M": "partial (diagnostic or engineering value)",
+    "F": "failed / explained by controls",
+    "X": "no data"
+   }
+  },
+  "repo": "https://github.com/romarin-hsieh/trading-analysis"
+ },
+ "counts": {
+  "P": 10,
+  "M": 15,
+  "F": 13,
+  "X": 1
+ },
+ "groups": [
+  {
+   "group_zh": "擇時與波動 regime",
+   "group_en": "Timing & volatility regimes",
+   "tests": [
+    {
+     "code": "TR-02",
+     "name_zh": "Markov regime",
+     "name_en": "Markov regime",
+     "cls": "M",
+     "doc": "docs/tests/TR-02*.md"
+    },
+    {
+     "code": "TR-16",
+     "name_zh": "IBS 均值回歸",
+     "name_en": "IBS mean-reversion",
+     "cls": "F",
+     "doc": "docs/tests/TR-16*.md"
+    },
+    {
+     "code": "TR-17",
+     "name_zh": "KMZ 複雜度(本座位)",
+     "name_en": "KMZ complexity (our seat)",
+     "cls": "M",
+     "doc": "docs/tests/TR-17*.md"
+    },
+    {
+     "code": "TR-17b",
+     "name_zh": "KMZ 原生座位",
+     "name_en": "KMZ native seat",
+     "cls": "F",
+     "doc": "docs/tests/TR-17b*.md"
+    },
+    {
+     "code": "TR-31",
+     "name_zh": "Campbell-Thompson",
+     "name_en": "Campbell-Thompson",
+     "cls": "F",
+     "doc": "docs/tests/TR-31*.md"
+    },
+    {
+     "code": "TR-21",
+     "name_zh": "吸收比率(個股)",
+     "name_en": "Absorption ratio (stocks)",
+     "cls": "F",
+     "doc": "docs/tests/TR-21*.md"
+    },
+    {
+     "code": "TR-21b",
+     "name_zh": "吸收比率(產業)",
+     "name_en": "Absorption ratio (industries)",
+     "cls": "M",
+     "doc": "docs/tests/TR-21b*.md"
+    }
+   ]
+  },
+  {
+   "group_zh": "橫斷面選股與因子",
+   "group_en": "Cross-sectional picking & factors",
+   "tests": [
+    {
+     "code": "TR-08",
+     "name_zh": "ML 報酬預測",
+     "name_en": "ML return forecasting",
+     "cls": "F",
+     "doc": "docs/tests/TR-08*.md"
+    },
+    {
+     "code": "TR-11",
+     "name_zh": "隨機森林+隨機視窗",
+     "name_en": "Random forest + random windows",
+     "cls": "M",
+     "doc": "docs/tests/TR-11*.md"
+    },
+    {
+     "code": "TR-23",
+     "name_zh": "四個經典異象",
+     "name_en": "Four classic anomalies",
+     "cls": "F",
+     "doc": "docs/tests/TR-23*.md"
+    },
+    {
+     "code": "TR-24",
+     "name_zh": "q-factor 雙重檢驗",
+     "name_en": "q-factor double check",
+     "cls": "P",
+     "doc": "docs/tests/TR-24*.md"
+    },
+    {
+     "code": "TR-26",
+     "name_zh": "GP 因子深度網格",
+     "name_en": "GP factor depth grid",
+     "cls": "P",
+     "doc": "docs/tests/TR-26*.md"
+    },
+    {
+     "code": "TR-27",
+     "name_zh": "GP 成員資格×市值",
+     "name_en": "GP membership x size",
+     "cls": "M",
+     "doc": "docs/tests/TR-27*.md"
+    },
+    {
+     "code": "TR-28",
+     "name_zh": "季頻 ROE(HXZ)",
+     "name_en": "Quarterly ROE (HXZ)",
+     "cls": "F",
+     "doc": "docs/tests/TR-28*.md"
+    },
+    {
+     "code": "TR-32",
+     "name_zh": "產業動量(M-G)",
+     "name_en": "Industry momentum (M-G)",
+     "cls": "F",
+     "doc": "docs/tests/TR-32*.md"
+    },
+    {
+     "code": "TR-34",
+     "name_zh": "Fama-MacBeth 面板",
+     "name_en": "Fama-MacBeth panel",
+     "cls": "M",
+     "doc": "docs/tests/TR-34*.md"
+    }
+   ]
+  },
+  {
+   "group_zh": "組合建構與風險模型",
+   "group_en": "Portfolio construction & risk models",
+   "tests": [
+    {
+     "code": "TR-03",
+     "name_zh": "PCA 統計因子",
+     "name_en": "PCA statistical factors",
+     "cls": "M",
+     "doc": "docs/tests/TR-03*.md"
+    },
+    {
+     "code": "TR-03b",
+     "name_zh": "共變異矩陣清理",
+     "name_en": "Covariance cleaning",
+     "cls": "M",
+     "doc": "docs/tests/TR-03b*.md"
+    },
+    {
+     "code": "TR-04",
+     "name_zh": "VaR",
+     "name_en": "VaR",
+     "cls": "M",
+     "doc": "docs/tests/TR-04*.md"
+    },
+    {
+     "code": "TR-04b",
+     "name_zh": "Student-t 厚尾",
+     "name_en": "Student-t fat tails",
+     "cls": "M",
+     "doc": "docs/tests/TR-04b*.md"
+    },
+    {
+     "code": "TR-07",
+     "name_zh": "HRP 階層風險平價",
+     "name_en": "HRP",
+     "cls": "M",
+     "doc": "docs/tests/TR-07*.md"
+    },
+    {
+     "code": "TR-22",
+     "name_zh": "組合家族 PBO",
+     "name_en": "Combo-family PBO",
+     "cls": "P",
+     "doc": "docs/tests/TR-22*.md"
+    },
+    {
+     "code": "TR-25",
+     "name_zh": "穩健度網格",
+     "name_en": "Robustness grid",
+     "cls": "P",
+     "doc": "docs/tests/TR-25*.md"
+    },
+    {
+     "code": "TR-29",
+     "name_zh": "持有期×換手曲線",
+     "name_en": "Holding x turnover",
+     "cls": "P",
+     "doc": "docs/tests/TR-29*.md"
+    },
+    {
+     "code": "TR-33",
+     "name_zh": "組合×GP 疊加",
+     "name_en": "Combo x GP stacking",
+     "cls": "F",
+     "doc": "docs/tests/TR-33*.md"
+    }
+   ]
+  },
+  {
+   "group_zh": "定價模型與模擬",
+   "group_en": "Pricing models & simulation",
+   "tests": [
+    {
+     "code": "TR-05",
+     "name_zh": "GBM 蒙地卡羅",
+     "name_en": "GBM Monte Carlo",
+     "cls": "F",
+     "doc": "docs/tests/TR-05*.md"
+    },
+    {
+     "code": "TR-06",
+     "name_zh": "CAPM",
+     "name_en": "CAPM",
+     "cls": "M",
+     "doc": "docs/tests/TR-06*.md"
+    },
+    {
+     "code": "TR-09",
+     "name_zh": "Black-Scholes",
+     "name_en": "Black-Scholes",
+     "cls": "X",
+     "doc": "docs/tests/TR-09*.md"
+    }
+   ]
+  },
+  {
+   "group_zh": "推論誠實度與偏誤控制",
+   "group_en": "Inference honesty & bias control",
+   "tests": [
+    {
+     "code": "TR-12",
+     "name_zh": "再平衡相位運氣",
+     "name_en": "Rebalance-phase luck",
+     "cls": "P",
+     "doc": "docs/tests/TR-12*.md"
+    },
+    {
+     "code": "TR-13",
+     "name_zh": "下市偏誤區間",
+     "name_en": "Delisting bias bounds",
+     "cls": "P",
+     "doc": "docs/tests/TR-13*.md"
+    },
+    {
+     "code": "TR-14",
+     "name_zh": "有效樣本數",
+     "name_en": "Effective sample size",
+     "cls": "P",
+     "doc": "docs/tests/TR-14*.md"
+    },
+    {
+     "code": "TR-15",
+     "name_zh": "全成本壓力",
+     "name_en": "Full-cost stress",
+     "cls": "P",
+     "doc": "docs/tests/TR-15*.md"
+    },
+    {
+     "code": "TR-18",
+     "name_zh": "推論穩健性",
+     "name_en": "Inference robustness",
+     "cls": "M",
+     "doc": "docs/tests/TR-18*.md"
+    },
+    {
+     "code": "TR-19",
+     "name_zh": "隔夜/日內拆解",
+     "name_en": "Overnight/intraday split",
+     "cls": "M",
+     "doc": "docs/tests/TR-19*.md"
+    },
+    {
+     "code": "TR-20",
+     "name_zh": "FF5/6 歸因",
+     "name_en": "FF5/6 attribution",
+     "cls": "P",
+     "doc": "docs/tests/TR-20*.md"
+    }
+   ]
+  },
+  {
+   "group_zh": "套利與 LLM agent",
+   "group_en": "Arbitrage & LLM agents",
+   "tests": [
+    {
+     "code": "TR-01",
+     "name_zh": "配對交易統計套利",
+     "name_en": "Pairs stat-arb",
+     "cls": "F",
+     "doc": "docs/tests/TR-01*.md"
+    },
+    {
+     "code": "TR-10",
+     "name_zh": "LLM agent 框架",
+     "name_en": "LLM agent frameworks",
+     "cls": "M",
+     "doc": "docs/tests/TR-10*.md"
+    },
+    {
+     "code": "TR-30",
+     "name_zh": "外包線反轉",
+     "name_en": "Outside-bar reversal",
+     "cls": "F",
+     "doc": "docs/tests/TR-30*.md"
+    },
+    {
+     "code": "TR-30b",
+     "name_zh": "外包線忠實引擎",
+     "name_en": "Outside bar, faithful",
+     "cls": "F",
+     "doc": "docs/tests/TR-30b*.md"
+    }
+   ]
+  }
+ ]
+}

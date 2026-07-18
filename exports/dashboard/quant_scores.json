@@ -1,0 +1,1119 @@
+{
+ "meta": {
+  "source": "trading-analysis",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-18T09:37:48Z",
+  "as_of": "2026-06-18",
+  "universe": {
+   "dashboard": 138,
+   "covered": 137
+  },
+  "honesty": {
+   "gp_quality_pct": "only surviving cross-sectional signal (registry docs/10, TR-26/27); WATCH: FM panel prices it 2015-2020 (t=+2.67), flat since 2021 (TR-34); information, not a bookable sleeve (TR-33 NO-STACK)",
+   "trend_template_pass": "Minervini stage-2 structure check; registry PARTIAL: structure real, alpha decayed (docs/05/07); use as structure info",
+   "rs_rating_pct": "relative-strength percentile vs our universe; information only: broad momentum ICIR~0 here (docs/09), XS top-K momentum = beta (TR-11)"
+  },
+  "registry": "https://github.com/romarin-hsieh/trading-analysis/blob/main/docs/18-strategy-registry.md"
+ },
+ "data": {
+  "ASTS": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 84.0
+  },
+  "RIVN": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 78.9
+  },
+  "PL": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 93.9
+  },
+  "ONDS": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 96.2
+  },
+  "RDW": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 84.3
+  },
+  "AVAV": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 5.9
+  },
+  "MDB": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 85.9
+  },
+  "ORCL": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 24.2,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 79.6
+  },
+  "TSM": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": true,
+   "rs_rating_pct": 88.7
+  },
+  "RKLB": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 93.7
+  },
+  "CRM": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 65.9,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 1.4
+  },
+  "NVDA": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 93.7,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 83.3
+  },
+  "AVGO": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 56.0,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 85.7
+  },
+  "AMZN": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 1.6,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 79.8
+  },
+  "GOOG": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 86.5
+  },
+  "META": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 4.8
+  },
+  "NFLX": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 9.9,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 2.3
+  },
+  "LEU": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 75.1
+  },
+  "SMR": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 0.9
+  },
+  "CRWV": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 81.2
+  },
+  "IONQ": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 91.4
+  },
+  "PLTR": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 75.8,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 5.0
+  },
+  "HIMS": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 80.9
+  },
+  "TSLA": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 28.2,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 80.4
+  },
+  "VST": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 75.5
+  },
+  "KTOS": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 78.4
+  },
+  "MELI": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 4.1
+  },
+  "SOFI": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 82.9
+  },
+  "RBRK": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 79.3
+  },
+  "EOSE": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 91.8
+  },
+  "CEG": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 6.6
+  },
+  "TMDX": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 1.5
+  },
+  "GRAB": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 5.3
+  },
+  "RBLX": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 2.5
+  },
+  "IREN": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 96.8
+  },
+  "OKLO": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 80.8
+  },
+  "PATH": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 4.3
+  },
+  "INTR": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 3.2
+  },
+  "SE": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 5.2
+  },
+  "KSPI": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 76.9
+  },
+  "LUNR": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 87.9
+  },
+  "HOOD": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 87.1
+  },
+  "APP": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 83.6
+  },
+  "CHYM": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 2.1
+  },
+  "NU": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 73.5
+  },
+  "COIN": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 2.0
+  },
+  "CRCL": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 0.8
+  },
+  "IBKR": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 87.4
+  },
+  "CCJ": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 83.0
+  },
+  "UUUU": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 91.1
+  },
+  "VRT": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 90.4
+  },
+  "ETN": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 82.5
+  },
+  "MSFT": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 62.7,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 4.5
+  },
+  "ADBE": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 96.0,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 1.1
+  },
+  "FIG": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": null
+  },
+  "PANW": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 33.7,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 88.6
+  },
+  "CRWD": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 69.8,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 87.3
+  },
+  "DDOG": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 78.2,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 89.8
+  },
+  "DUOL": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 1.9
+  },
+  "ZETA": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 83.7
+  },
+  "AXON": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 54.4,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 1.3
+  },
+  "ALAB": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 99.1
+  },
+  "LRCX": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 84.5,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 94.6
+  },
+  "BWXT": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 81.9
+  },
+  "UMAC": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 92.6
+  },
+  "MP": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 86.3
+  },
+  "RR": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 84.5
+  },
+  "ABBV": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 21.0,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 78.3
+  },
+  "ACHR": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 2.2
+  },
+  "AMD": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 50.4,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 97.1
+  },
+  "AXP": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 80.3
+  },
+  "BA": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 6.3,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 78.6
+  },
+  "BAC": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 82.6
+  },
+  "BE": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": true,
+   "rs_rating_pct": 98.9
+  },
+  "BRK-B": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 73.2
+  },
+  "CAT": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 7.1,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 90.8
+  },
+  "CIFR": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": true,
+   "rs_rating_pct": 97.8
+  },
+  "CLSK": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 92.0
+  },
+  "COST": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 6.8
+  },
+  "CSCO": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 64.7,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 88.4
+  },
+  "CVX": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 75.2
+  },
+  "DGRO": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 79.1
+  },
+  "DIA": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": null,
+   "rs_rating_pct": null
+  },
+  "DIVO": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 77.7
+  },
+  "FTNT": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 92.9,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 89.1
+  },
+  "GEV": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 24.6,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 88.0
+  },
+  "GLD": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": null,
+   "rs_rating_pct": null
+  },
+  "GLW": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 41.3,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 93.5
+  },
+  "GS": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 86.4
+  },
+  "HD": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 88.9,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 74.2
+  },
+  "HON": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 12.7,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 75.9
+  },
+  "HUT": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": true,
+   "rs_rating_pct": 98.0
+  },
+  "IBM": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 59.1,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 40.1
+  },
+  "INTU": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 0.2
+  },
+  "IWM": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": null,
+   "rs_rating_pct": null
+  },
+  "JEPI": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 74.8
+  },
+  "JEPQ": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 81.1
+  },
+  "JNJ": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 69.4,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 82.2
+  },
+  "JOBY": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 80.0
+  },
+  "JPM": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 81.0
+  },
+  "KO": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 63.5,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 77.8
+  },
+  "MA": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 6.3
+  },
+  "MAIN": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 6.2
+  },
+  "MCD": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 6.5
+  },
+  "MMM": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 79.2
+  },
+  "MRK": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 81.6
+  },
+  "MU": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 34.1,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 98.4
+  },
+  "NET": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 78.8
+  },
+  "O": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 74.9
+  },
+  "PG": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 73.8
+  },
+  "PM": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 79.0,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 75.4
+  },
+  "POWL": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": true,
+   "rs_rating_pct": 95.2
+  },
+  "QBTS": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 87.7
+  },
+  "QQQ": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": null,
+   "rs_rating_pct": null
+  },
+  "RGTI": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 90.7
+  },
+  "RTX": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 2.0,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 77.2
+  },
+  "SCHD": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 78.5
+  },
+  "SLV": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 84.2
+  },
+  "SMCI": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 26.6,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 79.9
+  },
+  "SNDK": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 29.8,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 99.6
+  },
+  "SPY": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": null,
+   "rs_rating_pct": null
+  },
+  "TRV": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 76.5
+  },
+  "UNG": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 3.6
+  },
+  "UNH": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 85.2
+  },
+  "USO": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 82.0
+  },
+  "V": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 74.1
+  },
+  "VIG": {
+   "covered": false
+  },
+  "VNQ": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 77.0
+  },
+  "VTV": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 80.5
+  },
+  "VUG": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 81.7
+  },
+  "VYM": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 79.5
+  },
+  "WDC": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": 57.1,
+   "gp_member": true,
+   "trend_template_pass": true,
+   "rs_rating_pct": 98.6
+  },
+  "WFC": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 78.1
+  },
+  "WMT": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 77.3
+  },
+  "WULF": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": true,
+   "rs_rating_pct": 97.4
+  },
+  "XOM": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 75.8
+  },
+  "ZS": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": false,
+   "trend_template_pass": false,
+   "rs_rating_pct": 0.6
+  },
+  "ABNB": {
+   "covered": true,
+   "as_of": "2026-06-18",
+   "gp_quality_pct": null,
+   "gp_member": true,
+   "trend_template_pass": false,
+   "rs_rating_pct": 40.1
+  }
+ }
+}

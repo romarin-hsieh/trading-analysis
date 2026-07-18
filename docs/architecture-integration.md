@@ -84,3 +84,21 @@
 2. 既有**comet 視覺化（coordinates/trace/sector_trace）是產品招牌 UI**、與訊號品質無關 → 保留，繼續算座標。
 3. 我們的 **Minervini trend template + RS rating + 因子 + 基本面**正好補滿既有引擎所缺 → 屬**互補**，當**新平行欄位/檔**最自然。
 具體：保留 `daily_update.py` 產 coordinates+trace；**新增** `scripts/production/stage_signals.py`（或我們 trading-analysis 的 export）寫入 `scores{}`/sibling 檔（rs_rating、stage、trend_template_pass、magic_formula_rank、factor_score）；**出場沿用既有 ATR/Chandelier**。前端零回歸，可 A/B 兩種訊號哲學。
+
+---
+
+## 落地狀態(2026-07-13,第一階段完成)
+
+**`api.py::export_dashboard_json()` + `scripts/export_dashboard.py` 已上線**,輸出三個 sibling JSON 到 `exports/dashboard/`(零風險 additive,不動 dashboard 既有任何檔案/欄位):
+
+| 檔案 | 內容 | 誠實設計 |
+|---|---|---|
+| `quant_scores.json` | dashboard 138 檔 universe(137 覆蓋):GP 品質百分位(成員限定)、Minervini stage-2 結構通過、RS 百分位 | **每個分數攜帶註冊表判定標籤**(`meta.honesty`):GP=唯一倖存訊號+TR-34 WATCH、模板=PARTIAL 結構資訊、RS=資訊(動能已死 docs/09)——dashboard 永遠不會過度宣稱 |
+| `flagship_combo.json` | 主力 5-sleeve 現行風險平價權重、月頻 Carhart alpha-t(2.69 OLS/2.91 HAC、hlz_pass:false)、MDD、近 250 日淨值 | verdict 標籤=「唯一邊界 alpha,交付是風險塑形」 |
+| `research_registry.json` | 判定圖資料化(6 組×39 測試,zh+en,P/M/F/X 計數) | 直接餵一個 research 面板 |
+
+與 6 月計畫的差異(研究誠實化的結果):**不輸出 magic_formula_rank**(從未驗證過的訊號不出口);GP 取代「factor_score」成為唯一因子欄。
+
+**資料時效誠實設計**(除錯兩輪的成果):`as_of` 取「**存活面板** ≥90% 檔有原始新價」的最後一天——(a) 部分刷新的混合時效列(28/865 檔新價)不能做橫斷面排名;(b) 分母只算近 30 根有成交的檔,否則 Tiingo 回填的已下市股會把時效永遠拖回過去。
+
+**接線(使用者步驟,additive)**:把 `exports/dashboard/*.json` 複製進 investment-dashboard 的 `public/data/`(或讓前端 fetch 本 repo 的 raw GitHub URL);之後抽 trading-data repo 時把此 export 掛進其 GitHub Action。
