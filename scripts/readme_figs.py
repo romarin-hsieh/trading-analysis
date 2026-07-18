@@ -67,6 +67,7 @@ GROUPS = [
         ("TR-19", "隔夜/日內拆解", "Overnight/intraday split", "M"),
         ("TR-20", "FF5/6 歸因", "FF5/6 attribution", "P"),
         ("TR-37", "戰役 deflated alpha", "Campaign deflated alpha", "M"),
+        ("TR-38", "狀態相依成本", "State-dependent costs", "P"),
     ]),
     ("套利與 LLM agent", "Arbitrage & LLM agents", [
         ("TR-01", "配對交易統計套利", "Pairs stat-arb", "F"),
@@ -83,9 +84,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "42 份標準化測試,依機制類型分組\n"
+    "zh": "43 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 42 standardized tests, grouped by mechanism type\n"
+    "en": "All 43 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 
