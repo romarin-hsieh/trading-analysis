@@ -56,6 +56,7 @@ GROUPS = [
         ("TR-05", "GBM 蒙地卡羅", "GBM Monte Carlo", "F"),
         ("TR-06", "CAPM", "CAPM", "M"),
         ("TR-09", "Black-Scholes", "Black-Scholes", "X"),
+        ("TR-36", "賣權溢酬(指數層)", "Put-write premium (index)", "F"),
     ]),
     ("推論誠實度與偏誤控制", "Inference honesty & bias control", [
         ("TR-12", "再平衡相位運氣", "Rebalance-phase luck", "P"),
@@ -81,9 +82,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "40 份標準化測試,依機制類型分組\n"
+    "zh": "41 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 40 standardized tests, grouped by mechanism type\n"
+    "en": "All 41 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 
