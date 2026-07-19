@@ -50,6 +50,7 @@ GROUPS = [
         ("TR-03b", "共變異矩陣清理", "Covariance cleaning", "M"),
         ("TR-04", "VaR", "VaR", "M"),
         ("TR-04b", "Student-t 厚尾", "Student-t fat tails", "M"),
+        ("TR-43", "EVT 尾部挑戰者", "EVT tail challenger", "F"),
         ("TR-07", "HRP 階層風險平價", "HRP", "M"),
         ("TR-22", "組合家族 PBO", "Combo-family PBO", "P"),
         ("TR-25", "穩健度網格", "Robustness grid", "P"),
@@ -89,9 +90,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "48 份標準化測試,依機制類型分組\n"
+    "zh": "49 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 48 standardized tests, grouped by mechanism type\n"
+    "en": "All 49 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 

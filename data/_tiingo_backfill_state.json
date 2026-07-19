@@ -155,7 +155,15 @@
 "FTR",
 "FWLT",
 "G",
-"GAS"
+"GAS",
+"GDT",
+"GENZ",
+"GGP",
+"GHC",
+"GMCR",
+"GNT",
+"GP",
+"GRA"
 ],
 "no_data": [
 "ABC",
@@ -222,7 +230,13 @@
 "FLTWQ",
 "FSH",
 "FTL.A",
-"GAPTQ"
+"GAPTQ",
+"GDW",
+"GFS.A",
+"GLK",
+"GPS",
+"GPU",
+"GR"
 ],
 "failed": [
 "ATGE",
@@ -250,6 +264,7 @@
 "ENDP",
 "ESV",
 "FBO",
-"FRC"
+"FRC",
+"GIDL"
 ]
 }
