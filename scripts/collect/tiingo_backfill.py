@@ -22,6 +22,7 @@ Run:  uv run python scripts/collect/tiingo_backfill.py            # one batch (<
 from __future__ import annotations
 
 import json
+from collections import Counter
 import os
 import sys
 import time
@@ -68,8 +69,10 @@ def save_state(s: dict) -> None:
 
 
 def fetch_prices(ticker: str) -> pd.DataFrame:
-    # URL-encode class-share tickers like AFS.A
-    t = urllib.parse.quote(ticker, safe="")
+    # Tiingo spells class shares with a DASH, not a dot: BRK-B, not BRK.B (verified
+    # 2026-07-20 -- BRK.B/BF.B/COC.B 404 while BRK-B/BF-B return data). The old
+    # url-quote treated "." as a literal and every class share failed forever.
+    t = urllib.parse.quote(ticker.replace(".", "-"), safe="")
     url = (f"https://api.tiingo.com/tiingo/daily/{t}/prices"
            f"?startDate=1990-01-01&format=json&token={KEY}")
     req = urllib.request.Request(url, headers=UA)
@@ -98,8 +101,18 @@ def main() -> int:
 
     tgt = targets()
     st = load_state()
-    resolved = set(st["done"]) | set(st["no_data"])
+    # Symbols that failed MAX_FAILS times are parked: the failed list is append-per-try,
+    # so a permanently-404 name was re-queued at the FRONT of every batch (they sort
+    # first alphabetically) and burned ~12 of 45 hourly slots -- a 27% throughput leak
+    # that went unnoticed because each run reported only its own counts.
+    MAX_FAILS = 3
+    fail_counts = Counter(st["failed"])
+    parked = {s for s, n in fail_counts.items() if n >= MAX_FAILS}
+    resolved = set(st["done"]) | set(st["no_data"]) | parked
     todo = [t for t in tgt if t not in resolved]
+    if parked:
+        print(f"[parked] {len(parked)} symbols with >={MAX_FAILS} failures skipped: "
+              f"{sorted(parked)}")
     print(f"backfill universe: {len(tgt)} delisted names | "
           f"done {len(st['done'])} | no-data {len(st['no_data'])} | "
           f"failed {len(st['failed'])} | remaining {len(todo)}")
