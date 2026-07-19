@@ -72,18 +72,26 @@ def main():
     ax.set_title("A|五 sleeve 現行風險平價權重(逆波動,月再平衡)", fontsize=11)
     ax.grid(alpha=0.3, axis="x")
 
-    # B: NAV + drawdown
+    # B: NAV + drawdown -- the honest comparison needs BOTH lines: raw (half-risk)
+    # AND the same-risk L=1.5 version, else the picture reads "loses to VOO" when
+    # the truth is "half the vol; levered to comparable risk it wins on both axes".
     ax = fig.add_subplot(gs[0, 1])
+    r15 = 1.5 * rp - 0.5 * (rf_d + FIN_SPREAD / 252)
     nav_c = (1 + rp).cumprod()
+    nav_15 = (1 + r15).cumprod()
     nav_v = (1 + voo).cumprod()
-    ax.plot(nav_c.index, nav_c, lw=1.4, color="#1565c0",
-            label=f"主力組合(Sharpe {stats(rp)[2]:.2f})")
+    c15, m15, _ = stats(r15)
+    cv, mv, sv = stats(voo)
+    ax.plot(nav_15.index, nav_15, lw=1.5, color="#2e7d32",
+            label=f"組合 L=1.5(CAGR {c15:+.0%}/MDD {m15:+.0%})")
+    ax.plot(nav_c.index, nav_c, lw=1.3, color="#1565c0",
+            label=f"組合 L=1.0(半風險;MDD {stats(rp)[1]:+.0%})")
     ax.plot(nav_v.index, nav_v, lw=1.1, color="#757575",
-            label=f"VOO(Sharpe {stats(voo)[2]:.2f})")
+            label=f"VOO(CAGR {cv:+.0%}/MDD {mv:+.0%})")
     ax.set_yscale("log")
-    ax.legend(fontsize=9, loc="upper left")
-    ax.set_title(f"B|2015–2026 淨值(log)—— 回撤 {stats(rp)[1]:+.0%} vs VOO {stats(voo)[1]:+.0%}",
-                 fontsize=11)
+    ax.legend(fontsize=8.5, loc="upper left")
+    ax.set_title("B|2015–2026 淨值(log)—— L=1 是半風險版;同風險(L≥1.5)報酬與回撤同時贏",
+                 fontsize=10.5)
     ax.grid(alpha=0.3)
     ax2 = ax.twinx()
     dd = nav_c / nav_c.cummax() - 1
