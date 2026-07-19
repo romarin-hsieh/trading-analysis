@@ -232,7 +232,7 @@ TR-23/TR-01/TR-16。
 | B1 | Tiingo ~300 檔 | GP 去倖存終判+regime-vs-crowding 驗屍(攻擊 8) |
 | B2 | AV EARNINGS 全 | PEAD 共識 SUE 重測 |
 | B3 | ~~自建鏈+Theta 滿 6 個月~~ **TR-36 後降為低優先** | ~~VRP 可實作性~~ 僅在「純 delta-對沖 VRP」問題上重啟,且需先建選擇權成本模型(Muravyev) |
-| B4 | ✅ **已執行(TR-39,2026-07-19)**:面板一下午收齊(1,220 檔零失敗);**SIGNAL-CANDIDATE×4——mom +91bps t=2.7、max5 +105 t=2.1、avol +90 t=3.3、logdv −84 t=−2.3,2021 後更強=稀薄套利假說第一證據**;⚠️ 四候選全部倖存者條件化(方向翻轉:MAX 正→偏誤變向上灌水)→ **b 系列:b1 TWSE 終止上市補丁→b2 成本 45bps→b3 桶經濟** | TR-39 |
+| B4 | ✅ **已執行(TR-39,2026-07-19)**:面板一下午收齊(1,220 檔零失敗);**SIGNAL-CANDIDATE×4——mom +91bps t=2.7、max5 +105 t=2.1、avol +90 t=3.3、logdv −84 t=−2.3,2021 後更強=稀薄套利假說第一證據**;⚠️ 四候選全部倖存者條件化(方向翻轉:MAX 正→偏誤變向上灌水)→ **b1 ✅ 已執行(TR-39b):mom/avol/logdv 確認、max5 倖存者假象退役(pct_change ffill 後門由 CAL-d 抓到);next=b2 成本 45bps→b3 桶經濟** | TR-39/39b |
 
 ### Phase C —— 架構演進(A 期結論後)
 | 項 | 內容 |
