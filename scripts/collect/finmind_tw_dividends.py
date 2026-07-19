@@ -94,11 +94,14 @@ def main() -> None:
 
 
 def adjustment_panel(dates: pd.DatetimeIndex, cols) -> pd.DataFrame:
-    """Cumulative back-adjustment divisor: raw_close / factor = total-return price.
+    """Cumulative back-adjustment MULTIPLIER: total-return price = raw_close * factor.
 
-    factor(t) = product of (after/before) for every ex-event STRICTLY AFTER t, so the
-    most recent price is unchanged and history is scaled down -- the standard
-    back-adjusted convention (matches Yahoo's auto_adjust)."""
+    factor(t) = product of (after/before) <= 1 for every ex-event STRICTLY AFTER t, so
+    the most recent price is unchanged (factor=1) and history is scaled DOWN, lifting the
+    total-return CAGR above the raw CAGR -- the standard back-adjusted convention (Yahoo
+    auto_adjust). NOTE: multiply, do NOT divide -- CAL-a caught the inverted version
+    (raw/factor inflated old prices and pushed 2330's TR CAGR to +24.6% BELOW its raw
+    +27.9%, a -3.13% panel-median 'drag' that is impossible for a dividend adjustment)."""
     import numpy as np
     d = Path("data/finmind_tw/divresult")
     out = pd.DataFrame(1.0, index=dates, columns=list(cols))

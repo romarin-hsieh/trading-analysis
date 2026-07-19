@@ -66,7 +66,8 @@ plt.rcParams["axes.unicode_minus"] = False
 from finmind_tw_dividends import adjustment_panel  # noqa: E402
 from tr34_fama_macbeth import fm_slopes, nw_mean_t  # noqa: E402
 from tr39_taiwan_panel import DATA, load_panels  # noqa: E402
-from tr39b_taiwan_delisted import CANDIDATES, FIVE, build_chars  # noqa: E402
+from tr39b_taiwan_delisted import FIVE, build_chars  # noqa: E402
+from tr40_taiwan_cost_gate import CANDIDATES  # signed dict {name: +/-1}  # noqa: E402
 from tr40_taiwan_cost_gate import (  # noqa: E402
     COMMISSION_FULL,
     TAX_SELL,
@@ -98,7 +99,7 @@ def main():
             px_raw.loc[px_raw.index > dd, sid] = np.nan
             dv.loc[dv.index > dd, sid] = np.nan
     adj = adjustment_panel(px_raw.index, px_raw.columns)
-    px_tr = px_raw / adj.replace(0, np.nan)
+    px_tr = px_raw * adj          # back-adjusted total-return price (multiply; see CAL-a)
 
     print("=" * 104)
     print("TR-44  台股判定在還原股價下還成立嗎?(docs/27 b6)")
@@ -106,7 +107,9 @@ def main():
 
     # ---- CAL ----
     yrs = (px_raw.index[-1] - px_raw.index[0]).days / 365.25
-    drag = (adj.iloc[0] / adj.iloc[-1]) ** (1 / yrs) - 1
+    # annualized dividend "lift" of TR over raw = (1/factor_at_start)^(1/yrs) - 1, since
+    # factor(start) <= 1 scales the oldest price down. Positive by construction if events exist.
+    drag = (1.0 / adj.iloc[0].replace(0, np.nan)) ** (1 / yrs) - 1
     med_drag = float(drag.median())
     cal_a = 0.005 <= med_drag <= 0.06
     print(f"CAL a:面板中位股利拖累 {med_drag*100:.2f}%/yr(帶 0.5-6%) -> "
