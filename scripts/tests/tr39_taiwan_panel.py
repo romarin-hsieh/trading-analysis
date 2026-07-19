@@ -114,16 +114,22 @@ def main():
     px, dv, pbr, per = load_panels()
     print(f"panel: {px.shape[1]} stocks with >=1y daily history, {px.index[0].date()}..{px.index[-1].date()}")
 
+    px = px.where(px > 0)                                   # suspended rows carry close=0 -> poison pct_change with inf
     zero_share = (px.pct_change() == 0).mean()
     px = px.loc[:, zero_share[zero_share < 0.4].index]      # ghost filter (TW limit days inflate zeros; loose bar)
     dv, pbr, per = (x[px.columns] for x in (dv, pbr, per))
+    dv = dv.where(dv > 0)
 
-    me = px.resample("ME").last().loc[START:]
-    ret_m = me.pct_change()
-    fwd = ret_m.shift(-1)
+    # characteristics on the FULL monthly history (2014+), THEN slice the evaluation
+    # window -- slicing first left mom122/str1m all-NaN in the first months (CAL-c
+    # caught it: joint coverage 0 at 2015-07).
+    me_full = px.resample("ME").last()
+    ret_full = me_full.pct_change().replace([np.inf, -np.inf], np.nan)
+    me = me_full.loc[START:]
+    ret_m = ret_full.loc[START:]
+    fwd = ret_full.shift(-1).loc[START:]
 
-    # characteristics at month-end t
-    mom122 = me.shift(2) / me.shift(12) - 1
+    mom122 = (me_full.shift(2) / me_full.shift(12) - 1).loc[START:]
     str1m = ret_m
     daily_ret = px.pct_change()
     max5 = daily_ret.rolling(21).apply(lambda x: np.sort(x)[-5:].mean(), raw=True) \
@@ -136,13 +142,21 @@ def main():
     bp = (1.0 / pbr.where(pbr > 0)).resample("ME").last().loc[START:]
     ep = (1.0 / per.where(per > 0)).resample("ME").last().loc[START:]
 
-    chars_raw = {"mom122": mom122.reindex(me.index), "str1m": str1m, "max5": max5.reindex(me.index),
+    chars_raw = {"mom122": mom122, "str1m": str1m, "max5": max5.reindex(me.index),
                  "avol": avol.reindex(me.index), "logdv": logdv.reindex(me.index),
                  "bp": bp.reindex(me.index)}
     chars = {k: rank_std(v) for k, v in chars_raw.items()}
 
-    # ---- CAL a: EW panel market vs independent market series ----
-    ew_mkt = ret_m.mean(axis=1)
+    # ---- CAL a v2: DOLLAR-VOLUME-WEIGHTED panel market vs the cap-weighted TAIEX ----
+    # (v1 compared an EQUAL-weighted panel mean against the cap-weighted index -- an
+    # apples-to-oranges CAL design: TAIEX is ~30% TSMC, EW-vs-VW genuinely correlates
+    # ~0.78 in Taiwan. v1's 0.908 was an artifact of inf-poisoned months being dropped.
+    # Like-for-like instrument: liquidity(DV)-weighted panel market; bar unchanged 0.90.)
+    dvw = dv.rolling(252).median().resample("ME").last().loc[START:].reindex(columns=ret_m.columns)
+    dvw = dvw.shift(1)
+    w = dvw.div(dvw.sum(axis=1), axis=0)
+    ew_mkt = (w * ret_m).sum(axis=1) / (w * ret_m.notna()).sum(axis=1).replace(0, np.nan) * 1.0
+    ew_mkt = (w.where(ret_m.notna()) * ret_m).sum(axis=1) / w.where(ret_m.notna()).sum(axis=1)
     mkt_ind = None
     try:
         import urllib.request
@@ -255,7 +269,7 @@ def main():
     ax = axes[1]
     for k, col in (("max5", "#c62828"), ("avol", "#f9a825"), ("bp", "#2e7d32"), ("mom122", "#1565c0")):
         cum = sl[k].cumsum() * 1e4
-        ax.plot(cum.index.to_timestamp(), cum.values, lw=1.2, label=k, color=col)
+        ax.plot(cum.index, cum.values, lw=1.2, label=k, color=col)
     ax.axhline(0, color="black", lw=0.8)
     ax.set_ylabel("cumulative slope (bps)")
     ax.set_title("slope paths", fontsize=10)

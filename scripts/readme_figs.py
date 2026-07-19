@@ -39,6 +39,7 @@ GROUPS = [
         ("TR-28", "季頻 ROE(HXZ)", "Quarterly ROE (HXZ)", "F"),
         ("TR-32", "產業動量(M-G)", "Industry momentum (M-G)", "F"),
         ("TR-34", "Fama-MacBeth 面板", "Fama-MacBeth panel", "M"),
+        ("TR-39", "台股棲地面板", "Taiwan habitat panel", "M"),
     ]),
     ("組合建構與風險模型", "Portfolio construction & risk models", [
         ("TR-03", "PCA 統計因子", "PCA statistical factors", "M"),
@@ -84,9 +85,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "43 份標準化測試,依機制類型分組\n"
+    "zh": "44 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 43 standardized tests, grouped by mechanism type\n"
+    "en": "All 44 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 
