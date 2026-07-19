@@ -28,6 +28,7 @@ GROUPS = [
         ("TR-31", "Campbell-Thompson", "Campbell-Thompson", "F"),
         ("TR-21", "吸收比率(個股)", "Absorption ratio (stocks)", "F"),
         ("TR-21b", "吸收比率(產業)", "Absorption ratio (industries)", "M"),
+        ("TR-42", "相關 regime 煞車", "Correlation brake", "F"),
     ]),
     ("橫斷面選股與因子", "Cross-sectional picking & factors", [
         ("TR-08", "ML 報酬預測", "ML return forecasting", "F"),
@@ -88,9 +89,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "47 份標準化測試,依機制類型分組\n"
+    "zh": "48 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 47 standardized tests, grouped by mechanism type\n"
+    "en": "All 48 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 

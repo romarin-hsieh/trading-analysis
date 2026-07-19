@@ -258,8 +258,11 @@ def main():
     fig, axes = plt.subplots(1, 2, figsize=(13.5, 4.8))
     ax = axes[0]
     for lab, r in res.items():
-        ax.plot((1 + r).cumprod(), lw=1.3, label=f"{lab}(Calmar {stats(r,12)['calmar']:.2f})")
-    ax.plot((1 + const).cumprod(), lw=1.1, ls="--", color="#616161",
+        nav = (1 + r).cumprod()
+        ax.plot(nav.index.to_timestamp(), nav.values, lw=1.3,
+                label=f"{lab}(Calmar {stats(r,12)['calmar']:.2f})")
+    navc = (1 + const).cumprod()
+    ax.plot(navc.index.to_timestamp(), navc.values, lw=1.1, ls="--", color="#616161",
             label=f"恆定 {avg_exp:.0%} 控制(Calmar {s_const['calmar']:.2f})")
     ax.set_yscale("log")
     ax.legend(fontsize=8.5)
