@@ -44,9 +44,9 @@ A personal research project. It started with a finding we couldn't ignore: **McL
 
 **The verdict map (updated 2026-07).** All 45 standardized tests, grouped by *what kind of mechanism* each one judges. Read it by row: the timing/regime row has no green at all; the green lives almost entirely in the inference-honesty row — method, not signals. The 2026-07 additions are the two native-seat replications: KMZ's Virtue of Complexity **replicates on its home turf (Sharpe +0.41 at 12,000 features) and is still fully explained by volatility-timing controls (+0.50)** — Nagel's critique confirmed at the source (TR-17b); the absorption ratio's crash-warning spike **weakly survives on industry portfolios (7/10 vs 33% base rate) while its timing gate lost to a static constant for the fifth time** (TR-21b). The newest wave sharpened all three storylines: Campbell-Thompson's sign restrictions rescue out-of-sample R² directionally and are still spanned by the same volatility controls (TR-31); Moskowitz-Grinblatt industry momentum is the least-decayed mechanism we have ever tested (−2% post-publication vs the −58% McLean-Pontiff average) precisely because it is not an anomaly — it is momentum-factor exposure in industry clothes, with zero alpha over FF5+UMD in every window (TR-32); and a user audit caught our own outside-bar engine being unfaithful to its source on four counts — rebuilt faithfully, the verdict class survived, this time earned (TR-30→30b).
 
-![Flagship 5-sleeve combo vs VOO, equity and drawdown](docs/img/fig_combo.png)
+![Flagship 5-sleeve combo vs VOO at L=1 and at a same-risk L=1.5](docs/img/fig_combo.png)
 
-**Success #1 — the one survivor.** The 5-sleeve risk-parity combo (tech momentum / defensive rotation / trend-gated TQQQ / gold / bonds) vs VOO: comparable terminal wealth at roughly **half the drawdown** (−19% vs −34%), and a **real, robustly-positive Carhart alpha** (stationary-bootstrap P(α≤0)=0.001). Honest caveat (TR-18): the daily-frequency **t=3.38** headline is a Dimson lagged-beta artifact — at the frequency-appropriate **monthly** clock the alpha is **t=2.64 (OLS) / 2.95 (HAC), below the Harvey-Liu-Zhu 3.0 bar**. So: a genuine alpha, but *borderline* on the strict hurdle, not a clean pass. Its edge is risk-shaping, not return-maxing: lever it to your drawdown budget (`scripts/defensive_overlay.py`). Depth-tested (TR-25): the conclusion survives ±20-25% weight tilts (210 variants, alpha-t all ≥2.0), weekly/monthly/quarterly rebalancing (Sharpe spread 0.02), and 1,000 bootstrap paths (99.8% shallower drawdown than VOO) — and the whole plateau stays below t=3.0, so "borderline" is structural, not a weight artifact. Stacking test (TR-33): adding a GP-quality sleeve *subtracts* alpha (stack-spread Carhart t≈−1.9); the book stays 5-sleeve. A 50-year mechanism replay (TR-35, free long-history analogs, all proxy legs calibrated 0.99+) adds the deepest scope condition yet: the protection is *asymmetric* — equity-led crashes are cut to 0.07–0.16× the market's drawdown (51-year MDD −14.6% vs −50.3%), but rate-led windows (1976-81 stagflation, 1994) get *no* protection (ratio ≈1; the 58% bond leg is the exposed flank, and gold — not bonds — carried stagflation). Honest deliverable: "half the drawdown in equity-led crashes; market-like shallow drawdowns, unprotected, in rate-shock regimes."
+**Success #1 — the one survivor.** The 5-sleeve risk-parity combo (tech momentum / defensive rotation / trend-gated TQQQ / gold / bonds) vs VOO. **Read the chart at the right risk budget:** unlevered (L=1) the book runs at about *half* VOO's volatility and ends slightly below it (CAGR +13% vs +14%) at **−19% max drawdown vs −34%**; at a comparable risk budget (L=1.5, net of financing) it beats VOO on **both** axes (CAGR **+19%**, MDD **−29%**). Comparing only the unlevered line to VOO prices return without pricing risk — a presentation flaw a reader caught in this very figure, now fixed. Underneath it is a **real, robustly-positive Carhart alpha** (stationary-bootstrap P(α≤0)=0.001). Honest caveat (TR-18): the daily-frequency **t=3.38** headline is a Dimson lagged-beta artifact — at the frequency-appropriate **monthly** clock the alpha is **t=2.64 (OLS) / 2.95 (HAC), below the Harvey-Liu-Zhu 3.0 bar**. So: a genuine alpha, but *borderline* on the strict hurdle, not a clean pass. Its edge is risk-shaping, not return-maxing: lever it to your drawdown budget (`scripts/defensive_overlay.py`). Depth-tested (TR-25): the conclusion survives ±20-25% weight tilts (210 variants, alpha-t all ≥2.0), weekly/monthly/quarterly rebalancing (Sharpe spread 0.02), and 1,000 bootstrap paths (99.8% shallower drawdown than VOO) — and the whole plateau stays below t=3.0, so "borderline" is structural, not a weight artifact. Stacking test (TR-33): adding a GP-quality sleeve *subtracts* alpha (stack-spread Carhart t≈−1.9); the book stays 5-sleeve. A 50-year mechanism replay (TR-35, free long-history analogs, all proxy legs calibrated 0.99+) adds the deepest scope condition yet: the protection is *asymmetric* — equity-led crashes are cut to 0.07–0.16× the market's drawdown (51-year MDD −14.6% vs −50.3%), but rate-led windows (1976-81 stagflation, 1994) get *no* protection (ratio ≈1; the 58% bond leg is the exposed flank, and gold — not bonds — carried stagflation). Honest deliverable: "half the drawdown in equity-led crashes; market-like shallow drawdowns, unprotected, in rate-shock regimes."
 
 | annual return | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026* |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -54,6 +54,38 @@ A personal research project. It started with a finding we couldn't ignore: **McL
 | VOO | +12.2% | +21.8% | −4.5% | +31.4% | +18.3% | +28.8% | −18.2% | +26.3% | +25.0% | +17.8% | +10.0% |
 
 *\*2026 = YTD. 2015 omitted (126-day risk-parity warm-up). Cost drag 12–72 bps/yr (TR-15). Read the table honestly: the combo does **not** beat VOO every year — it wins by losing less (2018, 2020, 2022, 2025) and by never being the book that has to recover from −34%.*
+
+### If you actually want to run it (zero-jargon version)
+
+![The leverage ladder: same recipe, four throttle settings](docs/img/leverage_ladder.png)
+
+Everything above is *evidence*. This is the *decision surface* — the same book, priced
+by how much pain you can hold. The recipe is fixed (bonds 58% / gold 16% / three equity
+sleeves 26%); **L is a throttle, not a strategy**:
+
+| L | what it means with $100k | CAGR | worst drawdown |
+|---|---|---|---|
+| 0.5 | $50k in the recipe, $50k in T-bills | +8% | −9% |
+| 1.0 | all $100k in the recipe | +13% | −19% |
+| 1.5 | borrow $50k, hold $150k (pays interest) | +19% | −29% |
+| 2.0 | borrow $100k, hold $200k (pays interest) | +24% | −37% |
+| *VOO* | *for reference* | *+14%* | *−34%* |
+
+**How to pick:** ask yourself "if the account fell __% from its high, would I panic-sell
+at the bottom?" That number is your L. Beginners stay at **L ≤ 1** — no borrowing, an
+ordinary brokerage account is enough.
+
+**The whole daily routine:** once a month, on a fixed day, rebalance back to the target
+weights (trim what ran, top up what lagged). Then close the app. That is not laziness —
+we tested seven flavours of "smart timing" and **every one of them lost to doing
+nothing**. Bans, each with a dead body in the registry: no gating to cash, no daily stop
+losses on high-vol names, no option-selling for income (TR-36), no chasing last year's
+winner (TR-11).
+
+Reproduce both figures: `uv run python scripts/leverage_ladder.py` and
+`scripts/readme_figures.py combo`; current weights and stats live in
+[`exports/dashboard/flagship_combo.json`](exports/dashboard/flagship_combo.json).
+*Research output, not investment advice.*
 
 ![Ensemble holdout Sharpe and MDD vs the in-sample best rule](docs/img/fig_ensemble.png)
 
@@ -203,9 +235,9 @@ Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only pu
 
 **判定全景(2026-07 更新)。** 45 份標準化測試，依照「它在檢驗哪一種機制」分組。用橫列來讀：擇時與 regime 那一列一格綠色都沒有；綠色幾乎全部集中在「推論誠實度」那一列——通過的是方法，不是訊號。2026-07 新增的兩份原生棲地重測值得單獨說：KMZ 的複雜度美德**回到論文自己的棲地確實複現(12,000 個特徵時 Sharpe +0.41)，但仍然被波動擇時對照組(+0.50)完整蓋過**，Nagel 的批評在源頭獲得確認(TR-17b)；吸收比率的崩盤預警尖峰**在產業組合上弱存活(10 次大跌命中 7 次，基準率 33%)，它的擇時閘門則第五次輸給一個恆定部位**(TR-21b)。最新一波把三條故事線都磨得更利：Campbell-Thompson 的符號約束確實在方向上救回樣本外 R²，但仍被同一組波動對照張成(TR-31)；Moskowitz-Grinblatt 產業動量是我們測過**發表後衰退最少**的機制(−2%，對比 McLean-Pontiff 平均 −58%)——不衰退恰恰因為它不是異象，而是穿產業外衣的動量因子曝險，對 FF5+UMD 在每個時間窗 alpha 都歸零(TR-32)；還有一次使用者稽核抓到我們自己的外包線引擎對來源四處不忠實——忠實重建後判定同類，這次是掙來的(TR-30→30b)。
 
-![主力五 sleeve 組合 vs VOO：權益曲線與回撤](docs/img/fig_combo.png)
+![主力五 sleeve 組合 vs VOO：L=1 與同風險 L=1.5 兩條線](docs/img/fig_combo.png)
 
-**成功案例一：唯一的倖存者。** 五個 sleeve 的風險平價(risk parity，依各資產波動度的倒數分配權重)組合(科技動能/防禦輪動/趨勢濾網 TQQQ/黃金/債券)對上 VOO：終點財富相近，但**回撤約砍半**(−19% vs −34%)，且有一個**真實、穩健為正的 Carhart alpha**(定態拔靴 P(α≤0)=0.001)。誠實但書(TR-18)：日頻的 **t=3.38** 是 Dimson lagged-beta 假象，在頻率對應的**月頻**下 alpha 是 **t=2.64(OLS)/2.95(HAC)，低於 Harvey-Liu-Zhu 的 3.0 門檻**。所以：是真 alpha，但對嚴格門檻只是**邊際**，不算乾淨過關。它的優勢是風險塑形而非報酬極大化：依你的回撤預算上槓桿(`scripts/defensive_overlay.py`)。深度檢驗(TR-25)：權重 ±20-25%(210 個變體，alpha-t 全數 ≥2.0)、週/月/季再平衡(Sharpe 差距 0.02)、1,000 條拔靴路徑(99.8% 回撤淺於 VOO)都不改結論——而且整個高原都低於 t=3.0，「邊際」是結構性質，不是權重挑出來的。疊加終審(TR-33)：把 GP 品質 sleeve 加進來反而**扣掉** alpha(疊加價差 Carhart t≈−1.9)，帳簿維持 5-sleeve。50 年機制回放(TR-35，免費長史類比，代理腿全部校準到 0.99+)加上了至今最深的範圍條件：保護是**不對稱**的——股災主導的回撤被砍到市場的 0.07–0.16 倍(51 年 MDD −14.6% vs −50.3%)，但利率主導的時間窗(1976–81 停滯性通膨、1994 債券大屠殺)**零保護**(比率≈1；58% 債券腿是裸露面，扛住停滯性通膨的是金不是債)。誠實的交付語言：「股災回撤砍半；利率衝擊 regime 與市場同淺、無超額保護」。
+**成功案例一：唯一的倖存者。** 五個 sleeve 的風險平價(risk parity，依各資產波動度的倒數分配權重)組合(科技動能/防禦輪動/趨勢濾網 TQQQ/黃金/債券)對上 VOO。**請在對的風險預算上讀這張圖：**不加槓桿(L=1)時，這個帳簿的波動只有 VOO 的**一半**、終點也略低於它(年化 +13% vs +14%)，但最大回撤是 **−19% 對 −34%**；把風險預算拉到相當水準(L=1.5，已扣融資成本)，它在**報酬與回撤兩軸同時**勝過 VOO(年化 **+19%**、回撤 **−29%**)。只拿未加槓桿那條線跟 VOO 比，等於「比報酬卻不比風險」——這個呈現缺陷正是一位讀者在這張圖上抓到的，現已修正。它底下是一個**真實、穩健為正的 Carhart alpha**(定態拔靴 P(α≤0)=0.001)。誠實但書(TR-18)：日頻的 **t=3.38** 是 Dimson lagged-beta 假象，在頻率對應的**月頻**下 alpha 是 **t=2.64(OLS)/2.95(HAC)，低於 Harvey-Liu-Zhu 的 3.0 門檻**。所以：是真 alpha，但對嚴格門檻只是**邊際**，不算乾淨過關。它的優勢是風險塑形而非報酬極大化：依你的回撤預算上槓桿(`scripts/defensive_overlay.py`)。深度檢驗(TR-25)：權重 ±20-25%(210 個變體，alpha-t 全數 ≥2.0)、週/月/季再平衡(Sharpe 差距 0.02)、1,000 條拔靴路徑(99.8% 回撤淺於 VOO)都不改結論——而且整個高原都低於 t=3.0，「邊際」是結構性質，不是權重挑出來的。疊加終審(TR-33)：把 GP 品質 sleeve 加進來反而**扣掉** alpha(疊加價差 Carhart t≈−1.9)，帳簿維持 5-sleeve。50 年機制回放(TR-35，免費長史類比，代理腿全部校準到 0.99+)加上了至今最深的範圍條件：保護是**不對稱**的——股災主導的回撤被砍到市場的 0.07–0.16 倍(51 年 MDD −14.6% vs −50.3%)，但利率主導的時間窗(1976–81 停滯性通膨、1994 債券大屠殺)**零保護**(比率≈1；58% 債券腿是裸露面，扛住停滯性通膨的是金不是債)。誠實的交付語言：「股災回撤砍半；利率衝擊 regime 與市場同淺、無超額保護」。
 
 | 年度報酬 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026* |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -213,6 +245,33 @@ Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only pu
 | VOO | +12.2% | +21.8% | −4.5% | +31.4% | +18.3% | +28.8% | −18.2% | +26.3% | +25.0% | +17.8% | +10.0% |
 
 *\*2026 為年初至今。2015 略去(風險平價需 126 天暖身)。成本拖累 12–72 bps/年(TR-15)。平心而論：組合**不是**每年都贏 VOO，而是贏在跌得少(2018、2020、2022、2025)，以及永遠不必從 −34% 的坑裡爬出來。*
+
+### 如果你真的要用它(零門檻版)
+
+![槓桿階梯：同一份配方，四種油門](docs/img/leverage_ladder.png)
+
+上面全部是**證據**，這張是**決策面**——同一個帳簿，用「你能忍多痛」來定價。配方是固定的
+(債 58% / 金 16% / 三條股票腿共 26%)；**L 是油門，不是策略**：
+
+| L | 100 萬本金的意思 | 年化 | 最慘回撤 |
+|---|---|---|---|
+| 0.5 | 50 萬買配方，50 萬放定存 | +8% | −9% |
+| 1.0 | 100 萬全部照配方買 | +13% | −19% |
+| 1.5 | 借 50 萬，持有 150 萬(要付利息) | +19% | −29% |
+| 2.0 | 借 100 萬，持有 200 萬(要付利息) | +24% | −37% |
+| *VOO* | *對照組* | *+14%* | *−34%* |
+
+**怎麼選:**問自己一句「帳戶從高點掉 __%，我會不會嚇到全部賣在最低點?」——你能忍的那個數字
+就是你的 L。新手一律 **L 不超過 1**:不用借錢，普通證券戶就能做。
+
+**日常操作只有一件事:**每月挑一個固定日子，把帳戶調回目標比例(漲多的賣一點、跌少的補一點)，
+然後關掉 App。這不是偷懶——我們測過七種「聰明擇時」，**每一種都輸給什麼都不做**。禁令清單
+(每一條在註冊表裡都有一具屍體):不 gate 到現金、高波動股不用日停損、不賣選擇權收租(TR-36)、
+不追去年冠軍(TR-11)。
+
+兩張圖都可重跑:`uv run python scripts/leverage_ladder.py` 與 `scripts/readme_figures.py combo`;
+現行權重與統計在 [`exports/dashboard/flagship_combo.json`](exports/dashboard/flagship_combo.json)。
+*本專案是研究產出，不是投資建議。*
 
 ![混合策略 holdout Sharpe 與回撤 vs 樣本內最佳單規則](docs/img/fig_ensemble.png)
 

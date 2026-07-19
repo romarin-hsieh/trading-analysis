@@ -190,12 +190,20 @@ def fig_combo():
     rp, _ew, _sleeves = build_combo()
     voo = ss._px(["VOO"]).iloc[:, 0].pct_change().reindex(rp.index).fillna(0.0)
     bil = ss._px(["BIL"]).iloc[:, 0].pct_change().reindex(rp.index).fillna(0.0)
-    eq_rp, eq_voo = (1 + rp).cumprod(), (1 + voo).cumprod()
+    # A reader-caught presentation flaw (2026-07-19): showing ONLY the unlevered book
+    # against VOO reads as "loses to VOO" -- the book runs at ~half VOO's vol, so that
+    # comparison prices return without pricing risk. The same-risk L=1.5 line (net of
+    # financing at T-bill+60bps) is now on the chart, where the claim actually lives.
+    r15 = 1.5 * rp - 0.5 * (bil + 0.006 / 252)
+    eq_rp, eq_voo, eq_15 = (1 + rp).cumprod(), (1 + voo).cumprod(), (1 + r15).cumprod()
 
     fig, (ax1, ax2) = plt.subplots(
         2, 1, figsize=(12.5, 7), sharex=True, gridspec_kw={"height_ratios": [2.4, 1.0]}
     )
-    ax1.plot(eq_rp.index, eq_rp, color=BLUE, lw=1.6, label="5-sleeve risk-parity combo")
+    ax1.plot(eq_15.index, eq_15, color="#2e7d32", lw=1.7,
+             label="combo at L=1.5 (same-risk budget, net of financing)")
+    ax1.plot(eq_rp.index, eq_rp, color=BLUE, lw=1.6,
+             label="5-sleeve risk-parity combo (L=1, ~half VOO's vol)")
     ax1.plot(eq_voo.index, eq_voo, color=GREY, lw=1.4, label="VOO buy & hold")
     ax1.set_yscale("log")
     ax1.set_title("The one survivor: 5-sleeve risk-parity combo, 2015-2026\n"
@@ -205,11 +213,15 @@ def fig_combo():
     ax1.grid(alpha=0.3)
     ex = rp - bil
     sh = float(ex.mean() / ex.std() * np.sqrt(252))  # F3: Sharpe on excess-over-T-bill
+    cagr = lambda e: float(e.iloc[-1] ** (252 / len(e)) - 1)  # noqa: E731
     ax1.text(0.985, 0.04,
-             f"combo: excess-over-T-bill Sharpe {sh:.2f}  MDD {dd(eq_rp).min():+.0%}   |   "
-             f"VOO: MDD {dd(eq_voo).min():+.0%}\n"
-             "the edge is the drawdown, not the return -- lever it to taste "
-             "(scripts/defensive_overlay.py)",
+             f"L=1: Sharpe {sh:.2f} (excess-over-T-bill), CAGR {cagr(eq_rp):+.0%}, "
+             f"MDD {dd(eq_rp).min():+.0%}   |   VOO: CAGR {cagr(eq_voo):+.0%}, "
+             f"MDD {dd(eq_voo).min():+.0%}\n"
+             f"L=1.5: CAGR {cagr(eq_15):+.0%}, MDD {dd(eq_15).min():+.0%} -- at a comparable "
+             "risk budget the book beats VOO on BOTH axes\n"
+             "the edge is risk-shaping, not raw return -- lever it to your drawdown budget "
+             "(scripts/leverage_ladder.py)",
              transform=ax1.transAxes, ha="right", va="bottom", fontsize=8.5,
              bbox={"boxstyle": "round", "fc": "white", "ec": GREY, "alpha": 0.85})
     ax2.fill_between(eq_rp.index, dd(eq_rp), 0, color=BLUE, alpha=0.55,

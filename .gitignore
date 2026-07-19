@@ -50,3 +50,10 @@ logs/
 # stray data downloads (session artifacts, never commit)
 st.zip
 supported_tickers.csv
+
+# third-party-derived work products (friend's FIRE dashboard concept) -- local only,
+# temporarily untracked at the user's request 2026-07-19
+scripts/allocation_lab.py
+docs/26-allocation-lab.md
+docs/img/allocation_lab.png
+exports/dashboard/allocation_lab.json
