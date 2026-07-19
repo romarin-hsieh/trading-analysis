@@ -75,24 +75,81 @@ CANDIDATES = {"mom122": +1, "avol": +1, "logdv": -1}   # sign = direction of the
 DEN = 3 - 2 * np.sqrt(2)
 
 
-def cs_spread_monthly(px: pd.DataFrame) -> pd.DataFrame:
-    """Corwin-Schultz effective spread (TR-38 machinery incl. the overnight adjustment),
-    averaged to month-ends. Half of this is paid per side."""
-    high = px * 1.0
-    low = px * 1.0
-    # panel carries close only -> use a 2-day high/low proxy from closes (documented
-    # limitation: understates the true intraday range, so the spread estimate is a
-    # LOWER bound; the verdict therefore errs toward the candidates' favour)
-    hi2 = px.rolling(2).max()
-    lo2 = px.rolling(2).min()
-    lh = np.log((hi2 / lo2).where(lo2 > 0)) ** 2
-    beta = lh + lh.shift(1)
-    hmax = np.maximum(hi2, hi2.shift(1))
-    lmin = np.minimum(lo2, lo2.shift(1))
+def load_hilo(cols) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """REAL daily high/low/close from the FinMind parquets (columns max/min/close).
+
+    T1 catch, CAL-b run 1: a first version approximated high/low with a 2-DAY CLOSE
+    RANGE because load_panels() only surfaces closes. That proxy measures VOLATILITY,
+    not spread -- thinly traded names barely move day to day, so it read illiquid
+    spreads (15bps) as NARROWER than liquid ones (27bps), exactly backwards. The true
+    intraday range was in the raw files all along. Never proxy a quantity when the
+    real column exists.
+    """
+    hi, lo, cl = {}, {}, {}
+    for f in sorted((DATA / "price").glob("*.parquet")):
+        sid = f.stem
+        if sid not in cols:
+            continue
+        d = pd.read_parquet(f)
+        idx = pd.to_datetime(d["date"])
+        hi[sid] = pd.Series(d["max"].to_numpy(), index=idx)
+        lo[sid] = pd.Series(d["min"].to_numpy(), index=idx)
+        cl[sid] = pd.Series(d["close"].to_numpy(), index=idx)
+    H = pd.DataFrame(hi).sort_index()
+    L = pd.DataFrame(lo).sort_index().reindex(columns=H.columns)
+    C = pd.DataFrame(cl).sort_index().reindex(columns=H.columns)
+    return H.where(H > 0), L.where(L > 0), C.where(C > 0)
+
+
+def tick_size(price: pd.DataFrame) -> pd.DataFrame:
+    """TWSE mandated tick schedule (TWD). Mechanical, not estimated."""
+    t = pd.DataFrame(np.nan, index=price.index, columns=price.columns)
+    t = t.mask(price < 10, 0.01)
+    t = t.mask((price >= 10) & (price < 50), 0.05)
+    t = t.mask((price >= 50) & (price < 100), 0.10)
+    t = t.mask((price >= 100) & (price < 500), 0.50)
+    t = t.mask((price >= 500) & (price < 1000), 1.00)
+    t = t.mask(price >= 1000, 5.00)
+    return t
+
+
+def tick_spread_monthly(C: pd.DataFrame, mult: float) -> pd.DataFrame:
+    """Charged spread = mult x (one tick / price), month-end.
+
+    POST-RUN AUDIT NOTE (CAL-b v1 -> v2; the tree is NOT edited). CAL-b rejected the
+    Corwin-Schultz cost model TWICE, and the second rejection is a real methodological
+    finding rather than a bug: even with REAL daily high/low, CS reads illiquid TWSE
+    names as having NARROWER spreads than liquid ones (47 vs 66bps), because thinly
+    traded names have many no-trade / zero-range days that floor the estimator. CS is
+    not a valid spread estimator on this panel's thin tail. We therefore stop trying to
+    MEASURE the spread from free OHLC and instead charge a transparent ASSUMPTION with
+    a mechanical floor: Taiwan's mandated tick schedule gives the minimum possible
+    spread (one tick / price), and `mult` states how many ticks wide we assume the book
+    is for the kind of names a decile portfolio holds. The verdict is reported across
+    mult = 1 / 2 / 4 so the reader sees exactly where it flips -- an assumption with a
+    sensitivity band beats a measurement that is known to be inverted.
+    CAL-b v2 verifies the tick model mechanically (a ~2,290 TWD name must price at
+    5/2290 ~= 22bps, a ~20 TWD name at 0.05/20 = 25bps), not by an effect prior.
+    """
+    return (mult * tick_size(C) / C).resample("ME").mean()
+
+
+def cs_spread_monthly(H: pd.DataFrame, L: pd.DataFrame, C: pd.DataFrame) -> pd.DataFrame:
+    """Corwin-Schultz effective spread with the paper's overnight adjustment (TR-38
+    machinery), averaged to month-ends. Half of this is paid per side."""
+    c_prev = C.shift(1)
+    gap_up = (L - c_prev).clip(lower=0)
+    gap_dn = (c_prev - H).clip(lower=0)
+    h2 = H - gap_up + gap_dn
+    l2 = L - gap_up + gap_dn
+    lh1 = np.log((H / L).where(L > 0)) ** 2
+    lh2 = np.log((h2 / l2).where(l2 > 0)) ** 2
+    beta = lh1.shift(1) + lh2
+    hmax = np.maximum(H.shift(1), h2)
+    lmin = np.minimum(L.shift(1), l2)
     gamma = np.log((hmax / lmin).where(lmin > 0)) ** 2
     alpha = (np.sqrt(2 * beta) - np.sqrt(beta)) / DEN - np.sqrt(gamma / DEN)
     s = (2 * (np.exp(alpha) - 1) / (1 + np.exp(alpha))).clip(lower=0)
-    del high, low
     return s.resample("ME").mean()
 
 
@@ -156,13 +213,39 @@ def main():
     print("TR-40  TAIWAN COST GATE -- do the confirmed candidates survive 0.585% + spread?")
     print("=" * 104)
 
-    spread_m = cs_spread_monthly(px.where(px > 0)).reindex(chars["mom122"].index)
+    H, L, C = load_hilo(set(chars["mom122"].columns))
+    for _, row in man.iterrows():                      # same delisting truncation
+        sid, dd = row["stock_id"], pd.Timestamp(row["delist_date"])
+        if sid in H.columns:
+            H.loc[H.index > dd, sid] = np.nan
+            L.loc[L.index > dd, sid] = np.nan
+            C.loc[C.index > dd, sid] = np.nan
+    cs_m = cs_spread_monthly(H, L, C).reindex(chars["mom122"].index) \
+        .reindex(columns=chars["mom122"].columns)
     liq = chars["logdv"]                     # rank-standardized liquidity
-    sp_illiq = spread_m.where(liq < -0.3).stack().median()
-    sp_liq = spread_m.where(liq > 0.3).stack().median()
-    cal_b = sp_illiq > sp_liq
-    print(f"CAL b: measured CS spread illiquid decile {sp_illiq*1e4:.0f}bps vs liquid "
-          f"{sp_liq*1e4:.0f}bps -> {'PASS' if cal_b else 'FAIL'}")
+    cs_illiq = cs_m.where(liq < -0.3).stack().median()
+    cs_liq = cs_m.where(liq > 0.3).stack().median()
+    print(f"[rejected cost model] Corwin-Schultz on real high/low: illiquid "
+          f"{cs_illiq*1e4:.0f}bps vs liquid {cs_liq*1e4:.0f}bps -- INVERTED "
+          f"(thin names' no-trade days floor the range). Not used; see the tick model.")
+
+    MULT_BASE = 2.0
+    spread_m = tick_spread_monthly(C, MULT_BASE).reindex(chars["mom122"].index) \
+        .reindex(columns=chars["mom122"].columns)
+    # CAL b v2: mechanical verification of the tick model on known price points
+    one_tick = (tick_size(C) / C).resample("ME").mean()
+    px_last = C.resample("ME").last().iloc[-1]
+    checks = []
+    for lo_p, hi_p, want_bps in ((15, 45, 25), (150, 450, 20), (1500, 4000, 20)):
+        sel = px_last[(px_last >= lo_p) & (px_last <= hi_p)].index
+        if len(sel):
+            got = float(one_tick.iloc[-1][sel].median() * 1e4)
+            checks.append((f"{lo_p}-{hi_p} TWD", got, want_bps, abs(got - want_bps) <= 15))
+    cal_b = all(c[3] for c in checks) and len(checks) >= 2
+    print("CAL b v2 (tick model, mechanical): " + " | ".join(
+        f"{lab} → {got:.0f}bps/tick (預期≈{want})" for lab, got, want, _ in checks)
+        + f" -> {'PASS' if cal_b else 'FAIL'}")
+    print(f"  charged spread = {MULT_BASE:.0f} ticks (assumption; sensitivity at 1/2/4 below)")
 
     results, cal_a_ok = {}, True
     for name, sign in CANDIDATES.items():
@@ -214,12 +297,55 @@ def main():
         print(f"  {name:7s}: " + " | ".join(
             f"{lab} {m*100:+.2f}%/yr (t={t:+.1f}, 換手 {to:.1f}x)" for lab, m, t, to in row))
 
-    print("C4 discounted commission (6折 0.0855%/side) sensitivity:")
+    print("C4 sensitivities (reported, not optimized):")
+    print("  (a) 手續費 6 折 0.0855%/邊:")
     for name, sign in CANDIDATES.items():
         d = decile_portfolio(chars[name], fwd, sign, spread_m, 1, COMMISSION_DISC)
         net = (d["gross"] - ew_universe.reindex(d.index)) - d["cost"]
         m, t = nw_t(net)
-        print(f"  {name:7s}: NET {m*12*100:+.2f}%/yr (t={t:+.2f})")
+        print(f"      {name:7s}: NET {m*12*100:+.2f}%/yr (t={t:+.2f})")
+    print("  (b) 價差假設 1 / 2 / 4 ticks(全額手續費;判定用 2 ticks):")
+    for name, sign in CANDIDATES.items():
+        cells = []
+        for mult in (1.0, 2.0, 4.0):
+            sp = tick_spread_monthly(C, mult).reindex(chars[name].index) \
+                .reindex(columns=chars[name].columns)
+            d = decile_portfolio(chars[name], fwd, sign, sp, 1, COMMISSION_FULL)
+            net = (d["gross"] - ew_universe.reindex(d.index)) - d["cost"]
+            m, t = nw_t(net)
+            cells.append(f"{mult:.0f}t {m*12*100:+.2f}%(t={t:+.1f})")
+        print(f"      {name:7s}: " + " | ".join(cells))
+
+    # ---- POST-RUN diagnostic (not in F0; reported because it can only make the verdict
+    # MORE conservative): capacity. The illiquidity premium is paid for being unable to
+    # get out -- a "survives costs" verdict on the illiquid decile is meaningless without
+    # stating the size at which it stops being true.
+    print("POST-RUN 診斷(容量;不改判定規則,只加但書):")
+    dv_m = dv.resample("ME").mean().reindex(chars["logdv"].index) \
+        .reindex(columns=chars["logdv"].columns)
+    for name, sign in CANDIDATES.items():
+        s = (chars[name] * sign)
+        last = s.iloc[-1].dropna()
+        k = max(10, int(len(last) * DECILE))
+        picks = last.nlargest(k).index
+        med_dv = float(dv_m.iloc[-1][picks].median())
+        cap_pos = 0.10 * med_dv                      # 10% of a name's daily TWD volume
+        cap_book = cap_pos * k
+        # break-even spread: how many ticks wide would the book have to be to zero the net?
+        d1 = decile_portfolio(chars[name], fwd,
+                              sign, tick_spread_monthly(C, 1.0).reindex(chars[name].index)
+                              .reindex(columns=chars[name].columns), 1, COMMISSION_FULL)
+        n1, _ = nw_t((d1["gross"] - ew_universe.reindex(d1.index)) - d1["cost"])
+        d2 = decile_portfolio(chars[name], fwd,
+                              sign, tick_spread_monthly(C, 2.0).reindex(chars[name].index)
+                              .reindex(columns=chars[name].columns), 1, COMMISSION_FULL)
+        n2, _ = nw_t((d2["gross"] - ew_universe.reindex(d2.index)) - d2["cost"])
+        per_tick = n1 - n2                                  # net lost per extra tick
+        be = (1.0 + n1 / per_tick) if per_tick > 0 else np.inf
+        be_s = f"{be:.0f}" if np.isfinite(be) else "n/a"
+        print(f"  {name:7s}: 該分位中位日成交金額 NT${med_dv/1e6:,.1f}M → 單檔上限(10% 日量) "
+              f"NT${cap_pos/1e6:,.2f}M → 全組合容量約 NT${cap_book/1e6:,.0f}M "
+              f"| 損益兩平價差 ≈ {be_s} ticks")
 
     survivors = [k for k, v in verdicts.items() if v == "SURVIVES-COSTS"]
     marginal = [k for k, v in verdicts.items() if v == "MARGINAL"]
