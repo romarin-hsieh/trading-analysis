@@ -67,16 +67,23 @@ FIVE = ("mom122", "str1m", "max5", "avol", "logdv")
 
 
 def build_chars(px, dv, pbr, include_bp: bool):
+    """T1 fix baked in: pandas pct_change() defaults to fill_method='pad', which
+    forward-fills a delisted name's dead tail into thousands of FAKE 0% return days
+    -- 3474's 713 alive rows produced 2,420 'zero-return days', zero_share 0.79, and
+    the ghost filter silently killed exactly the truncated delisted cohort (and, in
+    TR-39 as-run, any name whose series ended early). All pct_change calls here use
+    fill_method=None, and the ghost filter's denominator is ALIVE days only."""
     px = px.where(px > 0)
-    zero_share = (px.pct_change() == 0).mean()
+    ch = px.pct_change(fill_method=None)
+    zero_share = (ch == 0).sum() / ch.notna().sum().clip(lower=1)
     px = px.loc[:, zero_share[zero_share < 0.4].index]
     dv = dv[px.columns].where(dv[px.columns] > 0)
     me_full = px.resample("ME").last()
-    ret_full = me_full.pct_change().replace([np.inf, -np.inf], np.nan)
+    ret_full = me_full.pct_change(fill_method=None).replace([np.inf, -np.inf], np.nan)
     me = me_full.loc[START:]
     ret_m = ret_full.loc[START:]
     fwd = ret_full.shift(-1).loc[START:]
-    daily_ret = px.pct_change()
+    daily_ret = px.pct_change(fill_method=None)
     chars = {
         "mom122": (me_full.shift(2) / me_full.shift(12) - 1).loc[START:],
         "str1m": ret_m,
