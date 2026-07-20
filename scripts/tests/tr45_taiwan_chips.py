@@ -226,22 +226,36 @@ def main():
 
     # ---- C3 cost gate on C1 candidates ----
     print("-" * 104)
-    print("C3 成本關卡(tick 價差模型 2 跳、全額手續費+證交稅、月頻、總報酬 fwd):")
-    spread_m = tick_spread_monthly(px_raw[cols], MULT).reindex(idx)
+    print("C3 成本關卡(TR-40 忠實重用:一切以「相對等權宇宙的超額」計;tick 2 跳、全額費稅、月頻、總報酬 fwd):")
+    # T1 post-run fixes (both caught by the as-run v1 output, recorded in the doc):
+    # (1) suspension rows carry close=0 -> tick/price = inf poisoned the cost series
+    #     (net=-inf); clean prices first -- same zero-price contamination TR-39 hit.
+    # (2) v1 measured gross/net ABSOLUTE; TR-40's machinery scores everything as
+    #     EXCESS over the EW universe (its CAL-a even gates on gross excess >=
+    #     +40bps/mo). On an absolute basis every long-only decile "survives" a bull
+    #     window -- the v1 SIGNAL verdict was a benchmark artifact, not a finding.
+    spread_m = tick_spread_monthly(px_raw[cols].where(px_raw[cols] > 0), MULT).reindex(idx)
+    ew = fwd.mean(axis=1)
     c3 = {}
     for k in TRIO:
         if abs(c1[k][1]) < 2:
             continue
         sgn = int(np.sign(c1[k][0]))
         port = decile_portfolio(trio[k], fwd, sgn, spread_m, 1, COMMISSION_FULL)
-        net = port["gross"] - port["cost"]
-        g_ann, n_ann = float(port["gross"].mean() * 12), float(net.mean() * 12)
+        ex_g = port["gross"] - ew.reindex(port.index)
+        net = ex_g - port["cost"]
+        g_abs = float(port["gross"].mean() * 12)
+        g_ann, n_ann = float(ex_g.mean() * 12), float(net.mean() * 12)
+        gm, _ = nw_t(ex_g)
         _, t_net = nw_t(net)
-        tier = ("SURVIVES-COSTS" if t_net >= 2 else
+        gate40 = gm >= 0.0040
+        tier = ("SURVIVES-COSTS" if (t_net >= 2 and n_ann > 0) else
                 "MARGINAL" if (n_ann > 0 or t_net >= 1) else "FAILS-COSTS")
         c3[k] = (g_ann, n_ann, t_net, tier, net)
-        print(f"  {k:<8} 方向 {sgn:+d}  毛 {g_ann*100:+5.2f}%/yr  淨 {n_ann*100:+5.2f}%/yr"
-              f"  t(淨)={t_net:+5.2f}  -> {tier}(中位換手 {port['churn'].median()*100:.0f}%/mo)")
+        print(f"  {k:<8} 方向 {sgn:+d}  絕對毛 {g_abs*100:+5.2f}%/yr | 超額毛 {g_ann*100:+5.2f}%/yr"
+              f"({gm*1e4:+.0f}bps/mo,TR-40 的 ≥+40bps 閘門:{'過' if gate40 else '不過'})"
+              f" | 超額淨 {n_ann*100:+5.2f}%/yr t={t_net:+5.2f}"
+              f" -> {tier}(中位換手 {port['churn'].median()*100:.0f}%/mo)")
         lad = []
         for d in range(10):
             lo, hi = d / 10, (d + 1) / 10
@@ -253,10 +267,10 @@ def main():
                 sel = s[(s.rank(pct=True) > lo) & (s.rank(pct=True) <= hi)].index
                 f = fwd.loc[t_, sel].dropna()
                 if len(f):
-                    r.append(f.mean())
+                    r.append(f.mean() - ew.loc[t_])
             lad.append(np.mean(r) * 12 * 100 if r else np.nan)
         c3[k] = (*c3[k], lad)
-        print(f"    十分位毛梯(D10 最強→D1):{' '.join(f'{v:+.1f}' for v in lad[::-1])}")
+        print(f"    十分位超額毛梯(D10 最強→D1):{' '.join(f'{v:+.1f}' for v in lad[::-1])}")
 
     # ---- C4 attribution ----
     print("-" * 104)
@@ -316,7 +330,8 @@ def main():
         k0 = (surv or cands)[0]
         lad = c3[k0][5]
         ax.bar(range(1, 11), lad, color="#1565c0")
-        ax.set_title(f"C3 {k0} 十分位毛報酬階梯(%/yr,D10=最強)")
+        ax.axhline(0, c="k", lw=0.6)
+        ax.set_title(f"C3 {k0} 十分位超額毛報酬(%/yr vs 等權宇宙,D10=最強)")
         ax.set_xlabel("decile(依 fitted 方向)")
     else:
         ax.text(0.5, 0.5, "無 |t|>=2 候選 → 無成本關卡", ha="center", va="center")

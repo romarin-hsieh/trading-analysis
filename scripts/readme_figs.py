@@ -45,6 +45,7 @@ GROUPS = [
         ("TR-40", "台股成本關卡", "Taiwan cost gate", "M"),
         ("TR-41", "台股桶經濟性", "Taiwan bucket economics", "M"),
         ("TR-44", "台股還原股價", "Taiwan total-return", "M"),
+        ("TR-45", "台股籌碼歸因", "Taiwan chip attribution", "M"),
     ]),
     ("組合建構與風險模型", "Portfolio construction & risk models", [
         ("TR-03", "PCA 統計因子", "PCA statistical factors", "M"),
@@ -91,9 +92,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "50 份標準化測試,依機制類型分組\n"
+    "zh": "51 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 50 standardized tests, grouped by mechanism type\n"
+    "en": "All 51 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 
