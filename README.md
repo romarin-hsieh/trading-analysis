@@ -55,32 +55,32 @@ A personal research project. It started with a finding we couldn't ignore: **McL
 
 *\*2026 = YTD. 2015 omitted (126-day risk-parity warm-up). Cost drag 12–72 bps/yr (TR-15). Read the table honestly: the combo does **not** beat VOO every year — it wins by losing less (2018, 2020, 2022, 2025) and by never being the book that has to recover from −34%.*
 
-### If you actually want to run it (zero-jargon version)
+### Position sizing: the leverage ratio L
 
-![The leverage ladder: same recipe, four throttle settings](docs/img/leverage_ladder.png)
+![Fixed allocation at four leverage ratios: cumulative value and drawdown/return summary](docs/img/leverage_ladder_en.png)
 
-Everything above is *evidence*. This is the *decision surface* — the same book, priced
-by how much pain you can hold. The recipe is fixed (bonds 58% / gold 16% / three equity
-sleeves 26%); **L is a throttle, not a strategy**:
+Everything above is *evidence*; this section is the *decision layer*. The allocation is
+fixed (bonds 58% / gold 16% / three equity sleeves 26%); **the leverage ratio L only
+scales exposure — it is not a separate strategy**:
 
-| L | what it means with $100k | CAGR | worst drawdown |
+| L | implementation with $100k | CAGR | max drawdown |
 |---|---|---|---|
-| 0.5 | $50k in the recipe, $50k in T-bills | +8% | −9% |
-| 1.0 | all $100k in the recipe | +13% | −19% |
-| 1.5 | borrow $50k, hold $150k (pays interest) | +19% | −29% |
-| 2.0 | borrow $100k, hold $200k (pays interest) | +24% | −37% |
-| *VOO* | *for reference* | *+14%* | *−34%* |
+| 0.5 | $50k in the allocation, $50k in T-bills | +8% | −9% |
+| 1.0 | $100k fully invested in the allocation | +13% | −19% |
+| 1.5 | $150k exposure, $50k financed on margin | +19% | −29% |
+| 2.0 | $200k exposure, $100k financed on margin | +24% | −37% |
+| *VOO* | *benchmark* | *+14%* | *−34%* |
 
-**How to pick:** ask yourself "if the account fell __% from its high, would I panic-sell
-at the bottom?" That number is your L. Beginners stay at **L ≤ 1** — no borrowing, an
-ordinary brokerage account is enough.
+**Selecting L.** Choose the largest drawdown you are prepared to hold through without
+abandoning the strategy; that tolerance determines L. L ≤ 1 requires no margin account.
+Financing convention: at L < 1 uninvested cash earns the T-bill rate; at L > 1 borrowing
+is charged at T-bill + 60 bps (both are included in the figures above).
 
-**The whole daily routine:** once a month, on a fixed day, rebalance back to the target
-weights (trim what ran, top up what lagged). Then close the app. That is not laziness —
-we tested seven flavours of "smart timing" and **every one of them lost to doing
-nothing**. Bans, each with a dead body in the registry: no gating to cash, no daily stop
-losses on high-vol names, no option-selling for income (TR-36), no chasing last year's
-winner (TR-11).
+**Operation.** Rebalance to the target weights once a month; the specification contains
+no other intervention. This is a tested result, not a simplification: seven timing
+overlays were run against this baseline and none improved it, each with a full report in
+the registry — no cash-gating, no daily stop-losses on high-volatility names, no index
+option selling for income (TR-36), no rotating into the prior year's winner (TR-11).
 
 Reproduce both figures: `uv run python scripts/leverage_ladder.py` and
 `scripts/readme_figures.py combo`; current weights and stats live in
@@ -246,28 +246,28 @@ Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only pu
 
 *\*2026 為年初至今。2015 略去(風險平價需 126 天暖身)。成本拖累 12–72 bps/年(TR-15)。平心而論：組合**不是**每年都贏 VOO，而是贏在跌得少(2018、2020、2022、2025)，以及永遠不必從 −34% 的坑裡爬出來。*
 
-### 如果你真的要用它(零門檻版)
+### 部位規模：槓桿比率 L 的選擇
 
-![槓桿階梯：同一份配方，四種油門](docs/img/leverage_ladder.png)
+![固定配方在四種槓桿比率下的累積淨值與回撤/報酬摘要](docs/img/leverage_ladder.png)
 
-上面全部是**證據**，這張是**決策面**——同一個帳簿，用「你能忍多痛」來定價。配方是固定的
-(債 58% / 金 16% / 三條股票腿共 26%)；**L 是油門，不是策略**：
+上面各節是**證據**，本節是**決策層**。配置是固定的
+(債 58% / 金 16% / 三條股票腿共 26%)；**槓桿比率 L 只縮放曝險，不是另一個策略**：
 
-| L | 100 萬本金的意思 | 年化 | 最慘回撤 |
+| L | 以 100 萬本金的實作 | 年化報酬 | 最大回撤 |
 |---|---|---|---|
-| 0.5 | 50 萬買配方，50 萬放定存 | +8% | −9% |
-| 1.0 | 100 萬全部照配方買 | +13% | −19% |
-| 1.5 | 借 50 萬，持有 150 萬(要付利息) | +19% | −29% |
-| 2.0 | 借 100 萬，持有 200 萬(要付利息) | +24% | −37% |
-| *VOO* | *對照組* | *+14%* | *−34%* |
+| 0.5 | 50 萬投入配置，50 萬持有短期國債(T-bill) | +8% | −9% |
+| 1.0 | 100 萬全數投入配置 | +13% | −19% |
+| 1.5 | 總曝險 150 萬，其中 50 萬為融資部位 | +19% | −29% |
+| 2.0 | 總曝險 200 萬，其中 100 萬為融資部位 | +24% | −37% |
+| *VOO* | *對照基準* | *+14%* | *−34%* |
 
-**怎麼選:**問自己一句「帳戶從高點掉 __%，我會不會嚇到全部賣在最低點?」——你能忍的那個數字
-就是你的 L。新手一律 **L 不超過 1**:不用借錢，普通證券戶就能做。
+**L 的選擇準則：**以「能夠持有到底、不致中途放棄」的最大回撤上限決定 L。L ≤ 1 無需融資帳戶。
+融資慣例：L < 1 時閒置資金按 T-bill 利率計息；L > 1 時融資成本為 T-bill + 60 bps
+(上表數字皆已計入)。
 
-**日常操作只有一件事:**每月挑一個固定日子，把帳戶調回目標比例(漲多的賣一點、跌少的補一點)，
-然後關掉 App。這不是偷懶——我們測過七種「聰明擇時」，**每一種都輸給什麼都不做**。禁令清單
-(每一條在註冊表裡都有一具屍體):不 gate 到現金、高波動股不用日停損、不賣選擇權收租(TR-36)、
-不追去年冠軍(TR-11)。
+**操作方式：**每月固定一日再平衡回目標權重；規格中不含其他任何干預。這是測試結果而非簡化：
+七種擇時疊加對此基準全數未見改善，每一種在註冊表都有完整報告——不設現金閘門、高波動標的
+不用日停損、不賣指數選擇權收租(TR-36)、不轉倉追前一年冠軍(TR-11)。
 
 兩張圖都可重跑:`uv run python scripts/leverage_ladder.py` 與 `scripts/readme_figures.py combo`;
 現行權重與統計在 [`exports/dashboard/flagship_combo.json`](exports/dashboard/flagship_combo.json)。
