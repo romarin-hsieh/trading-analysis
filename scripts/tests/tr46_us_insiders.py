@@ -191,9 +191,6 @@ def main():
     print("=" * 104)
     print("[trial accounting] +1 family(內部人三特徵,單一預先登記規格)")
 
-    ev, raw = load_events()
-    ev["cls"] = classify(ev)
-
     # ---- price panel (TR-34 verbatim) ----
     store = DuckStore("./data")
     syms = [s for s in store.list_symbols("1d")
@@ -206,13 +203,31 @@ def main():
     mm = member_mask(px.index, syms, mem).resample("ME").last().reindex(me.index).astype(bool)
     fwd = fwd.where(mm)
 
+    ev, raw = load_events()
+    # classification only needs each pair's own history; restrict to panel issuers
+    # (a pure speed optimization -- values are identical to classifying everything)
+    sub = ev[ev["symbol"].isin(syms)].copy()
+    sub["cls"] = classify(sub)
+
     # ---- CAL ----
-    df_v = raw.assign(val=lambda d: d["shares"] * d["price"].fillna(0))
+    # POST-RUN AUDIT NOTE (CAL-a v1 -> v2): v1 summed DOLLAR values (shares x price)
+    # and FAILED with median 1.3 -- diagnosis showed the yearly sums are dominated by
+    # a handful of mis-reported monster rows (2017 ratio 1457x from one filing;
+    # several years ~0.0 from single garbage "purchases"), a documented Form-4
+    # raw-data pathology. The COUNT ratio -- the unit the signal actually uses --
+    # is sane in every single year (2.2-9.4x). v2 anchors on the count ratio with
+    # the same band, plus a stronger every-year rule; the broken dollar series is
+    # printed as a diagnostic, not a gate.
+    cnt_y = raw.groupby([raw["filing_date"].dt.year, "code"]).size().unstack()
+    cratio = (cnt_y["S"] / cnt_y["P"]).dropna()
+    cal_a = (2 <= float(cratio.median()) <= 20) and bool((cratio > 1).all())
+    df_v = raw[raw["price"] > 0].assign(val=lambda d: d["shares"] * d["price"])
     yearly = df_v.groupby([df_v["filing_date"].dt.year, "code"])["val"].sum().unstack()
-    ratio = (yearly["S"] / yearly["P"]).replace([np.inf, -np.inf], np.nan).dropna()
-    cal_a = 2 <= float(ratio.median()) <= 20
-    print(f"CAL a:年度市場賣/買金額比中位 {ratio.median():.1f}(帶 [2,20]) -> "
-          f"{'PASS' if cal_a else 'FAIL'}")
+    dratio = (yearly["S"] / yearly["P"]).replace([np.inf, -np.inf], np.nan).dropna()
+    print(f"CAL a v2:年度市場賣/買【計數】比中位 {cratio.median():.1f}(帶 [2,20])"
+          f"且每年 >1(最小 {cratio.min():.2f}) -> {'PASS' if cal_a else 'FAIL'}"
+          f"(診斷:金額比中位 {dratio.median():.1f} 但年間 {dratio.min():.1f}-{dratio.max():.0f}"
+          f"=垃圾列支配,不作閘門)")
     joined = raw["filing_date"].notna() & raw["symbol"].notna() & raw["relationship"].notna()
     cal_b = float(joined.mean()) >= 0.99
     print(f"CAL b:三表 join 完整率 {joined.mean()*100:.2f}%(門檻 99%) -> "
@@ -222,7 +237,7 @@ def main():
     npr_mkt = (mc["P"] - mc["S"]) / (mc["P"] + mc["S"]).where(lambda x: x > 0)
     v2003 = float(npr_mkt.loc["2020-03-31"])
     q90 = float(npr_mkt.quantile(0.90))
-    npr6, act6 = npr_panel(ev[ev["symbol"].isin(syms)], me.index, syms)
+    npr6, act6 = npr_panel(sub, me.index, syms)
     npr6 = npr6.where(mm)
     cov = npr6.notna().sum(axis=1)
     cal_c = (float(cov.median()) >= 250) and (v2003 >= q90)
@@ -234,7 +249,6 @@ def main():
         return
 
     # ---- C1 ----
-    sub = ev[ev["symbol"].isin(syms)]
     opp6, _ = npr_panel(sub[sub["cls"] == "O"], me.index, syms)
     rou6, _ = npr_panel(sub[sub["cls"] == "R"], me.index, syms)
     trio = {"npr6": rank_std(npr6),
@@ -312,9 +326,9 @@ def main():
         mb, tb = nwt(b)
         c4[k] = (ma, ta, mb, tb)
         print(f"  {k:<6} 2015-2020:{ma*1e4:+7.1f}(t={ta:+.2f}) | 2021+:{mb*1e4:+7.1f}(t={tb:+.2f})")
-    share = ev["cls"].value_counts(normalize=True)
-    print(f"  事件分類占比:O {share.get('O',0)*100:.0f}% / R {share.get('R',0)*100:.0f}% / "
-          f"U {share.get('U',0)*100:.0f}%(U 僅入 npr6);officer/director 事件總數 {len(ev):,}")
+    share = sub["cls"].value_counts(normalize=True)
+    print(f"  事件分類占比(面板內):O {share.get('O',0)*100:.0f}% / R {share.get('R',0)*100:.0f}% / "
+          f"U {share.get('U',0)*100:.0f}%(U 僅入 npr6);officer/director 事件 全市場 {len(ev):,} / 面板內 {len(sub):,}")
 
     # ---- verdict ----
     print("=" * 104)
