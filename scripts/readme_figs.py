@@ -40,13 +40,19 @@ GROUPS = [
         ("TR-28", "季頻 ROE(HXZ)", "Quarterly ROE (HXZ)", "F"),
         ("TR-32", "產業動量(M-G)", "Industry momentum (M-G)", "F"),
         ("TR-34", "Fama-MacBeth 面板", "Fama-MacBeth panel", "M"),
+        ("TR-46", "美國內部人 Form 4", "US insiders (Form 4)", "F"),
+        ("TR-47", "長期反轉(DBT)", "LT reversal (DBT)", "F"),
+        ("TR-48", "LSV 價值反向", "LSV contrarian value", "F"),
+        ("TR-49", "動量崩盤(DM)", "Momentum crashes (DM)", "P"),
+        ("TR-50", "price delay(HM)", "Price delay (HM)", "F"),
+    ]),
+    ("台股棲地(套利稀薄)", "Taiwan habitat (thin arbitrage)", [
         ("TR-39", "台股棲地面板", "Taiwan habitat panel", "M"),
         ("TR-39b", "台股去倖存補丁", "Taiwan delisting patch", "M"),
         ("TR-40", "台股成本關卡", "Taiwan cost gate", "M"),
         ("TR-41", "台股桶經濟性", "Taiwan bucket economics", "M"),
         ("TR-44", "台股還原股價", "Taiwan total-return", "M"),
         ("TR-45", "台股籌碼歸因", "Taiwan chip attribution", "M"),
-        ("TR-46", "美國內部人 Form 4", "US insiders (Form 4)", "F"),
     ]),
     ("組合建構與風險模型", "Portfolio construction & risk models", [
         ("TR-03", "PCA 統計因子", "PCA statistical factors", "M"),
@@ -93,9 +99,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "52 份標準化測試,依機制類型分組\n"
+    "zh": "56 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 52 standardized tests, grouped by mechanism type\n"
+    "en": "All 56 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 
@@ -103,7 +109,7 @@ TITLES = {
 def verdict_map(lang: str, outfile: str) -> None:
     ncol = max(len(items) for _, _, items in GROUPS)
     nrow = len(GROUPS)
-    fig, ax = plt.subplots(figsize=(12.5, 6.6))
+    fig, ax = plt.subplots(figsize=(12.5, 1.05 * nrow + 1.3))
     for r, (zh_label, en_label, items) in enumerate(GROUPS):
         y = nrow - 1 - r
         ax.text(-0.15, y + 0.5, zh_label if lang == "zh" else en_label,

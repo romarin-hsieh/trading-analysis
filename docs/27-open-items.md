@@ -64,10 +64,10 @@ TR-35 已給實證錨:**利率主導 regime 是裸露面、扛通膨的是金不
 
 | 論文 | 為什麼還沒做 | 預期產出 |
 |---|---|---|
-| De Bondt-Thaler 1985 長期反轉 | 排序後於台股線 | 36 月形成/持有,美股座位可測 |
-| LSV 1994 價值反向 | 同上 | E/P、B/M、C/P、銷售成長四路價值 |
-| Daniel-Moskowitz 2016 動量崩盤 | 需 WML 因子(免費)+動態加權 | 動量崩盤的風險管理版 |
-| Hou-Moskowitz 2005 price delay | 需週報酬建構 | 資訊擴散速度因子 |
+| De Bondt-Thaler 1985 長期反轉 | ✅ **TR-47(2026-07-31)**:NO-SIGNAL(t=−0.02);KF 年代弧=教科書 McLean-Pontiff 衰退 | [TR-47](tests/TR-47-longterm-reversal.md) |
+| LSV 1994 價值反向 | ✅ **TR-48(2026-07-31)**:NO-SIGNAL(四路+雙向格全零);價值=全家族陳述 | [TR-48](tests/TR-48-lsv-value.md) |
+| Daniel-Moskowitz 2016 動量崩盤 | ✅ **TR-49(2026-07-31)**:REPLICATES;**C4:崩盤預測未勝波動目標=鐵律形狀異座位驗證** | [TR-49](tests/TR-49-momentum-crashes.md) |
+| Hou-Moskowitz 2005 price delay | ✅ **TR-50(2026-07-31)**:INVERTED-BUT-ABSORBED(t=−3.2→控制後 −1.39=beta/規模重包裝) | [TR-50](tests/TR-50-price-delay.md) |
 | Bertsimas-Lo 1998 / Kyle 1985 執行層 | **零售規模下無觸發** | 待資本規模或小型股才有一階內容 |
 
 ## 5b. 擇股展開候選([docs/28](28-picking-directions-and-vix.md) 盤點,2026-07-20,待核准)
@@ -92,6 +92,6 @@ TR-35 已給實證錨:**利率主導 regime 是裸露面、扛通膨的是金不
 3. ✅ ~~b3 桶經濟性~~(TR-41 已執行:CONCENTRATED,無高容量替代方案)。
 4. **B1 GP 終判**(Tiingo 到 300 檔自動觸發)。
 5. 成本模型接線 + 每月持倉自動化(工程債,便宜)。
-6. ✅ ~~p1 台股籌碼~~(TR-45)、✅ ~~p2 內部人 Form 4~~(TR-46:NO-SIGNAL,大型股通道版圖關閉)。擇股展開下一項:**論文佇列四篇 > p3 小型股滴灌啟動**(p3 同時解鎖內部人小型股腿——TR-46 機器原封可轉用)。
+6. ✅ ~~p1 台股籌碼~~(TR-45)、✅ ~~p2 內部人 Form 4~~(TR-46)、✅ ~~論文佇列四篇~~(TR-47~50,2026-07-31:兩個零+一個複現+一個反向被吸收;無新候選)。擇股展開僅剩:**p3 小型股滴灌啟動**(同時解鎖內部人/delay 小型股腿——機器全數原封可轉用)。
 
 *本表隨每次執行更新;完成項移到對應 TR/文件並在此標 ✅ 與 commit。*
