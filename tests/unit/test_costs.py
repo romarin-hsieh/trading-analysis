@@ -44,3 +44,42 @@ def test_expected_cost_drag_scales_with_turnover():
     d2 = expected_cost_drag_bps(100, 1e6, 1e8)
     assert d2 > d1 > 0
     assert abs(d2 / d1 - 2.0) < 1e-9
+
+
+# ---- engine wiring (docs/27 engineering debt: size-dependent slippage panel) ----
+
+def _toy_backtest(dollar_volume=None):
+    from trading_analysis.backtest.engine import run_backtest
+    from trading_analysis.config import BacktestConfig
+
+    idx = pd.bdate_range("2022-01-03", periods=120)
+    rng = np.random.default_rng(7)
+    close = pd.DataFrame(
+        100 * np.exp(np.cumsum(rng.normal(0, 0.01, (120, 2)), axis=0)),
+        index=idx, columns=["LIQ", "THIN"],
+    )
+    # alternate 10-day holds to force turnover
+    direction = pd.DataFrame(0, index=idx, columns=close.columns)
+    on = (np.arange(120) // 10) % 2 == 0
+    direction.loc[on, :] = 1
+    cfg = BacktestConfig(benchmark=None)
+    return run_backtest(close, direction, cfg, dollar_volume=dollar_volume)
+
+
+def test_engine_size_dependent_costs_bite_and_report():
+    idx = pd.bdate_range("2022-01-03", periods=120)
+    dv = pd.DataFrame({"LIQ": 1e9, "THIN": 1e4}, index=idx)  # THIN: trade 10k = 100% ADV
+    flat = _toy_backtest(dollar_volume=None)
+    sized = _toy_backtest(dollar_volume=dv)
+    assert "cost_model_median_bps" in sized.metrics
+    assert sized.metrics["cost_model_median_bps"] >= 5.0          # flat floor respected
+    assert sized.metrics["cost_model_p90_bps"] > 6.0              # THIN cells above floor
+    assert sized.equity.iloc[-1] < flat.equity.iloc[-1]           # impact costs bite
+
+
+def test_engine_missing_adv_falls_back_to_flat():
+    idx = pd.bdate_range("2022-01-03", periods=120)
+    dv_nan = pd.DataFrame(np.nan, index=idx, columns=["LIQ", "THIN"])
+    flat = _toy_backtest(dollar_volume=None)
+    fallback = _toy_backtest(dollar_volume=dv_nan)
+    assert abs(fallback.equity.iloc[-1] / flat.equity.iloc[-1] - 1) < 1e-9
