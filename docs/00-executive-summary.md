@@ -74,7 +74,7 @@
 ## E2. 因子發現：沒有穩健的單因子，**除了基本面品質**（docs/06,09,10）
 | 因子 | 廣 universe ICIR | 判定 |
 |---|---|---|
-| **gross profitability（基本面品質）** | **+0.30 穩定** | ✅ 唯一穩健新 alpha，**regime-universal**（bear/壓力最強=flight-to-quality）|
+| **gross profitability（基本面品質）** | ~~+0.30~~ → **+0.056**（誠實鏈 TR-27/34/51：成員遮罩→年代衰退→去倖存，剩餘 2/3 是倖存者眩光） | ⚠️ **本行原判「+0.30 穩定 ✅」已被三次修正推翻**——終點距 artifact 一步之遙；活判定以 [docs/18](18-strategy-registry.md) 為準 |
 | momentum | ~−0.01（廣市場死）| universe 特定（集中科技才強）＝對少數贏家的 beta，非因子 |
 | value（earnings yield, B/M）| 負/翻號 | FAIL（價值失落十年）|
 | insider net-buying | +0.13 不穩 | FAIL（alpha 已衰退）|
