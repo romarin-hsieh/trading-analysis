@@ -29,6 +29,7 @@ GROUPS = [
         ("TR-21", "吸收比率(個股)", "Absorption ratio (stocks)", "F"),
         ("TR-21b", "吸收比率(產業)", "Absorption ratio (industries)", "M"),
         ("TR-42", "相關 regime 煞車", "Correlation brake", "F"),
+        ("TR-52", "VIX 層(VRP+期限結構)", "VIX layer (VRP+term structure)", "F"),
     ]),
     ("橫斷面選股與因子", "Cross-sectional picking & factors", [
         ("TR-08", "ML 報酬預測", "ML return forecasting", "F"),
@@ -100,9 +101,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "57 份標準化測試,依機制類型分組\n"
+    "zh": "58 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 57 standardized tests, grouped by mechanism type\n"
+    "en": "All 58 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 
