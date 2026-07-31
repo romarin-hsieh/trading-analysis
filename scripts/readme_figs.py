@@ -45,6 +45,7 @@ GROUPS = [
         ("TR-48", "LSV 價值反向", "LSV contrarian value", "F"),
         ("TR-49", "動量崩盤(DM)", "Momentum crashes (DM)", "P"),
         ("TR-50", "price delay(HM)", "Price delay (HM)", "F"),
+        ("TR-51", "GP 去倖存終判", "GP survivorship final", "M"),
     ]),
     ("台股棲地(套利稀薄)", "Taiwan habitat (thin arbitrage)", [
         ("TR-39", "台股棲地面板", "Taiwan habitat panel", "M"),
@@ -99,9 +100,9 @@ LEGEND = {
            "F": "failed / explained by controls", "X": "no data"},
 }
 TITLES = {
-    "zh": "56 份標準化測試,依機制類型分組\n"
+    "zh": "57 份標準化測試,依機制類型分組\n"
           "(每一份都經過對抗式稽核;擇時類一格綠色都沒有,綠色集中在方法與推論誠實度)",
-    "en": "All 56 standardized tests, grouped by mechanism type\n"
+    "en": "All 57 standardized tests, grouped by mechanism type\n"
           "(every report adversarially audited; the timing row has no green at all)",
 }
 

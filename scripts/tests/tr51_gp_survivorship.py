@@ -178,12 +178,21 @@ def main():
           f"{'PASS' if ok_b else 'FAIL'}")
 
     # ---- CAL c: delisting reality ----
+    # POST-RUN AUDIT NOTE (v1 -> v2): v1 FAILED with an empty hit list -- two
+    # implementation errors, not missing data. (1) the probe list guessed SIVBQ;
+    # Tiingo carries the tail under SIVB (last $0.01) and SBNY ($0.40). (2) the
+    # lookup ran on the FUNDAMENTALS-FILTERED panel, which silently drops any
+    # collapse name lacking facts (SBNY is no_cik). v2 queries the PRICE STORE
+    # directly with the alias-expanded list; the declared threshold (>=1 name,
+    # terminal close < $10) is unchanged.
     hits = []
-    for s in DEATH_CHECK:
-        if s in pat["px"].columns:
-            last = pat["px"][s].dropna()
-            if len(last) and float(last.iloc[-1]) < 10:
-                hits.append((s, float(last.iloc[-1]), last.index[-1]))
+    for s in DEATH_CHECK + ("SIVB",):
+        try:
+            ser = store.load_close_pivot([s], column="adj_close").iloc[:, 0].dropna()
+        except Exception:
+            continue
+        if len(ser) and float(ser.iloc[-1]) < 10:
+            hits.append((s, float(ser.iloc[-1]), ser.index[-1]))
     ok_c = len(hits) >= 1
     print(f"CAL c:崩潰尾巴實在(終價<$10):{[(s, round(v,2), str(d.date())) for s,v,d in hits]}"
           f" -> {'PASS' if ok_c else 'FAIL'}")
