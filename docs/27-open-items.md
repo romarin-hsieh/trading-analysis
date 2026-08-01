@@ -56,7 +56,7 @@ TR-35 已給實證錨:**利率主導 regime 是裸露面、扛通膨的是金不
 | 成本模型接線 | ✅ **已接線(2026-07-31)**:`run_backtest(..., dollar_volume=)` 選配參數→逐格滑價面板(半價差+√參與率衝擊,平坦 bps 為地板與 fallback,500bps 上限),回測 metrics 回報 `cost_model_median/p90_bps`;**靜態帳本近似**(vectorbt 滑價看不到下單時淨值,已註記);單元測試 ×2,全套 102 測試綠 | — | 向後相容(不給 dollar_volume 行為不變) |
 | **每月持倉自動化** | `flagship_holdings.py` 掛進 weekly workflow → dashboard JSON | 低-中 | 對話中提過,使用者未拍板 |
 | dashboard research 面板 | 三個 sibling JSON 已交付,前端接線未做(C2) | 低 | 需要使用者在 dashboard 端動手 |
-| trading-data repo | 三層架構的中間層(ETL 抽出) | 低 | docs/architecture-integration 第 4 步 |
+| trading-data repo | 🔄 **設計完成+workflow 已建(2026-08-01,[docs/30](30-cloud-drip.md))**:`daily-drip.yml` 每日在雲上收 AV 25 檔+Tiingo 小型股 45 檔,寫入私有 `trading-data` repo(授權紅線:面板不可進公開 repo);**副作用=u9 全綠+本表 §2 的 AV/p3 滴灌無人職守化**。惰性待啟用:使用者跑 docs/30 §4 三步(建私有 repo、data/ 種子化、3 secrets) | **高**(解 10 天停擺類) | 啟用後 sync=`scripts/ops/sync_data.ps1` |
 | Alpaca 分鐘回填 | 2016+ 一次 4–6 小時(docs/24 #6) | 低 | 解鎖 ORB/日內——但 ORB 已列「明確不做」(超預算) |
 | README 首屏導引 | 加一行「想直接用?跳到使用說明」 | 微 | 對話中提過,未做 |
 
