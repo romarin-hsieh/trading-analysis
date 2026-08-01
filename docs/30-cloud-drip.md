@@ -73,5 +73,22 @@ autostash 摩擦);(c) secrets 永不進程式碼、永不 echo——與現行 .e
 | AV 每日 25 檔、Tiingo 小型股每日 45 檔、快照四線、(選配)FinMind 週頻補新 | TR 執行、面板組裝、重型回測 |
 | 私有 repo=data 的活備份 | `scripts/ops/sync_data.ps1` 拉最新再開工 |
 
+## 六、為何不是 `investment-dashboard-data`(2026-08-01 深入評估,使用者提問)
+
+實查事實:該 repo **PUBLIC**、已 **763MB**、根目錄 `.nojekyll` = **GitHub Pages 對外供檔**
+(dashboard 的公開資料 CDN)、ETL 活躍。三個獨立否決:
+
+1. **授權紅線(決定性)**:public+Pages 供檔=把 Tiingo/AV 授權資料架成公開 API;改私有
+   則瀏覽器端 fetch 失效=弄壞現有 dashboard。
+2. **容量與部署耦合**:763MB+540MB+每日二進位增長 → 逼近軟上限、拖慢 Pages 部署與 ETL;
+   展示層 CDN(輕/快/穩)與原始庫(日增/偶爾重寫)生命週期相反。
+3. **爆炸半徑**:drip bot 的 RW token 不應觸及公開展示內容——分倉=隔離故障域。
+
+**正確的整併方向(使用者直覺的正確一半)**:沿「原始 vs 衍生」切——
+`investment-dashboard-data` 是**衍生層 CDN**,應接收的是我們自產的 `exports/dashboard/*.json`
+(無授權問題;即 docs/27 §4 dashboard 面板的資料端接線,可日後在 daily-drip 加一發佈步);
+原始面板進**私有** `trading-data`。workflow 的目標 repo 已參數化(repo variable `DATA_REPO`,
+預設 `romarin-hsieh/trading-data`)——選擇是設定,不是改碼。
+
 *本文件為 u10 的結構性半解(額度捕捉線的心跳=workflow 失敗通知);完整心跳(所有資料源
 新鮮度斷言)仍列 docs/29 u10。*

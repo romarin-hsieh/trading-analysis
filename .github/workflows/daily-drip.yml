@@ -40,7 +40,10 @@ jobs:
         if: steps.gate.outputs.run == '1'
         uses: actions/checkout@v4
         with:
-          repository: romarin-hsieh/trading-data
+          # override with a repo variable DATA_REPO if the store ever moves; must be
+          # PRIVATE (licensing) -- investment-dashboard-data is a PUBLIC Pages-served
+          # CDN and is disqualified for raw panels (docs/30 section 6)
+          repository: ${{ vars.DATA_REPO || 'romarin-hsieh/trading-data' }}
           token: ${{ secrets.DATA_REPO_TOKEN }}
           path: data
 
