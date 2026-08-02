@@ -34,6 +34,13 @@ TICKER_RE = re.compile(r"\$([A-Z]{1,5})\b")
 # (16.8% of tweets have URLs -> could never be labeled long) and similar bleed-through.
 LONG_RE = re.compile(r"\b(long|bought|buy|adding|entry|calls|accumulat\w*|position(?:ed|s)?)\b")
 EXIT_RE = re.compile(r"\b(sold|sell(?:ing)?|trim(?:med|ming)?|exit(?:ed)?|closed|puts|short(?:ed)?|stop|take profit|tp)\b")
+# negation + non-directional guards, neutralized BEFORE keyword match: the hand audit found
+# 'never long (though)', 'no positions', 'long-term', 'long way to go' all labeled 'long'.
+NEG_LONG_RE = re.compile(
+    r"\b(?:no|not|never|don['’]?t|didn['’]?t|won['’]?t|zero)\s+"  # noqa: RUF001  (curly apostrophe as tweeted)
+    r"(?:really\s+)?(?:longs?|position(?:ed|s)?|bought|buy(?:ing)?|adding)\b")
+NONDIR_LONG_RE = re.compile(
+    r"\blong[-\s](?:term|run|time|way|game|haul|shot|overdue)\b|\b(?:as|how|too|so|for)\s+long\b")
 NOISE = {"A", "I", "AI", "US", "IT", "CEO", "GPU", "EPS", "ETF", "IPO", "USD", "PT", "YTD", "ATH", "Q", "K", "M", "B"}
 
 
@@ -52,6 +59,7 @@ def fetch_archive() -> pd.DataFrame:
 def extract(text: str) -> tuple[list[str], str]:
     ticks = [t for t in TICKER_RE.findall(str(text)) if t not in NOISE]
     low = re.sub(r"https?://\S+", " ", str(text).lower())    # strip URLs before keyword match
+    low = NONDIR_LONG_RE.sub(" ", NEG_LONG_RE.sub(" ", low))
     d_long = bool(LONG_RE.search(low))
     d_exit = bool(EXIT_RE.search(low))
     direction = "long" if d_long and not d_exit else ("exit/short" if d_exit and not d_long else
