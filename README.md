@@ -1,43 +1,382 @@
 # trading-analysis
 
-Modular stock trading strategy software. Layered architecture: data → models → strategy → backtest → execution → UI. MVP focuses on US equities, daily/weekly bars, with Kronos foundation-model forecasting and rule-based strategies. LLM multi-agent layer arrives in V1.
+**A side project that set out to find a money-printing trading strategy — and instead built a machine for honestly killing bad ones.**
 
-## Quickstart
+*(English first; 繁體中文在下半部。)*
 
-```bash
-# Install
-uv sync --extra kronos --extra dev
+---
 
-# Configure
-cp .env.example .env
+## English
 
-# Ingest market data
-uv run trading-analysis ingest --config configs/mvp.yaml
+### What this is
 
-# Run a backtest
-uv run trading-analysis backtest --config configs/mvp.yaml
+A personal research project. It started with a finding we couldn't ignore: **McLean & Pontiff (2016, *Journal of Finance*)** re-tested 97 published return predictors and found their returns average **26% lower out-of-sample and 58% lower after publication** — the market eats published edges. So the question became: *of everything floating around the internet, papers, and guru books, how much survives an honest test run today?* Using $0/month of free data (yfinance, SEC EDGAR, public archives), across 100+ commits and **~150 mechanisms/strategies tested (58 standardized test reports, every one adversarially audited)**, the answer turned out to be more valuable than the question — because it turned *"what do we know, what don't we know, and how do we decide what's feasible"* into reproducible code and documents.
 
-# Launch dashboard
-uv run streamlit run src/trading_analysis/ui/streamlit_app.py
+### The bottom line (as of 2026-07)
+
+| the question | the answer |
+|---|---|
+| Any strategy that prints money? | **No.** The 50%-CAGR-at-low-drawdown target zone is structurally empty — everything we tested sits on the same Calmar ≈ 0.6 ray. |
+| Any real alpha at all? | **One, borderline.** The 5-sleeve risk-parity book: monthly Carhart t=2.64, below the strict 3.0 bar. Its real deliverable is risk-shaping, levered to your budget. Selection-honest deflation (TR-37): P(the alpha is real) ≈ 0.87 at the 17 combo-level trials we actually ran, 0.56 under the paranoid all-campaign count, ≈ 0.8 under a 90%-null skeptical prior — most likely real, but no honest angle calls it certain. |
+| Any stock-picking signal? | **One, and it keeps getting more honest.** Gross profitability — headline ICIR +0.30, but masked to actual index members at each date it retains only 59% (ICIR +0.13, TR-27) — and the survivorship FINAL verdict (TR-51: 374 dead members' prices AND fundamentals restored via Tiingo + an EDGAR/Form-4 CIK bridge) cuts it again to **+0.06**: two-thirds of the residual was the absence of high-GP DECLINERS (the index removes losers while GP's book-asset denominator keeps their GP high; exit-window median GP rank 0.57, pre-exit relative return −1.5% — both pre-registered bias directions were wrong, the cohort diagnostic arbitrated). The honest chain now reads +0.30 → +0.23 → +0.13 → +0.06, one notch above artifact; its IC also turned negative in 2025-26 (on watch); a joint Fama-MacBeth panel sharpens the watch — independently priced in 2015-2020 (t=+2.67), flat since 2021 (TR-34). Momentum, value, PEAD, insider, ML forecasters, and four classic anomalies all failed; industry momentum replicates but is pure momentum-factor exposure (TR-32). And the two survivors do not stack: a GP sleeve subtracts alpha from the flagship book (TR-33 — the honest chain ends at a +0.04%/yr tradable spread). First crack of light from a new habitat: on the Taiwan panel (1,151 TWSE stocks, TR-39) four characteristics cleared t≥2 jointly — and the survivorship patch (TR-39b: official TWSE delisted list + a pandas pct_change ffill backdoor caught by CAL) then split them: momentum (+84bps/mo, t=2.4), abnormal volume (+94, t=3.4) and illiquidity (−106, t=−2.8) are CONFIRMED and stronger after 2021, while the MAX lottery premium was retired as survivorship glare. Then the cost gate (TR-40) INVERTED the ranking: the panel's strongest slope (abnormal volume, t=3.4) turns over 6.8x/yr and loses 7.07%/yr to fees, netting t=0.6; the weakest (illiquidity) barely turns over and nets **+6.75%/yr, t=2.3** — the only survivor, robust to a 31-tick break-even spread but capacity-capped, which is what an illiquidity premium *is*. The bucket decomposition (TR-41) then killed the intuitive high-capacity workaround: the premium lives ONLY in the last decile (D2 is already zero, D3-D9 are negative), so "avoid the most crowded names" is a significantly LOSING strategy (−0.92%/yr, t=−2.34) — excluding a good bucket just overweights the bad ones. It survives a skip-a-month stale-price check and decays monotonically with book size: a textbook liquidity compensation, not an anomaly. Final honesty pass (TR-44): re-run on dividend-ADJUSTED total-return prices, all three characteristics keep their sign and the ladder stays a cliff, but net of the real 45bps round trip every candidate is now only MARGINAL (illiquidity t=1.86, momentum t=0.81) — the mechanism is real, but on the strictest basis no candidate clears cleanly. The Taiwan line is a genuine effect that is not a clean tradable edge. A chip-flow attribution pass (TR-45, institutional flows + margin balances) completes the picture: foreign-flow continuation is real (t=3.3, independent of the price characteristics) but its top-decile portfolio fails the same excess-basis cost gate (net −4.1%/yr), momentum and abnormal volume are NOT institutional-flow-carried, and the cold-corner illiquidity premium shows median chip activity — a structural compensation, not a flow effect. The insider channel now has its standardized closure too (TR-46): Form-4 opportunistic vs routine net buying on S&P 500 members 2015+ is a well-powered zero (all |t|<0.5 at 415 covered names/month; the machinery demonstrably works — it nails the documented 2020-03 insider buying wave), consistent with the literature's size dependence; the small-cap leg waits on the p3 drip. The classic-paper queue is now closed out (TR-47–50): long-term reversal and LSV contrarian value are well-powered zeros here (the KF long history shows De Bondt-Thaler decaying on schedule after its 1985 publication — a textbook McLean-Pontiff arc), and Hou-Moskowitz price delay comes out INVERTED but control-absorbed (a beta/size repackaging, not a signal). Momentum crashes (TR-49) replicate on the factor seat — see the timing row. |
+| Does market timing work? | **No — nine separate confirmations, and the law is now closed on every reachable door.** A dumb constant exposure or a random control matched or beat every timing mechanism tested (Markov, IBS, absorption ratio on two seats, KMZ complexity, Campbell-Thompson sign restrictions, the outside bar). The eighth (TR-42) extends it from RETURN timing to RISK-INPUT timing: a bond-equity correlation brake — which forecasts nothing, it only claims the risk model's inputs changed — still lost to a constant at matched average exposure, and landed at the 20th percentile of a random-brake placebo. And an external validation on the factor seat (TR-49): momentum's dramatic crashes ARE state-predictable (bear + high-vol months average −2.3%/mo, t=−2.4), yet the profitable fix is plain volatility scaling (Sharpe 0.42→0.96) — Daniel-Moskowitz's prediction-based weights add nothing over it. The ninth (TR-52) exercised the iron law's ONE exception clause — the options information layer, index level: VRP prediction (BTZ 2009) shows no forecasting power on the extended window (in-sample t=0.3, OOS R² −6.5%) and the VIX/VIX3M term-structure gate is indistinguishable from a random circular shift (62nd percentile), both losing to matched-exposure constants. The exception clause now narrows to the self-built per-stock option chain — a stock-picking use; no timing door remains open. |
+| Then what's the asset here? | **The method and the data moat.** 58 adversarially audited test reports, a registry where negative results are first-class, seven documented self-corrections, and a $0 data stack with two collect-forward pipelines recording what money can't buy retroactively. |
+
+### What we built
+
+1. **An acceptance framework ("fabric" v2.0, [docs/17](docs/17-fabric-acceptance.md))** — a single rule table F0–F13 codifying every mistake we made: pre-committed falsifiable claims (F0), leak-free signals + fill-time conventions (F1), spread-scaled costs with mandatory 2× stress (F2), excess-over-T-bill Sharpe (F3), effective sample sizes (F4), campaign-wide trial accounting with a t≥3.0 alpha bar (F5), **the Nagel control triple — which simplest control explains it?** (F6), sub-period + long-history replay (F7), verdicts scoped to seat×habitat (F8), path randomization (F9), re-test cascades (F10), universe legitimacy (F11), rebalance-phase averaging (F12), and delisting rules (F13). Its economic preamble is **Grossman-Stiglitz**: at $0 information cost, equilibrium alpha is $0 — every re-open condition must be priced as an information cost.
+2. **Fifty-eight standardized test reports** ([docs/tests/TR-01..24 + b-series](docs/tests/)): statistical arbitrage, Markov regime-switching, PCA factor models, covariance cleaning, VaR and fat tails, GBM Monte Carlo, CAPM, HRP, ML forecasting, Black-Scholes (N/A — no data, refused to fabricate), LLM agent frameworks, bagged backtesting, rebalance-phase luck, delisting bias, effective samples, cost stress, the IBS full trial — plus a paper-driven wave: inference robustness (TR-18), overnight/intraday decomposition (TR-19), FF5/6 and q-factor attribution (TR-20/24), four classic anomalies (TR-23), combo PBO (TR-22), and **native-seat replications** of Kelly-Malamud-Zhou's *Virtue of Complexity* (TR-17b) and the absorption ratio (TR-21b) — then a **depth series interrogating our own survivors** (the robustness plateau TR-25, GP depth/membership/quarterly clocks TR-26–28, holding-period economics TR-29, the two-survivor stacking test TR-33), the Goyal-Welch/Campbell-Thompson timing line at its source (TR-31), Moskowitz-Grinblatt industry momentum (TR-32), and a **creator-claim pipeline** that turns YouTube trading mechanisms into pre-registered tests (TR-30/30b). Every report was adversarially audited; the audits reversed our own headline more than once.
+3. **Working infrastructure**: point-in-time data layer (DuckDB+Parquet; EDGAR aligned to filing dates; 1993+ index history; PIT S&P 500 membership 1996–2026), order-independent backtest engine, rigor modules (PSR/DSR/PBO/SPA), daily Telegram monitors on free GitHub Actions, two **collect-forward pipelines** (daily SPY/QQQ option chains; weekly analyst estimates for the S&P 500 — you cannot download the past, only record the present), a 70-source **data-source catalog** with adopt/reject verdicts ([docs/refs/data-sources.md](docs/refs/data-sources.md)), and a **paper-to-TR pipeline** ([docs/21](docs/21-paper-to-tr-pipeline.md)).
+
+### Results at a glance
+
+*(Figures regenerate with `uv run python scripts/readme_figures.py` and `scripts/readme_figs.py`; the IBS chart is TR-16's own exhibit.)*
+
+![Return vs drawdown: every strategy on a Calmar 0.6 ray, the target zone empty](docs/img/fig_frontier.png)
+
+**Why the target is a unicorn (start here).** This one plot frames everything after it. Every strategy we tested — sector rules, the flagship combo, even leveraged ETFs — sits on the same Calmar ≈ 0.6 ray. The top-left "target zone" (50%+ CAGR at under 15% drawdown, i.e. Calmar ≈ 3.3) is *structurally empty*, not merely unexplored. Leverage does not move you toward it; it slides you up the same ray with proportionally deeper drawdown. The reachable frontier is ~5× short of the target — a wall, not a tuning problem.
+
+![Survival funnel: 226 variants, 26 families, 5 PASSED, 1 alpha](docs/img/fig_scoreboard.png)
+
+**The scoreboard.** 226 named variants registered, 26 mechanism families judged, 5 PASSED — and exactly **one** statistically significant alpha. Most of what the internet calls "a working strategy" died in this funnel; keeping the failed strategies on record is half this repo's value.
+
+![Verdict map of all 58 standardized tests, grouped by mechanism type](docs/img/readme_verdict_map_en.png)
+
+**The verdict map (updated 2026-07).** All 58 standardized tests, grouped by *what kind of mechanism* each one judges. Read it by row: the timing/regime row has no green at all; the green lives almost entirely in the inference-honesty row — method, not signals. The 2026-07 additions are the two native-seat replications: KMZ's Virtue of Complexity **replicates on its home turf (Sharpe +0.41 at 12,000 features) and is still fully explained by volatility-timing controls (+0.50)** — Nagel's critique confirmed at the source (TR-17b); the absorption ratio's crash-warning spike **weakly survives on industry portfolios (7/10 vs 33% base rate) while its timing gate lost to a static constant for the fifth time** (TR-21b). The newest wave sharpened all three storylines: Campbell-Thompson's sign restrictions rescue out-of-sample R² directionally and are still spanned by the same volatility controls (TR-31); Moskowitz-Grinblatt industry momentum is the least-decayed mechanism we have ever tested (−2% post-publication vs the −58% McLean-Pontiff average) precisely because it is not an anomaly — it is momentum-factor exposure in industry clothes, with zero alpha over FF5+UMD in every window (TR-32); and a user audit caught our own outside-bar engine being unfaithful to its source on four counts — rebuilt faithfully, the verdict class survived, this time earned (TR-30→30b).
+
+![Flagship 5-sleeve combo vs VOO at L=1 and at a same-risk L=1.5](docs/img/fig_combo.png)
+
+**Success #1 — the one survivor.** The 5-sleeve risk-parity combo (tech momentum / defensive rotation / trend-gated TQQQ / gold / bonds) vs VOO. **Read the chart at the right risk budget:** unlevered (L=1) the book runs at about *half* VOO's volatility and ends slightly below it (CAGR +13% vs +14%) at **−19% max drawdown vs −34%**; at a comparable risk budget (L=1.5, net of financing) it beats VOO on **both** axes (CAGR **+19%**, MDD **−29%**). Comparing only the unlevered line to VOO prices return without pricing risk — a presentation flaw a reader caught in this very figure, now fixed. Underneath it is a **real, robustly-positive Carhart alpha** (stationary-bootstrap P(α≤0)=0.001). Honest caveat (TR-18): the daily-frequency **t=3.38** headline is a Dimson lagged-beta artifact — at the frequency-appropriate **monthly** clock the alpha is **t=2.64 (OLS) / 2.95 (HAC), below the Harvey-Liu-Zhu 3.0 bar**. So: a genuine alpha, but *borderline* on the strict hurdle, not a clean pass. Its edge is risk-shaping, not return-maxing: lever it to your drawdown budget (`scripts/defensive_overlay.py`). Depth-tested (TR-25): the conclusion survives ±20-25% weight tilts (210 variants, alpha-t all ≥2.0), weekly/monthly/quarterly rebalancing (Sharpe spread 0.02), and 1,000 bootstrap paths (99.8% shallower drawdown than VOO) — and the whole plateau stays below t=3.0, so "borderline" is structural, not a weight artifact. Stacking test (TR-33): adding a GP-quality sleeve *subtracts* alpha (stack-spread Carhart t≈−1.9); the book stays 5-sleeve. A 50-year mechanism replay (TR-35, free long-history analogs, all proxy legs calibrated 0.99+) adds the deepest scope condition yet: the protection is *asymmetric* — equity-led crashes are cut to 0.07–0.16× the market's drawdown (51-year MDD −14.6% vs −50.3%), but rate-led windows (1976-81 stagflation, 1994) get *no* protection (ratio ≈1; the 58% bond leg is the exposed flank, and gold — not bonds — carried stagflation). Honest deliverable: "half the drawdown in equity-led crashes; market-like shallow drawdowns, unprotected, in rate-shock regimes."
+
+| annual return | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026* |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **combo** | +17.1% | +21.1% | **+0.8%** | +15.0% | **+26.4%** | +3.0% | **−16.6%** | +25.4% | +20.2% | **+27.9%** | +15.3% |
+| VOO | +12.2% | +21.8% | −4.5% | +31.4% | +18.3% | +28.8% | −18.2% | +26.3% | +25.0% | +17.8% | +10.0% |
+
+*\*2026 = YTD. 2015 omitted (126-day risk-parity warm-up). Cost drag 12–72 bps/yr (TR-15). Read the table honestly: the combo does **not** beat VOO every year — it wins by losing less (2018, 2020, 2022, 2025) and by never being the book that has to recover from −34%.*
+
+### Position sizing: the leverage ratio L
+
+![Fixed allocation at four leverage ratios: cumulative value and drawdown/return summary](docs/img/leverage_ladder_en.png)
+
+Everything above is *evidence*; this section is the *decision layer*. The allocation is
+fixed (bonds 58% / gold 16% / three equity sleeves 26%); **the leverage ratio L only
+scales exposure — it is not a separate strategy**:
+
+| L | implementation with $100k | CAGR | max drawdown |
+|---|---|---|---|
+| 0.5 | $50k in the allocation, $50k in T-bills | +8% | −9% |
+| 1.0 | $100k fully invested in the allocation | +13% | −19% |
+| 1.5 | $150k exposure, $50k financed on margin | +19% | −29% |
+| 2.0 | $200k exposure, $100k financed on margin | +24% | −37% |
+| *VOO* | *benchmark* | *+14%* | *−34%* |
+
+**Selecting L.** Choose the largest drawdown you are prepared to hold through without
+abandoning the strategy; that tolerance determines L. L ≤ 1 requires no margin account.
+Financing convention: at L < 1 uninvested cash earns the T-bill rate; at L > 1 borrowing
+is charged at T-bill + 60 bps (both are included in the figures above).
+
+**Operation.** Rebalance to the target weights once a month; the specification contains
+no other intervention. This is a tested result, not a simplification: seven timing
+overlays were run against this baseline and none improved it, each with a full report in
+the registry — no cash-gating, no daily stop-losses on high-volatility names, no index
+option selling for income (TR-36), no rotating into the prior year's winner (TR-11).
+
+Reproduce both figures: `uv run python scripts/leverage_ladder.py` and
+`scripts/readme_figures.py combo`; current weights and stats live in
+[`exports/dashboard/flagship_combo.json`](exports/dashboard/flagship_combo.json).
+*Research output, not investment advice.*
+
+![Ensemble holdout Sharpe and MDD vs the in-sample best rule](docs/img/fig_ensemble.png)
+
+**Success #2 — mixing beats picking.** Pick the best of 52 technical rules on 2015–20 and it collapses out-of-sample (holdout Sharpe **0.63**); let all 52 vote and set exposure to the vote fraction, and it holds (**0.99**, MDD −16% vs B&H −35%). The ensemble's win is selection-robustness and drawdown — by construction, long/flat rules on one asset cannot beat buy-and-hold's CAGR.
+
+![IBS same-close vs next-close fills: the whole edge is the fill convention](docs/tests/img/tr16_ibs.png)
+
+**Most surprising failure — our own verdict, reversed.** IBS mean-reversion was the *only* technical rule out of 59 to survive randomized-window testing… until TR-16 asked one question: *when do you actually get filled?* Filled at the very close the signal is computed from (orange), it beats everything since 1999; filled honestly at the next close (green), the entire edge drops below buy-and-hold — and a static 38% exposure matches it. Every fast-turnover backtest now has to pass this fill-time sensitivity check (fabric F1).
+
+![Markov regime gate vs a constant 57% exposure](docs/img/fig_markov_static.png)
+
+**Most famous failure — the celebrated regime model vs a constant.** A walk-forward Markov regime-switching gate genuinely identifies volatility regimes and halves QQQ's max drawdown — the classic pitch. But a **constant 57% exposure** (no model, zero trades) delivers the same drawdown with a *higher* excess Sharpe (Cederburg control, TR-02b). Every "smart timing" claim in this repo now has to beat its own dumb constant first (fabric F6).
+
+### Where we were wrong, and how we caught it
+
+| what we measured | first reading | post-audit reading | what was wrong |
+|---|---|---|---|
+| Flagship alpha t-stat (TR-18) | 3.38 (daily) | **2.64 (monthly)** | Daily returns understate market beta (Dimson lag), so factor return was booked as alpha; monthly is the honest clock. |
+| IBS mean-reversion excess Sharpe (TR-16) | +0.63 (same-close fills) | **+0.44 (next-close fills)** | Filling at the very close the signal is computed from uses future information; filled honestly, it loses to buy-and-hold (+0.45). |
+| q-factor shrink of flagship alpha (TR-24) | −30% (mixed windows) | **−2% (same window)** | Numerator and denominator covered different periods; on a shared window the verdict flipped to robust. |
+| KMZ complexity Sharpe at P=12,000 (TR-17b) | +0.01 (unfaithful replication) | **+0.41 (faithful replication)** | In-window z-scoring degenerated the kernel — a construction-induced false negative. The faithful result is real and still dominated by the +0.50 volatility controls. |
+| Absorption-ratio spike hit rate (TR-21→21b) | 4/10 (stock universe) | **7/10 (industry portfolios)** | The mechanism was tested outside its native habitat; at home the diagnostic half-recovered while the timing gate still lost to a constant. |
+| Outside-bar reversal engine (TR-30→30b) | FAILED on a 4-gap unfaithful engine | **same verdict class, faithful engine** | A user audit caught the machinery: a declared-but-unimplemented body filter, no stop, a mis-built FPO exit, a placebo that didn't share the exit engine. Rebuilt faithfully, the win-rate claim reproduces exactly as admitted (35%→81% as the stop buffer widens) and the entry still adds nothing over random entry — the right answer, this time earned. |
+| GP long-side payoff (TR-33) | calibration assumed top-quintile beats the average | **both extreme quintiles lag the middle; top−bottom = +0.04%/yr** | A rank IC does not imply bucket outperformance — the calibration encoded an assumption the upstream evidence never made. Recalibrated on the statistic actually measured (members-only ICIR +0.097), the honest chain ends at ≈$0 at portfolio level. |
+
+Every row is a number we first published to ourselves and later had to correct — not because the market changed, but because the first measurement was built wrong (wrong clock, wrong fill, mismatched windows, an unfaithful replication, the wrong habitat, an engine unfaithful to its source, a calibration that assumed more than the evidence). Three habits did the catching: **pre-committed verdict rules** written before any code (F0), **an adversarial audit after every single report** (it has found a real issue every time), and **control triples** that ask which dumb baseline already explains the result. The corrected reading always became the verdict of record; the original stays in the report as a documented mistake.
+
+### What we now KNOW (reproducible evidence)
+
+- **Selection alpha barely exists in free daily data.** Broad momentum is dead; value has been lost for a decade; PEAD/insider/operating factors failed; ML forecasters score OOS IC≈0 (the shuffled control beat the real model); even the KMZ complexity recipe is dominated by a simple 1/σ² volatility dial in our seat. The one robust cross-sectional signal: **gross profitability** (ICIR +0.30). Depth-tested (TR-26): it is a slow factor (ICIR rises monotonically from 0.10 at 21d to 0.41 at 252d holding), its gross long-short is only ~1%/yr (a signal, not a standalone strategy), and the current negative-IC stretch (rolling −0.05) is about half as deep as the 2022 record trough (−0.11), which recovered within a year. One more honesty pass (TR-27): masked to names actually in the index on each date, the IC keeps only 59% of its headline — a current-member panel books the pre-inclusion runup of future joiners as factor skill; both market-cap halves stay positive.
+
+![Factor ICIR scoreboard: one green bar (gross profitability) above a field of near-zero/negative factors](docs/img/fig_factor.png)
+
+*One green bar stands alone. Of every cross-sectional factor we ran on the broad universe, only gross profitability clears the noise band; value went outright negative. This is why the repo leans on risk-shaping, not stock-picking.*
+
+- **Timing to cash almost always subtracts, and clever risk models rarely beat a constant.** Every cash gate lost to buy-and-hold; the Markov gate's "MDD halving" was fully reproduced by a static 57% exposure; the last surviving technical rule (IBS) died once fills were honest — its edge was trading the very close the signal was computed from.
+- **The deliverable value is all in risk-shaping.** The 5-sleeve risk-parity combo is the one survivor: a **real, robustly-positive Carhart alpha** (bootstrap P(α≤0)=0.001), phase-immune (30bps timing-luck band), 2025 out-of-sample +27.9% with −5.7% MDD vs VOO's −18.7%. But it's **borderline, not a clean pass**: TR-18 found the daily **t=3.38** was a Dimson lagged-beta artifact; at the frequency-appropriate monthly clock it's **t=2.64 (OLS) / 2.95 (HAC), below the Harvey-Liu-Zhu 3.0 bar** — reverting to the original 2.64. Campaign-wide Bonferroni remains open too. The deliverable is the drawdown-halving, not a factor-model-beating alpha.
+- **Point estimates lie.** Quarterly momentum's rebalance-phase luck spans 1,753 bps/yr; a zoo table-topper beat equal-weight in only 23% of randomized windows; 59 technical variants collapse to ~1.8 effective independent bets.
+- **Most "it works" demos = beta + hindsight lists + ignored costs + generous fills.** Survivorship inflation on our universe: an honest interval of [+1.26%, +2.02%]/yr.
+
+### What we know we DON'T know
+
+Options and intraday dimensions (no point-in-time free data — TR-09 is an honest N/A); long-bear/rate-shock regimes (2015–2026 only had V-shaped crashes; long-history replays cover some of it); unauditable track records (copying a famous account's calls at next-day close showed **no timing edge over random entries into the same names** — the universe intel is the value).
+
+### How we decide feasible vs. not
+
+```mermaid
+flowchart LR
+    A[idea] --> B["F0 pre-commitment:<br/>falsifiable claim +<br/>verdict rules, BEFORE code"]
+    B --> C["fabric F1–F13:<br/>honest fills, 2× costs,<br/>n_eff, controls, sub-periods"]
+    C --> D["standardized test report<br/>(TR-01…24 + b-series)"]
+    D --> E["registry verdict<br/>(negative results kept)"]
+    E -- "PASSED" --> F["adversarial multi-agent<br/>verification"]
+    F --> E
+    G["standard evolves"] -- "F10 re-test cascade" --> D
 ```
 
-## Architecture
+This loop caught **30+ genuine illusions** in our own work — including reversing our own earlier verdicts twice. Current verdicts live in the [strategy registry (docs/18)](docs/18-strategy-registry.md); each mechanism's native habitat and re-open price in the [taxonomy (docs/19)](docs/19-mechanism-taxonomy.md).
 
-UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (public) → core library (data / models / strategy / backtest / execution).
+### Decision record
 
-UI may **only** call `trading_analysis.api`. Internals are private.
+| | |
+|---|---|
+| **Why** | At $0 information cost, equilibrium alpha is $0 (Grossman-Stiglitz). So the honest deliverable of a free-data project is *risk-shaping plus a kill-machine for bad strategies*, not a money printer. |
+| **What** | One levered risk-parity book (the only surviving alpha, borderline), one quality factor (gross profitability), a verdict registry where negative results are first-class, and collect-forward pipelines that buy future data dimensions with calendar time. |
+| **How** | F0 pre-commitment before code → fabric F1–F13 → standardized report → adversarial audit → registry. Timing claims must beat a constant (5 confirmations of the timing iron law); re-tests must first verify the replication machinery is faithful (TR-17b's false negative). |
+| **Scope** | US equities/ETF, daily-and-slower, retail capital, free or <$5/mo data; Taiwan market as V2. |
+| **Out of scope** | Intraday execution, options market-making, anything requiring paid real-time feeds, uncapped pay-per-use services (e.g. BigQuery), copying unauditable track records. |
 
-## Status
+Evidence for every cell: [registry (docs/18)](docs/18-strategy-registry.md) · [TR reports](docs/tests/) · [trial accounting](docs/trial-registry.md) · [data due diligence (docs/24)](docs/24-data-gaps-and-sources.md).
 
-MVP — Kronos prediction + rule-based strategies + vectorbt backtest. No LLM agents yet.
+The formulas we lean on hardest, and what each one caught:
 
-## License
+| formula | role | what it caught here |
+|---|---|---|
+| $n_{eff} = \frac{k \cdot n}{1+(k-1)\bar{\rho}}$ | effective samples / trials (F4, F5) | 59 zoo variants ≈ **1.8** independent bets |
+| Sharpe on $r - r_{Tbill}$, Lo (2002) adj. | honest Sharpe when cash pays 4–5% (F3) | every absolute Sharpe was inflated 0.04–0.11 |
+| $t_{\alpha} \geq 3.0$ (Harvey-Liu-Zhu) | the alpha bar after field-wide multiple testing (F5) | the combo's daily t=3.38 was a frequency artifact; monthly t=2.64–2.95 sits *below* the bar (TR-18) |
+| Nagel triple: $w \propto 1/\sigma^2$, static, random-entry | "which dumb control explains it?" (F6) | killed the Markov gate, IBS, and all 18 KMZ variants |
+| $E[\alpha] \leq$ information cost (Grossman-Stiglitz) | the economic prior for a $0 project (F0) | every re-open condition now carries a price tag |
 
-Apache-2.0. See [LICENSE](LICENSE).
+### The data foundation (2026-07)
 
-**Reference resources** (design inspiration only — no code copied):
-- [Kronos](https://github.com/shiyu-coder/Kronos) (foundation model, integrated as dependency)
-- [TradingAgents](https://github.com/TauricResearch/TradingAgents)
-- [ai-hedge-fund](https://github.com/QuantJosh/ai-hedge-fund)
-- [system-design-primer](https://github.com/donnemartin/system-design-primer)
-- FinceptTerminal — design reference only; **no code copied** (AGPL-3.0).
+We ran due diligence on **70 data sources across 7 categories** (all pricing verified on-site) and adopted **40 / rejected 30** — the full table with roles, rejection reasons, and cost estimates is in [docs/refs/data-sources.md](docs/refs/data-sources.md) §0. The working stack, all $0: **Alpaca** (2016+ SIP minute bars), **ThetaData free tier** (the only free options open-interest history, 2023-06+), **OptionsDX + DoltHub** (options chains 2010–present), **Ken French 49 industries** (1926+, already wired into TR-21b), **Goyal-Welch** (macro predictors 1871+, wired into TR-17b), **FRED/ALFRED** (the stack's only true point-in-time macro), **SEC EDGAR** (filings, 8-K events, 13F), **Tiingo** (delisted-stock prices), **fja05680/sp500** (PIT index membership 1996–2026, self-tested against the 2008 removal cohort), and **FinMind** (Taiwan, V2). Two things money can't buy at this budget stay honestly locked: pre-2023 options open interest and IBES-grade estimate-revision history — which is why the snapshot pipelines started today.
+
+### Directions still worth pursuing
+
+1. **Productize risk-shaping** — the combo + leverage dial + monitors are daily-usable; LLM layer as analyst/auditor (never as signal source).
+2. **Data-dimension expansion** — the only path to new alpha (Grossman-Stiglitz: pay the information cost): intraday, options chains (snapshotting live since 2026-07), analyst revisions (weekly snapshots live).
+3. **The paper-to-TR pipeline** — weekly paper scout → triage digest → user-picked deep reads → TRs → registry feedback.
+4. **Annual rituals** — re-run the OOS year-check, trade audit, and gates every January.
+
+### Quickstart
+
+```bash
+uv sync --extra dev
+uv run trading-analysis ingest --config configs/mvp.yaml   # ingest daily bars
+uv run python scripts/validate_recommendation.py           # flagship combo, full rigor gates
+uv run python scripts/tests/tr15_combo_cost.py             # cost-stressed flagship (t=3.38/3.14)
+uv run python scripts/tests/tr17_virtue_complexity.py      # Virtue-of-Complexity replication
+uv run python scripts/readme_figures.py                    # regenerate the README gallery
+```
+
+Architecture: UI (Streamlit) → CLI (Typer) → `trading_analysis.api` (only public surface) → core (data / models / strategy / backtest / portfolio / regime / factors / ml). Docs entry point: [docs/00-executive-summary.md](docs/00-executive-summary.md).
+
+**License**: Apache-2.0 ([LICENSE](LICENSE)). Reference repos (design inspiration only, no code copied): Kronos, TradingAgents, ai-hedge-fund, OpenBB.
+
+> **Disclaimer**: research/education only, not financial advice. Every backtest carries assumptions and limits; half this repo's value is writing those limits down.
+
+---
+
+## 繁體中文
+
+### 專案概述
+
+一個個人研究的 side project。起點是一篇沒辦法當作沒看到的論文：**McLean 與 Pontiff(2016，《Journal of Finance》)**重測了 97 個已發表的報酬預測訊號，發現這些訊號的報酬平均在**樣本外低了 26%、論文發表之後低了 58%**——公開發表的優勢，會被市場逐步吃掉。所以真正的問題變成：「網路上、論文裡、大師書裡的那些策略，經過誠實的測試、放到今天，還剩下多少？」我們用每月 0 元的免費資料(yfinance、SEC EDGAR、公開檔案庫)，歷經 100 多次 commit、**約 150 個機制/策略的系統性測試(58 份標準化測試報告，每一份都經過對抗式稽核)**，得到的答案比問題本身更有價值，因為它把「什麼是已知、什麼是未知、如何判斷可不可行」變成了可重現的程式與文件。
+
+### 結果總結(截至 2026-07)
+
+| 問題 | 答案 |
+|---|---|
+| 有會印鈔的策略嗎？ | **沒有。**「50% CAGR＋低回撤」的目標區在結構上就是空的——我們測過的所有東西都落在同一條 Calmar ≈ 0.6 的射線上。 |
+| 有真的 alpha 嗎？ | **有一個，而且只是邊際。**五 sleeve 風險平價組合：月頻 Carhart t=2.64，低於嚴格門檻 3.0。它真正的價值是風險塑形，可依回撤預算加槓桿。選擇誠實化(TR-37)：P(alpha 為真) 在實際跑過的 17 次組合層級試驗下 ≈ 0.87、悲觀全戰役計數下 0.56、九成懷疑先驗下 ≈ 0.8——大概率是真的，但沒有任何誠實的角度能說成確定。 |
+| 有選股訊號嗎？ | **有一個，而且愈測愈誠實。**毛利/資產品質因子——頭條 ICIR +0.30，但遮罩到「當天真的在指數裡」的名字後只保留 59%(ICIR +0.13，TR-27)——而**去倖存終判(TR-51)再砍到 +0.06**：用 Tiingo+EDGAR/Form-4 CIK 橋把 374 檔已死成員的價格與財報補回面板後，剩餘訊號的三分之二被證實是倖存者眩光——缺席者是「高 GP 的衰退者」(指數剔除的是跌勢股，而 GP 的分母是帳面資產，股價崩跌時 GP 仍高；退場前 GP 分位中位 0.57、相對報酬 −1.5%；兩個預先登記的偏誤方向都沒猜中，由隊列診斷仲裁)。誠實鏈現為 +0.30 → +0.23 → +0.13 → **+0.06**，距 artifact 一步之遙；其 IC 亦於 2025–26 轉負(列入觀察)；聯合 Fama-MacBeth 面板把觀察磨得更利——2015–2020 獨立被定價(t=+2.67)，2021 之後歸零(TR-34)。動能、價值、PEAD、內部人、機器學習預測、四大經典異象全數陣亡；產業動量能複製但整條是動量因子曝險(TR-32)。而且兩個倖存者疊不起來：把 GP sleeve 加進主力帳簿反而扣掉 alpha(TR-33——誠實鏈的終點是 +0.04%/yr 的可交易價差)。新棲地透出第一道光：台股面板(1,151 檔 TWSE，TR-39)四個特徵聯合過 t≥2——去倖存補丁(TR-39b：TWSE 官方終止名單+CAL 抓到的 pandas pct_change ffill 後門)隨後把它們分成兩半：動能(+84bps/mo，t=2.4)、異常量(+94，t=3.4)、低流動性(−106，t=−2.8)**確認**且 2021 後更強；MAX 樂透溢價判定為倖存者眩光退役。接著成本關卡(TR-40)把排序**整個翻轉**：面板裡最強的異常量(t=3.4)年換手 6.8 倍、吃掉 7.07% 成本後只剩 t=0.6；最弱的低流動性幾乎不換手，淨賺 **+6.75%/yr、t=2.3**——唯一存活者，對價差假設穩健到損益兩平要 31 跳，但容量有天花板，而這正是低流動性溢酬的定義。桶分解(TR-41)接著殺掉了直覺上的高容量替代方案：溢酬**只住在最尾端那一格**(D2 已歸零、D3–D9 全負)，所以「避開最擁擠的股票」是個**顯著虧損**的策略(−0.92%/yr，t=−2.34)——排除一個好桶只會讓你重壓在壞桶上。它通過跳月的停滯價檢查，並隨資金規模單調衰減：教科書式的流動性補償，不是異象。最終誠實化(TR-44)：改用還原(總報酬)股價重跑，三個特徵的符號與階梯懸崖全部維持，但扣掉真實 45bps 來回成本後，每個候選都只剩 MARGINAL(低流動性 t=1.86、動能 t=0.81)——機制為真，但在最嚴格基準下沒有一個乾淨過關。台股線是個真實但稱不上乾淨可交易的效應。籌碼歸因(TR-45，法人買賣超+融資融券)補完全貌：外資流延續為真(t=3.3，獨立於價格特徵)但其頂十分位組合同樣過不了超額基準的成本關卡(淨 −4.1%/yr)；動能與異常量**不是**外資流扛的；最冷門角落的籌碼活動全在中位——流動性溢酬是結構性補償，不是流向現象。內部人通道也有了標準化的關閉(TR-46)：Form 4 機會型/例行淨買在 S&P 500 成員 2015+ 上是**有充分檢定力的零**(全部 |t|<0.5，覆蓋 415 檔/月；管線可證有效——精準捕捉 2020-03 有記錄的內部人搶買潮)，與文獻的規模依賴一致；小型股腿等 p3 滴灌。經典論文佇列也已全部結案(TR-47–50)：長期反轉與 LSV 價值反向在本座位都是有充分檢定力的零(KF 長史顯示 De Bondt-Thaler 在 1985 發表後準時衰退——教科書級的 McLean-Pontiff 弧線)；Hou-Moskowitz price delay 反向顯著但被控制變數吸收(beta/規模的重新包裝，不是訊號)。動量崩盤(TR-49)在因子座位成功複現——見擇時列。 |
+| 擇時有用嗎？ | **沒有——九次獨立確認，而且每一扇可及的門現在都關上了。**一個恆定部位或隨機對照，就能追平或打敗我們測過的每一個擇時機制(Markov、IBS、吸收比率兩個座位、KMZ 複雜度、Campbell-Thompson 符號約束、外包線)。第八次(TR-42)把它從**報酬擇時**擴大到**風險輸入型擇時**：一個股債相關煞車——它不預測任何報酬，只宣稱風險模型的輸入變了——仍然輸給同平均曝險的恆定部位，而且只落在隨機煞車安慰劑的第 20 百分位。另有一次因子座位上的外部驗證(TR-49)：動量崩盤**確實**可由狀態預測(熊市+高波動月平均 −2.3%/mo，t=−2.4)，但有利可圖的修復是單純的波動縮放(Sharpe 0.42→0.96)——Daniel-Moskowitz 的預測型權重沒有帶來任何增量。第九次(TR-52)行使了鐵律唯一的例外條款——選擇權資訊層的指數端：VRP 預測(BTZ 2009)在延長窗上連樣本內都沒有預測力(t=0.3、OOS R² −6.5%)，VIX/VIX3M 期限結構閘門與隨機平移無法區分(安慰劑 62 百分位)，雙雙輸給同曝險常數。例外條款收窄至自建個股選擇權鏈——那是**擇股**用途；不再有任何開著的擇時之門。 |
+| 那這個專案的資產是什麼？ | **方法本身，加上資料護城河。**58 份經對抗式稽核的測試報告、一份把負面結果當一等公民的註冊表、七次白紙黑字的自我修正，以及 $0 的資料堆疊與兩條「現在不錄、以後買不到」的前向收集管線。 |
+
+### 建置內容
+
+1. **一套驗收標準(fabric v2.0，[docs/17](docs/17-fabric-acceptance.md))**：單一規則表 F0–F13，把每一次踩過的坑逐條寫成明文規則：動工前先定案的可證偽宣稱(F0)、無洩漏訊號與成交時點慣例(F1)、以買賣價差縮放的成本加上強制 2× 壓力測試(F2)、扣除國庫券利率後的超額 Sharpe(F3)、有效樣本數(F4)、全 campaign 試驗數記帳與 alpha 門檻 t≥3.0(F5)、**Nagel 三重對照：「哪一個最簡單的對照組就能解釋它？」**(F6)、子期穩定與長歷史重放(F7)、判定效力=適用市場×適用情境(F8)、路徑隨機化(F9)、複測級聯(F10)、標的池合法性(F11)、再平衡相位平均(F12)、下市規則(F13)。經濟學前提是 **Grossman-Stiglitz**：資訊成本 0 元，均衡下的 alpha 就是 0 元；每個翻案條件都必須計為一筆資訊成本。
+2. **58 份標準化測試報告**([docs/tests/TR-01..24 + b 系列](docs/tests/))：統計套利、Markov 狀態轉換、PCA 因子模型、共變異清理、VaR 與厚尾、GBM 蒙地卡羅、CAPM、HRP、機器學習預測、Black-Scholes(N/A：沒有資料就不硬湊數字)、LLM agent 框架、bagged 回測、再平衡相位運氣、下市偏誤、有效樣本、成本壓力、IBS 完整檢驗，加上一整波由經典論文驅動的重測：推論穩健性(TR-18)、隔夜/日內拆解(TR-19)、FF5/6 與 q-factor 歸因(TR-20/24)、四個經典異象(TR-23)、組合 PBO(TR-22)，以及把 KMZ《複雜度的美德》(TR-17b)與吸收比率(TR-21b)搬回**論文原生棲地**的重測——之後是**對自家倖存者的深度審訊系列**(穩健度高原 TR-25、GP 深度/成員資格/季頻時鐘 TR-26–28、持有期經濟學 TR-29、兩倖存者疊加終審 TR-33)、回到源頭的 Goyal-Welch/Campbell-Thompson 擇時線(TR-31)、Moskowitz-Grinblatt 產業動量(TR-32)，以及把 YouTube 交易機制轉成預先登記測試的**創作者宣稱管線**(TR-30/30b)。每一份報告都經過對抗式稽核，而且稽核不只一次推翻了我們自己的頭條讀數。
+3. **已建置的基礎設施**：point-in-time 資料層(DuckDB+Parquet；EDGAR 以申報日對齊；指數歷史回溯 1993；S&P 500 成分股 PIT 面板 1996–2026)、order-independent 回測引擎、嚴謹度模組(PSR/DSR/PBO/SPA)、每日 Telegram 監控(跑在免費的 GitHub Actions 上)、兩條**前向收集管線**(每日 SPY/QQQ 選擇權鏈快照；每週 S&P 500 分析師預估快照。過去買不到，只能從今天開始記錄)、一份含採用/不採用判定的 **70 個資料源目錄**([docs/refs/data-sources.md](docs/refs/data-sources.md))，以及**論文到 TR 管線**([docs/21](docs/21-paper-to-tr-pipeline.md))。
+
+### 成果一覽
+
+*(所有圖表可用 `uv run python scripts/readme_figures.py` 與 `scripts/readme_figs.py` 重新產生；IBS 那張直接取自 TR-16 的原始證物。)*
+
+![報酬對回撤：每個策略都落在 Calmar 0.6 射線上，目標區是空的](docs/img/fig_frontier.png)
+
+**為什麼那個目標並不存在(請先看這張)。** 這張圖是後面所有結果的前提。我們測過的每個策略，包括產業規則、主力組合、甚至槓桿 ETF，全都落在同一條 Calmar ≈ 0.6 的射線上。左上角的「目標區」(50%+ CAGR、回撤低於 15%，也就是 Calmar ≈ 3.3)在結構上就是空的，不是還沒被找到。槓桿並不會把你推向那裡，只會讓你沿同一條射線往上滑，回撤也按同樣比例加深。可達的前緣離目標還差約 5 倍：這是一道牆，不是調整參數就能解決的問題。
+
+![生存漏斗：226 個變體、26 類機制、5 個 PASSED、1 個 alpha](docs/img/fig_scoreboard.png)
+
+**計分板。** 226 個具名變體登記在案、26 類機制接受檢驗、5 個 PASSED，而統計顯著的 alpha 恰好只有 **1 個**。網路上大多數所謂「有效的策略」都死在這個漏斗裡；把這些失敗的策略完整記錄下來，正是這個 repo 一半的價值。
+
+![58 份標準化測試，依機制類型分組的判定分布](docs/img/readme_verdict_map.png)
+
+**判定全景(2026-07 更新)。** 58 份標準化測試，依照「它在檢驗哪一種機制」分組。用橫列來讀：擇時與 regime 那一列一格綠色都沒有；綠色幾乎全部集中在「推論誠實度」那一列——通過的是方法，不是訊號。2026-07 新增的兩份原生棲地重測值得單獨說：KMZ 的複雜度美德**回到論文自己的棲地確實複現(12,000 個特徵時 Sharpe +0.41)，但仍然被波動擇時對照組(+0.50)完整蓋過**，Nagel 的批評在源頭獲得確認(TR-17b)；吸收比率的崩盤預警尖峰**在產業組合上弱存活(10 次大跌命中 7 次，基準率 33%)，它的擇時閘門則第五次輸給一個恆定部位**(TR-21b)。最新一波把三條故事線都磨得更利：Campbell-Thompson 的符號約束確實在方向上救回樣本外 R²，但仍被同一組波動對照張成(TR-31)；Moskowitz-Grinblatt 產業動量是我們測過**發表後衰退最少**的機制(−2%，對比 McLean-Pontiff 平均 −58%)——不衰退恰恰因為它不是異象，而是穿產業外衣的動量因子曝險，對 FF5+UMD 在每個時間窗 alpha 都歸零(TR-32)；還有一次使用者稽核抓到我們自己的外包線引擎對來源四處不忠實——忠實重建後判定同類，這次是掙來的(TR-30→30b)。
+
+![主力五 sleeve 組合 vs VOO：L=1 與同風險 L=1.5 兩條線](docs/img/fig_combo.png)
+
+**成功案例一：唯一的倖存者。** 五個 sleeve 的風險平價(risk parity，依各資產波動度的倒數分配權重)組合(科技動能/防禦輪動/趨勢濾網 TQQQ/黃金/債券)對上 VOO。**請在對的風險預算上讀這張圖：**不加槓桿(L=1)時，這個帳簿的波動只有 VOO 的**一半**、終點也略低於它(年化 +13% vs +14%)，但最大回撤是 **−19% 對 −34%**；把風險預算拉到相當水準(L=1.5，已扣融資成本)，它在**報酬與回撤兩軸同時**勝過 VOO(年化 **+19%**、回撤 **−29%**)。只拿未加槓桿那條線跟 VOO 比，等於「比報酬卻不比風險」——這個呈現缺陷正是一位讀者在這張圖上抓到的，現已修正。它底下是一個**真實、穩健為正的 Carhart alpha**(定態拔靴 P(α≤0)=0.001)。誠實但書(TR-18)：日頻的 **t=3.38** 是 Dimson lagged-beta 假象，在頻率對應的**月頻**下 alpha 是 **t=2.64(OLS)/2.95(HAC)，低於 Harvey-Liu-Zhu 的 3.0 門檻**。所以：是真 alpha，但對嚴格門檻只是**邊際**，不算乾淨過關。它的優勢是風險塑形而非報酬極大化：依你的回撤預算上槓桿(`scripts/defensive_overlay.py`)。深度檢驗(TR-25)：權重 ±20-25%(210 個變體，alpha-t 全數 ≥2.0)、週/月/季再平衡(Sharpe 差距 0.02)、1,000 條拔靴路徑(99.8% 回撤淺於 VOO)都不改結論——而且整個高原都低於 t=3.0，「邊際」是結構性質，不是權重挑出來的。疊加終審(TR-33)：把 GP 品質 sleeve 加進來反而**扣掉** alpha(疊加價差 Carhart t≈−1.9)，帳簿維持 5-sleeve。50 年機制回放(TR-35，免費長史類比，代理腿全部校準到 0.99+)加上了至今最深的範圍條件：保護是**不對稱**的——股災主導的回撤被砍到市場的 0.07–0.16 倍(51 年 MDD −14.6% vs −50.3%)，但利率主導的時間窗(1976–81 停滯性通膨、1994 債券大屠殺)**零保護**(比率≈1；58% 債券腿是裸露面，扛住停滯性通膨的是金不是債)。誠實的交付語言：「股災回撤砍半；利率衝擊 regime 與市場同淺、無超額保護」。
+
+| 年度報酬 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026* |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **組合** | +17.1% | +21.1% | **+0.8%** | +15.0% | **+26.4%** | +3.0% | **−16.6%** | +25.4% | +20.2% | **+27.9%** | +15.3% |
+| VOO | +12.2% | +21.8% | −4.5% | +31.4% | +18.3% | +28.8% | −18.2% | +26.3% | +25.0% | +17.8% | +10.0% |
+
+*\*2026 為年初至今。2015 略去(風險平價需 126 天暖身)。成本拖累 12–72 bps/年(TR-15)。平心而論：組合**不是**每年都贏 VOO，而是贏在跌得少(2018、2020、2022、2025)，以及永遠不必從 −34% 的坑裡爬出來。*
+
+### 部位規模：槓桿比率 L 的選擇
+
+![固定配方在四種槓桿比率下的累積淨值與回撤/報酬摘要](docs/img/leverage_ladder.png)
+
+上面各節是**證據**，本節是**決策層**。配置是固定的
+(債 58% / 金 16% / 三條股票腿共 26%)；**槓桿比率 L 只縮放曝險，不是另一個策略**：
+
+| L | 以 100 萬本金的實作 | 年化報酬 | 最大回撤 |
+|---|---|---|---|
+| 0.5 | 50 萬投入配置，50 萬持有短期國債(T-bill) | +8% | −9% |
+| 1.0 | 100 萬全數投入配置 | +13% | −19% |
+| 1.5 | 總曝險 150 萬，其中 50 萬為融資部位 | +19% | −29% |
+| 2.0 | 總曝險 200 萬，其中 100 萬為融資部位 | +24% | −37% |
+| *VOO* | *對照基準* | *+14%* | *−34%* |
+
+**L 的選擇準則：**以「能夠持有到底、不致中途放棄」的最大回撤上限決定 L。L ≤ 1 無需融資帳戶。
+融資慣例：L < 1 時閒置資金按 T-bill 利率計息；L > 1 時融資成本為 T-bill + 60 bps
+(上表數字皆已計入)。
+
+**操作方式：**每月固定一日再平衡回目標權重；規格中不含其他任何干預。這是測試結果而非簡化：
+七種擇時疊加對此基準全數未見改善，每一種在註冊表都有完整報告——不設現金閘門、高波動標的
+不用日停損、不賣指數選擇權收租(TR-36)、不轉倉追前一年冠軍(TR-11)。
+
+兩張圖都可重跑:`uv run python scripts/leverage_ladder.py` 與 `scripts/readme_figures.py combo`;
+現行權重與統計在 [`exports/dashboard/flagship_combo.json`](exports/dashboard/flagship_combo.json)。
+*本專案是研究產出，不是投資建議。*
+
+![混合策略 holdout Sharpe 與回撤 vs 樣本內最佳單規則](docs/img/fig_ensemble.png)
+
+**成功案例二：混合勝過挑選。** 在 2015–20 挑出 52 條技術規則中最好的那條，樣本外直接崩盤(holdout Sharpe **0.63**)；讓 52 條全部投票、部位=看多票數比例，則穩住(**0.99**，回撤 −16% vs 買進持有 −35%)。混合贏的是「選擇穩健性」與回撤控制。就數學而言，單一資產的多/空手規則混合，不可能贏過買進持有的年化報酬。
+
+![IBS 當根收盤 vs 次日收盤成交：整個優勢就是成交慣例](docs/tests/img/tr16_ibs.png)
+
+**最意外的失敗：我們親手推翻了自己先前的判定。** IBS 均值回歸是 59 條技術規則裡*唯一*通過隨機視窗測試的……直到 TR-16 問了一個問題：*你實際上是在哪一根 K 棒成交的？* 用「剛算完訊號的那根收盤價」成交(橘線)，它從 1999 年起就勝過其他所有規則；誠實地用次日收盤成交(綠線)，整個優勢掉到買進持有之下，一個恆定 38% 部位就能打平它。從此所有快速換手的回測都必須通過成交時點敏感度檢查(fabric F1)。
+
+![Markov 狀態轉換閘門 vs 恆定 57% 部位](docs/img/fig_markov_static.png)
+
+**最知名的失敗：備受推崇的 regime 模型，對上一個常數。** walk-forward 的 Markov 狀態轉換閘門確實辨識得出波動狀態，也確實把 QQQ 的最大回撤砍半，堪稱經典的賣點。但一個**恆定 57% 部位**(沒有模型、零交易)給出同樣的回撤、*更高*的超額 Sharpe(Cederburg 對照，TR-02b)。從此 repo 裡每一個「聰明擇時」的宣稱，都得先贏過自己那個最陽春的常數基準(fabric F6)。
+
+### 我們哪裡想錯了，又是怎麼抓到的
+
+| 我們在量什麼 | 第一次讀數 | 稽核後讀數 | 錯在哪裡 |
+|---|---|---|---|
+| 主力組合 alpha 的 t 值(TR-18) | 3.38(日頻) | **2.64(月頻)** | 日頻報酬會低估市場 beta(Dimson 落後效應)，把因子報酬記成了 alpha；月頻才是誠實的時鐘。 |
+| IBS 均值回歸的超額 Sharpe(TR-16) | +0.63(當根收盤成交) | **+0.44(次日收盤成交)** | 用「剛算完訊號的那根收盤價」成交，等於用到未來資訊；誠實成交後輸給買進持有(+0.45)。 |
+| q-factor 使主力組合 alpha 縮水(TR-24) | −30%(不同時間窗) | **−2%(同一時間窗)** | 比較的分子與分母覆蓋的期間不同；放到同一個窗之後，判定翻轉為穩健。 |
+| KMZ 複雜度在 12,000 特徵時的 Sharpe(TR-17b) | +0.01(實作偏離原論文) | **+0.41(實作對齊原論文)** | 視窗內 z-score 讓核函數退化，造成假陰性；對齊後結果為真，但仍被 +0.50 的波動對照組蓋過。 |
+| 吸收比率尖峰的命中率(TR-21→21b) | 4/10(個股樣本) | **7/10(產業組合)** | 機制被放在論文原生棲地之外測試；搬回去之後診斷恢復一半，擇時閘門仍輸給恆定部位。 |
+| 外包線反轉的測試引擎(TR-30→30b) | FAILED(引擎四處不忠實) | **同類判定(忠實引擎)** | 使用者稽核抓到機器問題：宣告了卻沒實作的實體過濾、沒有止損、FPO 出場做錯、安慰劑沒有共用出場引擎。忠實重建後，勝率宣稱被完整重現(止損緩衝放大時 35%→81%，正如影片自招)，而進場相對隨機進場仍然零增值——答案沒變，但這次是掙來的。 |
+| GP 多頭側的賠付(TR-33) | 校準假設「頂五分位跑贏平均」 | **兩側尾桶都輸給中段；頂−底=+0.04%/yr** | 排名 IC 不蘊含頂桶跑贏——校準寫進了一個上游證據從未主張的假設。改用上游實際量測的統計量(成員限定 ICIR +0.097)重新校準後，誠實鏈在組合層級的終點約等於 $0。 |
+
+表中每一列，都是一個我們自己先發表、後來又不得不修正的數字。錯的原因不是市場變了，而是第一次的量法本身就有問題：用錯了時鐘(日頻 vs 月頻)、用錯了成交假設、比較時分子分母不同窗、重現論文時實作偏離原始做法、把機制放錯了棲地、引擎對來源不忠實、或是校準假設了證據沒說過的事。抓到它們靠的是三個習慣：**動工前就寫死判定規則**(F0，事後不准改球門)、**每一份報告之後都做一次對抗式稽核**(到目前為止每一次都真的抓到問題)，以及**對照組三件套**(先問「哪個最笨的基準就能解釋這個結果？」)。修正後的讀數一律成為正式判定；原始的錯誤讀數留在報告裡，標明是一次被記錄下來的失誤。
+
+### 已確認的結論(可重現的證據)
+
+- **免費日線資料上幾乎不存在選股 alpha。** 動能因子在整體市場層級已經失效、價值因子已經連續十年拿不出表現、PEAD、內部人與營運面因子也都沒通過；機器學習預測器的樣本外 IC≈0(打亂標籤的對照組甚至贏過真模型)；連 KMZ 的複雜度配方，以我們的條件來看也被一個依波動度反比(1/σ²)調整部位的簡單規則支配。唯一站得住的橫斷面訊號：**毛利/資產品質因子**(ICIR +0.30)。深度檢驗(TR-26)：它是慢因子(ICIR 隨持有期從 21 天的 0.10 單調升到 252 天的 0.41)、毛多空只有約 1%/年(是訊號，不是獨立策略)；目前的負 IC 段(滾動 −0.05)深度約是 2022 年歷史谷底(−0.11)的一半，而那一次在一年內復原。再多一層誠實檢驗(TR-27)：遮罩到「當天真的在指數裡」的名字後，IC 只保留頭條值的 59%——現任成分股面板把未來入選者入選前的上漲段記成了因子能力；大小市值兩半則都維持正值。
+
+![因子 ICIR 計分板：一根綠柱(毛利品質)高於一排貼近零或翻負的因子](docs/img/fig_factor.png)
+
+*圖中只有一根綠色長條明顯高出雜訊帶。我們在涵蓋廣泛標的的樣本上測過的每一個橫斷面因子裡，只有毛利品質過得了關；價值因子直接翻負。這正是本專案倚重風險塑形、而非選股的原因。*
+
+- **擇時轉現金幾乎一定扣分，聰明的風險模型很少贏過一個常數。** 每一個現金開關都輸給買進持有；Markov 模型引以為傲的「回撤砍半」，用恆定 57% 部位就能完整複製；最後一條存活的技術規則(IBS)在誠實成交假設下就失效了：它的優勢來自「用剛算完訊號的那根收盤價成交」的假象。
+- **可交付的價值全在風險塑形。** 五個 sleeve 的風險平價組合是唯一的倖存者：一個**真實、穩健為正的 Carhart alpha**(拔靴 P(α≤0)=0.001)、相位免疫(timing-luck 區間僅 30bps)、2025 樣本外 +27.9%、最大回撤 −5.7%(同期 VOO −18.7%)。但它是**邊際、不是乾淨過關**：TR-18 發現日頻 **t=3.38** 是 Dimson lagged-beta 假象，在頻率對應的月頻下是 **t=2.64(OLS)/2.95(HAC)，低於 Harvey-Liu-Zhu 的 3.0 門檻**，退回原始的 2.64；全 campaign 的 Bonferroni 也仍未過關。真正的交付是「回撤砍半」，不是一個打贏因子模型的 alpha。
+- **單點估計靠不住。** 季度動能的再平衡相位運氣高達 1,753 bps/年；zoo 榜首在隨機視窗下只有 23% 的機率贏過等權；59 個技術變體實際上只等於約 1.8 個獨立的賭注。
+- **網路上大多數「有效」的展示 = beta + 事後清單 + 忽略成本 + 過度寬鬆的成交假設。** 我們這個標的池的倖存者偏誤會灌高報酬：誠實區間 [+1.26%, +2.02%]/年。
+
+### 已知的未知
+
+選擇權與盤中維度(沒有 point-in-time 的免費資料，TR-09 因此誠實地標為 N/A)；長空頭/利率衝擊的市場情境(2015–2026 只有 V 型崩跌，長歷史重放補了一部分)；無法稽核的他人績效(以次日收盤跟單名人喊單，**對同一批股票的隨機進場沒有任何擇時優勢**：真正有價值的是他挑選的那批標的，而不是進場時點)。
+
+### 可行性判斷流程
+
+```mermaid
+flowchart LR
+    A[想法] --> B["F0 預先承諾：<br/>可證偽宣稱+判定規則<br/>(動工前就先定案)"]
+    B --> C["fabric F1–F13:<br/>誠實成交、2× 成本、<br/>有效樣本、對照組、子期"]
+    C --> D["標準化測試報告<br/>(TR-01…24+b 系列)"]
+    D --> E["判定寫入註冊表<br/>(負面結果也保留)"]
+    E -- "PASSED" --> F["對抗式多代理驗證"]
+    F --> E
+    G["標準演進"] -- "F10 複測級聯" --> D
+```
+
+這個迴圈在我們自己的工作裡抓出 **30 多個貨真價實的假象**，其中兩次還推翻了我們自己先前的判定。現行判定以[策略總註冊表(docs/18)](docs/18-strategy-registry.md)為單一事實來源；各機制的原生棲地與翻案價碼則見[機制分類學(docs/19)](docs/19-mechanism-taxonomy.md)。
+
+### 決策記錄
+
+| | |
+|---|---|
+| **為什麼(Why)** | Grossman-Stiglitz：資訊成本 0 元，均衡下的 alpha 就是 0 元。所以一個免費資料專案誠實的產出，是「風險塑形+一台淘汰爛策略的機器」，不是印鈔機。 |
+| **做什麼(What)** | 一個可加槓桿的風險平價組合(唯一倖存、且只是邊際的 alpha)、一個品質因子(毛利/資產)、一份把負面結果當一等公民的判定註冊表，以及用日曆時間換未來資料維度的前向收集管線。 |
+| **怎麼做(How)** | F0 預先承諾 → fabric F1–F13 → 標準化報告 → 對抗式稽核 → 寫入註冊表。擇時宣稱必須先贏過一個常數(鐵律至今確認 5 次)；重測論文前，必須先確認自己的實作與原論文的做法一致(TR-17b 的假陰性教訓)。 |
+| **範圍(Scope)** | 美股/ETF、日頻與更慢、散戶資金規模、免費或每月 5 美元以內的資料；台股列為 V2。 |
+| **不做(Out of scope)** | 盤中執行、選擇權造市(market making，需要機構等級的報價基礎設施)、任何需要付費即時行情的東西、無上限計量計費的服務(例如 BigQuery)、跟單無法稽核的績效紀錄。 |
+
+每一格的證據：[註冊表(docs/18)](docs/18-strategy-registry.md) · [TR 報告](docs/tests/) · [試驗數記帳](docs/trial-registry.md) · [資料盡職調查(docs/24)](docs/24-data-gaps-and-sources.md)。
+
+我們最倚重的幾條公式，以及它們各自抓到了什麼：
+
+| 公式 | 角色 | 在本專案抓到的東西 |
+|---|---|---|
+| $n_{eff} = \frac{k \cdot n}{1+(k-1)\bar{\rho}}$ | 有效樣本/有效試驗數(F4、F5) | zoo 的 59 個變體 ≈ **1.8** 個獨立賭注 |
+| Sharpe 算在 $r - r_{Tbill}$ 上+Lo(2002)校正 | 現金有 4–5% 利息時的誠實 Sharpe(F3) | 所有絕對 Sharpe 都被高估 0.04–0.11 |
+| $t_{\alpha} \geq 3.0$(Harvey-Liu-Zhu) | 全領域多重測試後的 alpha 門檻(F5) | 主力組合日頻 t=3.38 是頻率假象；月頻 t=2.64–2.95 其實**低於**門檻(TR-18) |
+| Nagel 三重對照：$w \propto 1/\sigma^2$、靜態部位、隨機進場 | 「哪一個最簡單的對照組就能解釋它？」(F6) | 否決了 Markov 閘門、IBS，以及 KMZ 全部 18 個變體 |
+| $E[\alpha] \leq$ 資訊成本(Grossman-Stiglitz) | 0 元專案的經濟學先驗(F0) | 每個翻案條件從此都標上價格 |
+
+### 採用的資料來源(2026-07)
+
+我們對 **7 大類、70 個資料源**做了逐一盡職調查(定價與額度全部當天站上驗證)，**採用 40 個、不採用 30 個**；完整的角色、不採用原因與費用推估，見 [docs/refs/data-sources.md](docs/refs/data-sources.md) 的 §0 總覽表。目前實際在用的來源全部 0 元：**Alpaca**(2016 起的 SIP 分鐘線)、**ThetaData 免費層**(唯一免費的選擇權未平倉歷史，2023-06 起)、**OptionsDX + DoltHub**(選擇權鏈 2010 至今)、**Ken French 49 產業**(1926 起，已接進 TR-21b)、**Goyal-Welch**(總經預測變數 1871 起，已接進 TR-17b)、**FRED/ALFRED**(整套組合裡唯一真 point-in-time 的總經資料)、**SEC EDGAR**(申報、8-K 事件、13F)、**Tiingo**(下市股票價格)、**fja05680/sp500**(指數成分 PIT 面板 1996–2026，已用 2008 年移除名單逐一驗證)、**FinMind**(台股，V2)。有兩樣東西在這個預算下誠實地買不到：2023 年以前的選擇權未平倉，以及 IBES 等級的預估修正歷史。這正是兩條快照管線今天就要開始跑的原因。
+
+### 後續發展方向
+
+1. **風險塑形產品化**：組合、槓桿調節與監控已可日常使用；LLM 層當分析師/稽核員(絕不當訊號源)。
+2. **資料維度擴張**：唯一可能解鎖新 alpha 的路(G-S 紀律：先付資訊成本)，包含盤中資料、選擇權鏈(2026-07 起每日快照已上線)、分析師預估修正(每週快照已上線)。
+3. **論文到 TR 管線**：每週論文偵察 → 分類摘要 → 你點名深讀 → TR → 註冊表回饋。
+4. **年度例行檢查**：每年一月重跑樣本外年度檢查、交易稽核與嚴謹度閘門。
+
+### 快速上手
+
+```bash
+uv sync --extra dev
+uv run trading-analysis ingest --config configs/mvp.yaml   # 匯入日線資料
+uv run python scripts/validate_recommendation.py           # 主力組合(完整嚴謹閘門)
+uv run python scripts/tests/tr15_combo_cost.py             # 成本壓力後的主力組合(t=3.38/3.14)
+uv run python scripts/tests/tr17_virtue_complexity.py      # 複雜度的美德重現
+uv run python scripts/readme_figures.py                    # 重新產生 README 成果圖
+```
+
+架構：UI(Streamlit)→ CLI(Typer)→ `trading_analysis.api`(唯一公開介面)→ 核心函式庫(data / models / strategy / backtest / portfolio / regime / factors / ml)。文件入口：[docs/00-executive-summary.md](docs/00-executive-summary.md)。
+
+**授權**：Apache-2.0([LICENSE](LICENSE))。參考 repo(僅設計參考，未複製程式碼)：Kronos、TradingAgents、ai-hedge-fund、OpenBB。
+
+> **免責聲明**：僅供研究與教育用途，不構成投資建議。所有回測都有其假設與限制；把這些限制白紙黑字寫下來，正是這個 repo 一半的價值。

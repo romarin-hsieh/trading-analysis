@@ -1,0 +1,63 @@
+{
+ "meta": {
+  "source": "trading-analysis",
+  "as_of": "2026-06-18",
+  "generated_at": "2026-07-19T15:54:53Z",
+  "fixed": "sleeve definitions + rule parameters + inverse-vol risk-parity (126d lookback, 21d rebalance, decisions lagged one bar)",
+  "moves": "allocator weights (monthly) and the line items inside the two rule-based sleeves (21d rebalance)",
+  "gates": {
+   "spy_above_200sma": true,
+   "qqq_above_200sma": true
+  },
+  "caveat": "equity_mom universe is a hand-curated 47-name thematic list (docs/07) -- a registered selection-bias source; ~11% weight; TR-11 downgraded that sleeve to 'momentum = beta'"
+ },
+ "sleeves": {
+  "equity_mom": {
+   "weight": 0.1082,
+   "holdings": [
+    "AMAT",
+    "AMD",
+    "INTC",
+    "IRDM",
+    "KEYS",
+    "LRCX",
+    "MRVL",
+    "MU",
+    "TER",
+    "TXN"
+   ],
+   "rule": "科技/AI 動能輪動(規則,持股每月換)"
+  },
+  "defensive": {
+   "weight": 0.0713,
+   "holdings": [
+    "MU",
+    "INTC",
+    "TER",
+    "MRVL"
+   ],
+   "rule": "防禦性雙動能輪動(規則,持股每月換)"
+  },
+  "lev_trend": {
+   "weight": 0.0826,
+   "holdings": [
+    "TQQQ"
+   ],
+   "rule": "趨勢閘門 TQQQ(單一標的,開/關)"
+  },
+  "gold": {
+   "weight": 0.1558,
+   "holdings": [
+    "GLD"
+   ],
+   "rule": "黃金 GLD(單一標的,買進持有)"
+  },
+  "bonds": {
+   "weight": 0.5821,
+   "holdings": [
+    "IEF"
+   ],
+   "rule": "美債 IEF(單一標的,買進持有)"
+  }
+ }
+}

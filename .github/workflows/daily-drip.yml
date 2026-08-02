@@ -1,0 +1,97 @@
+name: daily-drip
+# Quota-capture drips in the cloud (docs/30): AV earnings (25/day, use-or-lose) +
+# one Tiingo small-cap batch (45 names, 500-unique/month cap), writing to the
+# PRIVATE data repo -- market data must never enter this public repo (licensing).
+#
+# INERT until repo secrets exist (gate step no-ops politely):
+#   DATA_REPO_TOKEN         fine-grained PAT, romarin-hsieh/trading-data, Contents RW
+#   ALPHA_VANTAGE_API_KEY   AV free key
+#   TIINGO_API_KEY          Tiingo free key
+# One-time setup (private repo creation + data/ seeding): docs/30-cloud-drip.md.
+
+on:
+  schedule:
+    - cron: "10 9 * * *"    # 09:10 UTC daily = 17:10 Taiwan
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  drip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: gate (secrets configured?)
+        id: gate
+        env:
+          T: ${{ secrets.DATA_REPO_TOKEN }}
+        run: |
+          if [ -n "$T" ]; then
+            echo "run=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "DATA_REPO_TOKEN not configured -- drip skipped (see docs/30-cloud-drip.md)"
+          fi
+
+      - name: checkout code repo
+        if: steps.gate.outputs.run == '1'
+        uses: actions/checkout@v4
+
+      - name: checkout private data repo into data/
+        if: steps.gate.outputs.run == '1'
+        uses: actions/checkout@v4
+        with:
+          # override with a repo variable DATA_REPO if the store ever moves; must be
+          # PRIVATE (licensing) -- investment-dashboard-data is a PUBLIC Pages-served
+          # CDN and is disqualified for raw panels (docs/30 section 6)
+          repository: ${{ vars.DATA_REPO || 'romarin-hsieh/trading-data' }}
+          token: ${{ secrets.DATA_REPO_TOKEN }}
+          path: data
+
+      - name: setup python
+        if: steps.gate.outputs.run == '1'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: deps
+        if: steps.gate.outputs.run == '1'
+        run: pip install --quiet pandas pyarrow duckdb python-dotenv loguru tenacity requests
+
+      - name: AV earnings batch (25/day, use-or-lose quota)
+        if: steps.gate.outputs.run == '1'
+        env:
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+        run: python scripts/collect/av_earnings.py || true
+
+      - name: Tiingo small-cap batch (45 names, docs/27 p3)
+        if: steps.gate.outputs.run == '1'
+        env:
+          TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
+        run: python scripts/collect/smallcap_drip.py prices --batch 45 || true
+
+      - name: persist to private data repo
+        if: steps.gate.outputs.run == '1'
+        working-directory: data
+        run: |
+          git config user.name "drip-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && echo "nothing new today" || {
+            git commit -m "drip: $(date -u +%F) AV+tiingo [skip ci]"
+            git pull --rebase || true
+            git push
+          }
+
+      - name: status summary
+        if: steps.gate.outputs.run == '1'
+        run: |
+          python - <<'EOF'
+          import json, pathlib
+          for p in sorted(pathlib.Path("data").glob("_*state*.json")):
+              try:
+                  st = json.load(open(p))
+                  counts = {k: (len(v) if isinstance(v, list) else v) for k, v in st.items()}
+                  print(p.name, counts)
+              except Exception as e:
+                  print(p.name, "unreadable:", e)
+          EOF

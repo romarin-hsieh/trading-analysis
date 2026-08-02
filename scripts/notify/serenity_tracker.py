@@ -34,12 +34,13 @@ TICKER_RE = re.compile(r"\$([A-Z]{1,5})\b")
 # (16.8% of tweets have URLs -> could never be labeled long) and similar bleed-through.
 LONG_RE = re.compile(r"\b(long|bought|buy|adding|entry|calls|accumulat\w*|position(?:ed|s)?)\b")
 EXIT_RE = re.compile(r"\b(sold|sell(?:ing)?|trim(?:med|ming)?|exit(?:ed)?|closed|puts|short(?:ed)?|stop|take profit|tp)\b")
-# audit guards (docs/16 SS4): 'long-term/long run' are not position statements, and negated
-# phrases ('never long', 'no positions') must not label a tweet long.
-NONDIR_LONG_RE = re.compile(r"\b(?:long[- ](?:term|run|time|dated|duration)|as long as|how long|for long|before long)\b")
+# negation + non-directional guards, neutralized BEFORE keyword match: the hand audit found
+# 'never long (though)', 'no positions', 'long-term', 'long way to go' all labeled 'long'.
 NEG_LONG_RE = re.compile(
-    r"\b(?:never|not|no longer|wasn'?t|isn'?t|don'?t|didn'?t|wouldn'?t|won'?t|can'?t)"
-    r"\s+(?:\w+\s+){0,2}?(?:long|buy|buying|bought|adding)\b|\bno position(?:s)?\b")
+    r"\b(?:no|not|never|don['’]?t|didn['’]?t|won['’]?t|zero)\s+"  # noqa: RUF001  (curly apostrophe as tweeted)
+    r"(?:really\s+)?(?:longs?|position(?:ed|s)?|bought|buy(?:ing)?|adding)\b")
+NONDIR_LONG_RE = re.compile(
+    r"\blong[-\s](?:term|run|time|way|game|haul|shot|overdue)\b|\b(?:as|how|too|so|for)\s+long\b")
 NOISE = {"A", "I", "AI", "US", "IT", "CEO", "GPU", "EPS", "ETF", "IPO", "USD", "PT", "YTD", "ATH", "Q", "K", "M", "B"}
 
 
@@ -58,8 +59,8 @@ def fetch_archive() -> pd.DataFrame:
 def extract(text: str) -> tuple[list[str], str]:
     ticks = [t for t in TICKER_RE.findall(str(text)) if t not in NOISE]
     low = re.sub(r"https?://\S+", " ", str(text).lower())    # strip URLs before keyword match
-    low_l = NONDIR_LONG_RE.sub(" ", NEG_LONG_RE.sub(" ", low))   # audit guards for the long side
-    d_long = bool(LONG_RE.search(low_l))
+    low = NONDIR_LONG_RE.sub(" ", NEG_LONG_RE.sub(" ", low))
+    d_long = bool(LONG_RE.search(low))
     d_exit = bool(EXIT_RE.search(low))
     direction = "long" if d_long and not d_exit else ("exit/short" if d_exit and not d_long else
                                                       ("mixed" if d_long and d_exit else "mention"))

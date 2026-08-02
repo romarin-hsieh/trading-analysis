@@ -1,5 +1,7 @@
 # Algotrading 策略目錄 — 廣域搜尋（Reddit/論壇/論文/知名評論）＋ 對照本 session 已驗證
 
+> ⚠️ **本檔為研究歷程紀錄(2026-06)。個別機制的現行判定以 [docs/18 註冊表](18-strategy-registry.md) 為準**——本檔部分數字已被 fabric v1.2+ 修正(rf 慣例、相位平均、IBS 反轉、旗艦 t=3.38 升級等)。
+
 > 來源：r/algotrading（+r/quant/r/thetagang）、Quantpedia（700+ 策略 / ~70 免費）、Robert Carver《Systematic Trading》、Ernie Chan、QuantConnect 策略庫、ORB 論文(Zarattini-Barbon-Aziz)、Antonacci/Faber TAA、Kalman pairs(QuantStart)、londonstrategicedge.com。**價值在第三欄：對照本 session 已測/已建/已證偽，標出「真正值得試的新東西」。**
 
 ## 0. 跨來源的共通智慧（與本 session 發現高度一致）

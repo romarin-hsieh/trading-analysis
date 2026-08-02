@@ -32,10 +32,14 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scripts/notify/serenity_tracker.py
-      - name: persist tracker state
+      - name: options chain snapshot (SPY/QQQ, time-sensitive data collection)
+        run: python scripts/collect/options_snapshot.py || true
+      - name: persist tracker state + snapshots
         run: |
           git config user.name "monitor-bot"
           git config user.email "actions@users.noreply.github.com"
+          git pull --rebase || true
           git add -f data/_serenity_seen.txt || true
-          git diff --cached --quiet || git commit -m "chore: serenity tracker state [skip ci]"
+          git add collected/options || true
+          git diff --cached --quiet || git commit -m "chore: tracker state + options snapshot [skip ci]"
           git push || true

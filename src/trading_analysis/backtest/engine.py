@@ -45,7 +45,16 @@ def run_backtest(
     direction: pd.DataFrame,
     cfg: BacktestConfig,
     benchmark_close: pd.Series | None = None,
+    dollar_volume: pd.DataFrame | None = None,
+    book_dollars: float | None = None,
 ) -> BacktestResult:
+    """When `dollar_volume` (wide, same grid as close) is given, per-cell slippage is
+    the size-dependent model from backtest.costs (half-spread + sqrt-impact on the
+    approximate participation target_percent*book / 21d ADV) instead of the flat
+    cfg.slippage_bps. Trade size uses a STATIC book approximation (book_dollars,
+    default cfg.cash) — vectorbt's slippage input cannot see order-time equity, so
+    this is a conservative fixed-book impact, not a compounding one (documented
+    limitation; the flat floor still applies wherever ADV is missing)."""
     import vectorbt as vbt
 
     if close.empty:
@@ -63,6 +72,32 @@ def run_backtest(
 
     fees = cfg.fees_bps / 10_000.0
     slippage = cfg.slippage_bps / 10_000.0
+    cost_stats: dict[str, float] = {}
+    if dollar_volume is not None:
+        from trading_analysis.backtest.costs import size_dependent_cost_bps
+
+        dv = dollar_volume.reindex(index=common_ts, columns=common_syms).astype(float)
+        adv = dv.rolling(21, min_periods=10).mean().shift(1)      # causal 21d ADV
+        trade = (book_dollars if book_dollars is not None else cfg.cash) \
+            * getattr(cfg, "target_percent", 0.10)
+        bps = size_dependent_cost_bps(trade, adv.to_numpy())
+        panel = pd.DataFrame(bps, index=common_ts, columns=common_syms)
+        # flat cfg.slippage_bps stays as the FLOOR and the missing-ADV fallback;
+        # cap at 500bps so a dead name cannot inject infs into the simulation
+        panel = panel.clip(lower=cfg.slippage_bps, upper=500.0) \
+            .fillna(float(cfg.slippage_bps))
+        slippage = (panel / 10_000.0).to_numpy()
+        traded_cells = panel.to_numpy()[direction_.to_numpy() > 0]
+        if traded_cells.size:
+            cost_stats = {
+                "cost_model_median_bps": float(pd.Series(traded_cells).median()),
+                "cost_model_p90_bps": float(pd.Series(traded_cells).quantile(0.90)),
+            }
+        log.info(
+            f"size-dependent costs ON: trade≈${trade:,.0f}, held-cell slippage "
+            f"median {cost_stats.get('cost_model_median_bps', float('nan')):.1f}bps / "
+            f"p90 {cost_stats.get('cost_model_p90_bps', float('nan')):.1f}bps"
+        )
 
     # Equal-weight TARGET-PERCENT sizing via from_orders: each currently-signaled long targets
     # `target_percent` of CURRENT equity (equity-scaled — not a fixed dollar tied to init_cash,
@@ -106,6 +141,7 @@ def run_backtest(
             benchmark_equity.name = "benchmark_equity"
 
     metrics = compute_metrics(equity, returns, benchmark_equity)
+    metrics.update(cost_stats)
     trades = pf.trades.records_readable if hasattr(pf.trades, "records_readable") else pd.DataFrame()
     # per-TRADE win rate (distinct from daily_hit_rate, which is a per-day equity-return stat)
     if len(trades) and "Return" in trades.columns:

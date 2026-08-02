@@ -1,5 +1,7 @@
 # 100+ 策略總目錄與驗證狀態 + 混合設計結論
 
+> ⚠️ **本檔為 2026-06-19 快照。** 其後修正:zoo 的 null bar 0.84 已被有效試驗數修正(TR-14:59 變體 n_eff=1.8);**IBS 已由 TR-16 完整審判反轉為 FAILED**(成交慣例假象);XS 動量降級(TR-11)。現行判定以 [docs/18](18-strategy-registry.md) 為準。
+
 > /goal part 1(2026-06-19):擴大到 ≥100 則策略並驗證,再評估混合(FILTER/加權)設計。
 > 驗證工具:`scripts/strategy_zoo.py`(59 變體批量)+ `scripts/ensemble_mix.py`(混合設計,train/holdout)+ 本專案先前已驗證 ~55 個(docs/05-14)。**合計 in-house 實測 114+**,另掛 [Chen-Zimmermann OSAP 212 個學術訊號](https://www.openassetpricing.com/)為外部已複現目錄。
 

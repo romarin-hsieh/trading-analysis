@@ -7,6 +7,8 @@
 |---|---|---|
 | [repos.md](repos.md) | GitHub repos | 已 clone 研讀的開源 repo（含 git SHA 版本） |
 | [articles.md](articles.md) | 文章/網頁/論文/文件 | 研究引用的網路來源（含存取日期） |
+| [data-sources.md](data-sources.md) | 資料源目錄 | **70 個資料源 × 7 類的盡職調查全文**(2026-07 站上驗證;免費/<$5 判定、PIT 品質、解鎖對照)——docs/24 的完整附錄;**§0 總覽表=40 採用(角色)/30 不採用(原因+費用推估)一覽** |
+| [scraping-and-apis.md](scraping-and-apis.md) | 工具選型 | **Dataroma/13F 路徑判定(EDGAR 直取+edgartools)、6 個 adopt 的 API wrapper、反爬蟲工具階梯(curl_cffi→patchright→nodriver)+ GHA datacenter-IP 警告** |
 | [videos.md](videos.md) | 影片/逐字稿 | YouTube 影片摘要、財經創作者逐字稿萃取（未來 pipeline 落點） |
 
 ## 版本戳記慣例（version stamp）
@@ -36,4 +38,4 @@
 - 參考 repo clone 於專案外：`C:\Users\Romarin\Documents\Software Projects\_ref_repos\`（**20 個**，shallow，不在 git 內，研究完可刪）。新增 4 個 Tier-S：QuantResearch、Technical_Analysis_and_Feature_Engineering、ML_Finance_Codes、quant-trading。
 - 各 repo 的**深度 code-level 評估**在 [../repo-evaluation.md](../repo-evaluation.md)；策略/投資者面在 [../research-inventory.md](../research-inventory.md)；資料源在 [../data-and-backtest-rigor.md](../data-and-backtest-rigor.md)、[../sentiment-and-market-analysis.md](../sentiment-and-market-analysis.md)；總報告在 [../00-executive-summary.md](../00-executive-summary.md)。
 
-_最後更新：2026-06-14_
+_最後更新：2026-07-11（data-sources 加 §0 採用/不採用總覽表；新增 scraping-and-apis 工具選型）_

@@ -274,6 +274,28 @@ def backtest_strategy(
     return result
 
 
+# ---------- dashboard integration ----------
+
+
+def export_dashboard_json(repo_root: str | Path = ".") -> Path:
+    """Export investment-dashboard sibling JSONs (quant scores, flagship combo,
+    research registry) to exports/dashboard/. Additive contract: new sibling files
+    only, every score carries its registry verdict label. Heavy pipelines live in
+    scripts/export_dashboard.py; this is the stable entry point promised in
+    docs/architecture-integration.md."""
+    import sys as _sys
+
+    root = Path(repo_root).resolve()
+    for p in ("scripts", "scripts/collect", "scripts/tests"):
+        sp = str(root / p)
+        if sp not in _sys.path:
+            _sys.path.insert(0, sp)
+    import export_dashboard as _ed
+
+    _ed.main()
+    return root / "exports" / "dashboard"
+
+
 # ---------- helpers ----------
 
 
